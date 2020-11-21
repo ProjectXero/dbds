@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "TypeScript type generator for PostgreSQL databases",
   "main": "./dist/index.js",
+  "bin": {
+    "pg-typegen": "./bin/pg-typegen"
+  },
   "scripts": {
     "build": "tsc",
     "prepack": "yarn build"
