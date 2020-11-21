@@ -1,4 +1,4 @@
-import { createPool, DatabasePoolConnectionType, sql } from "slonik"
+import { createPool, DatabasePoolType, sql } from "slonik"
 
 const PUBLIC_SCHEMA = 'public'
 
@@ -24,7 +24,7 @@ export interface TableInfo {
 
 
 export default class SchemaInfo {
-  private readonly pool: DatabasePoolConnectionType
+  private readonly pool: DatabasePoolType
   public readonly name: string
 
   constructor(dbUrl: string | undefined = process.env.DATABASE_URL, name: string = PUBLIC_SCHEMA) {
@@ -34,6 +34,10 @@ export default class SchemaInfo {
 
     this.pool = createPool(dbUrl)
     this.name = name
+  }
+
+  public async disconnect(): Promise<void> {
+    await this.pool.end()
   }
 
   public async getTables(): Promise<readonly TableInfo[]> {

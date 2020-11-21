@@ -31,15 +31,18 @@ export default class Generator {
     this.types = new TypeMapper()
   }
 
-  public async build() {
+  public async destroy() {
+    await this.schema.disconnect()
+  }
+
+  public async build(): Promise<string> {
     const statements: Statement[] = []
 
     statements.push(...await this.buildEnums())
     statements.push(...await this.buildTables())
     const sourceFile = factory.createSourceFile(statements, factory.createToken(SyntaxKind.EndOfFileToken), NodeFlags.None)
 
-    const result = this.printer.printFile(sourceFile)
-    console.log(result)
+    return this.printer.printFile(sourceFile)
   }
 
   private async buildEnums(): Promise<EnumDeclaration[]> {
