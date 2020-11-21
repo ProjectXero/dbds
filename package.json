@@ -1,0 +1,9 @@
+{
+  "name": "@fallingfish/pg-typegen",
+  "version": "1.0.0",
+  "description": "TypeScript type generator for PostgreSQL databases",
+  "main": "index.js",
+  "repository": "https://github.com/ProjectXero/pg-typegen",
+  "author": "Matthew Lanigan (rintaun@gmail.com)",
+  "license": "MIT"
+}
