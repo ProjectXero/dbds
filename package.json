@@ -3,6 +3,15 @@
   "version": "1.0.0",
   "description": "TypeScript type generator for PostgreSQL databases",
   "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prepack": "yarn build"
+  },
+  "files": [
+    "src",
+    "bin",
+    "dist"
+  ],
   "repository": "https://github.com/ProjectXero/pg-typegen",
   "author": "Matthew Lanigan (rintaun@gmail.com)",
   "license": "MIT",
