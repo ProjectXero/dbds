@@ -60,7 +60,7 @@ export default class SchemaInfo {
            , (c.is_nullable = 'YES') AS "nullable"
            , (c.column_default IS NULL) AS "hasDefault"
            , c.ordinal_position AS "order"
-           , COALESCE(de.udt_name, dc.udt_name, e.data_type, c.udt_name, c.data_type) AS "type"
+           , COALESCE(de.udt_name, dc.udt_name, e.udt_name, e.data_type, c.udt_name, c.data_type) AS "type"
            , (c.data_type = 'ARRAY') AS "isArray"
       FROM
         information_schema.columns c LEFT JOIN
