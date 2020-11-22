@@ -37,6 +37,7 @@ export default class SchemaInfo {
     const tables = await this.pool.any(sql<Omit<TableInfo, 'columns'>>`
       SELECT table_name AS "name"
            , (is_insertable_into = 'YES') AS "canInsert"
+           , pg_catalog.obj_description(('"' || table_name || '"')::regclass::oid) AS "comment"
       FROM information_schema.tables
       WHERE table_schema = ${this.name}
       ORDER BY table_name ASC
@@ -60,6 +61,7 @@ export default class SchemaInfo {
            , c.ordinal_position AS "order"
            , COALESCE(de.udt_name, dc.udt_name, e.udt_name, e.data_type, c.udt_name, c.data_type) AS "type"
            , (c.data_type = 'ARRAY') AS "isArray"
+           , pg_catalog.col_description(('"' || c.table_name || '"')::regclass::oid, c.ordinal_position::int) AS "comment"
       FROM
         information_schema.columns c LEFT JOIN
         information_schema.element_types e ON (
@@ -90,6 +92,7 @@ export default class SchemaInfo {
     return await this.pool.any(sql<EnumInfo>`
       SELECT t.typname AS "name"
            , array_agg(e.enumlabel)::TEXT[] AS "values"
+           , pg_catalog.obj_description(e.enumtypid) AS "comment"
       FROM
         pg_type t JOIN
         pg_enum e ON (
@@ -103,6 +106,7 @@ export default class SchemaInfo {
       )
       GROUP BY n.nspname
              , t.typname
+             , e.enumtypid
       ORDER BY t.typname
     `);
   }
