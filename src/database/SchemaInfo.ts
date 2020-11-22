@@ -57,7 +57,7 @@ export default class SchemaInfo {
     return await this.pool.many(sql<ColumnInfo>`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
-           , (c.column_default IS NULL) AS "hasDefault"
+           , (c.column_default IS NOT NULL) AS "hasDefault"
            , c.ordinal_position AS "order"
            , COALESCE(de.udt_name, dc.udt_name, e.udt_name, e.data_type, c.udt_name, c.data_type) AS "type"
            , (c.data_type = 'ARRAY') AS "isArray"
