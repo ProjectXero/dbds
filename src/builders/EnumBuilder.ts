@@ -4,7 +4,6 @@ import { factory, SyntaxKind } from 'typescript'
 import { EnumInfo } from '../database'
 
 const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
-const DeclareKeyword = factory.createModifier(SyntaxKind.DeclareKeyword)
 
 export default class EnumBuilder {
   public readonly name: string
@@ -33,6 +32,6 @@ export default class EnumBuilder {
   public buildDeclaration() {
     const members = this.buildMemberNodes()
 
-    return factory.createEnumDeclaration(undefined, [ExportKeyword, DeclareKeyword], this.typeName, members)
+    return factory.createEnumDeclaration(undefined, [ExportKeyword], this.typeName, members)
   }
 }

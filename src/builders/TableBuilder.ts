@@ -6,7 +6,6 @@ import TypeMapper from '../TypeMapper'
 import { ColumnInfo, TableInfo } from '../database'
 
 const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
-const DeclareKeyword = factory.createModifier(SyntaxKind.DeclareKeyword)
 
 export default class TableBuilder {
   public readonly name: string
@@ -36,6 +35,6 @@ export default class TableBuilder {
 
   public buildDeclaration(): InterfaceDeclaration {
     const members = this.buildMemberNodes()
-    return factory.createInterfaceDeclaration(undefined, [ExportKeyword, DeclareKeyword], this.typeName, undefined, undefined, members)
+    return factory.createInterfaceDeclaration(undefined, [ExportKeyword], this.typeName, undefined, undefined, members)
   }
 }

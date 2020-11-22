@@ -39,6 +39,7 @@ export default class SchemaInfo {
            , (is_insertable_into = 'YES') AS "canInsert"
       FROM information_schema.tables
       WHERE table_schema = ${this.name}
+      ORDER BY table_name ASC
     `)
 
     return Promise.all(
@@ -101,7 +102,8 @@ export default class SchemaInfo {
         n.nspname = ${this.name}
       )
       GROUP BY n.nspname
-             , t.typname;
+             , t.typname
+      ORDER BY t.typname
     `);
   }
 
