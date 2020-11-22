@@ -47,7 +47,8 @@ export default class TypeMapper {
       return factory.createTypeReferenceNode(this.typeMap[typeName])
     }
 
-    console.warn(`Unknown type detected: '${typeName}'. This might be a bug/limitation.`)
+    console.warn(`Unknown type detected: '${typeName}'. This is probably a bug.`)
+    this.registerType(typeName, 'unknown')
 
     return UNKNOWN
   }
