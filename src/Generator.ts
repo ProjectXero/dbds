@@ -92,6 +92,7 @@ export default class Generator {
     tables.forEach((tableInfo) => {
       if (this.generate.tables) {
         const builder = new TableBuilder(tableInfo, this.types, this.convertCase)
+        this.types.add(builder.name, builder.typename().text)
         statements.push(builder.buildNode())
       }
 
