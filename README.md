@@ -94,7 +94,28 @@ You will normally want to call the `pg-typegen generate` command. It is currentl
 the only supported command.
 
 ```bash
-DATABASE_URL=postgres:/// pg-typegen generate
+$ pg-typegen generate --help
+Usage: pg-typegen generate
+
+Generation options
+  -o, --output            Destination filename for generated types
+                                                      [string] [default: STDOUT]
+      --gen-tables        Generate table types         [boolean] [default: true]
+      --gen-enums         Generate enum types          [boolean] [default: true]
+      --gen-insert-types  Generate table insert types  [boolean] [default: true]
+  -N, --newline           Type of newline to use
+                                         [choices: "lf", "crlf"] [default: "lf"]
+
+Options:
+  -D, --database         Database connection URL, e.g. postgres:///dbname
+                                                [string] [default: DATABASE_URL]
+  -S, --schema           Name of the target schema in the database
+                                                    [string] [default: "public"]
+      --config-schema    Name of the config key containing the schema name
+                         (requires node-config)                         [string]
+      --config-database  Name of the config key containing the database url
+                         (requires node-config)                         [string]
+      --help             Show help                                     [boolean]
 ```
 
 ## Contributing
