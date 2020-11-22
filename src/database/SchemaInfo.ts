@@ -1,4 +1,4 @@
-import { createPool, DatabasePoolType, sql } from "slonik"
+import { createPool, DatabasePoolType, sql } from 'slonik'
 
 export interface EnumInfo {
   name: string

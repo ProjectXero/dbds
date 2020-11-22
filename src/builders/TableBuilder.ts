@@ -1,9 +1,10 @@
 import { pascal } from 'case'
 import { factory, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
 
-import ColumnBuilder from './ColumnBuilder'
 import TypeMapper from '../TypeMapper'
 import { ColumnInfo, TableInfo } from '../database'
+
+import ColumnBuilder from './ColumnBuilder'
 
 const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
 

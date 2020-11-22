@@ -1,4 +1,4 @@
-import { factory, TypeNode } from "typescript";
+import { factory, TypeNode } from 'typescript'
 
 export const UNKNOWN = factory.createTypeReferenceNode('unknown')
 

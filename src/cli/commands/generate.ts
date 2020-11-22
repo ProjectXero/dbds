@@ -1,7 +1,8 @@
-import { close, open, write } from 'fs';
-import { promisify } from 'util';
-import { Arguments, Argv, BuilderCallback } from 'yargs';
-import { Generator, GeneratorOptions } from '../..';
+import { close, open, write } from 'fs'
+import { promisify } from 'util'
+import { Arguments, Argv, BuilderCallback } from 'yargs'
+
+import { Generator, GeneratorOptions } from '../..'
 
 import { Params } from '../';
 

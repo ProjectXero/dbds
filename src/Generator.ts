@@ -1,8 +1,8 @@
-import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from "typescript";
+import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
-import { EnumBuilder, InsertTypeBuilder, TableBuilder } from "./builders";
-import SchemaInfo from "./database";
-import TypeMapper from "./TypeMapper";
+import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
+import SchemaInfo from './database'
+import TypeMapper from './TypeMapper'
 
 export interface GeneratorOptions {
   dbUrl: string
