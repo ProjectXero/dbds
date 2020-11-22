@@ -1,7 +1,6 @@
 import { factory, InterfaceDeclaration, TypeElement } from 'typescript'
 
-import TypeMapper from '../TypeMapper'
-import { ColumnInfo, TableInfo } from '../database'
+import { ColumnInfo, TableInfo, TypeMapper } from '../database'
 
 import { ExportKeyword } from './NodeBuilder'
 import ColumnBuilder from './ColumnBuilder'

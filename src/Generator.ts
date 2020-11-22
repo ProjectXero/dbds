@@ -3,8 +3,7 @@ import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, Syn
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
 import { CaseFunction } from './builders/TypeBuilder'
-import { SchemaInfo } from './database'
-import TypeMapper from './TypeMapper'
+import { SchemaInfo, TypeMapper } from './database'
 
 export interface GeneratorOptions {
   dbUrl: string

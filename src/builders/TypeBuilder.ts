@@ -1,6 +1,6 @@
 import { factory, Node, Identifier } from 'typescript'
 
-import TypeMapper from '../TypeMapper'
+import { TypeMapper } from '../database'
 
 import NodeBuilder from './NodeBuilder'
 

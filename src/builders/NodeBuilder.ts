@@ -1,6 +1,6 @@
 import { factory, SyntaxKind, Node } from 'typescript'
 
-import TypeMapper from '../TypeMapper'
+import { TypeMapper } from '../database'
 
 export const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
 

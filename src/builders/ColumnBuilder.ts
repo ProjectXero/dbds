@@ -1,7 +1,6 @@
 import { factory, PropertySignature, SyntaxKind, TypeNode } from 'typescript'
 
-import { ColumnInfo } from '../database'
-import TypeMapper from '../TypeMapper'
+import { ColumnInfo, TypeMapper } from '../database'
 import NodeBuilder from './NodeBuilder'
 
 export default class ColumnBuilder extends NodeBuilder<PropertySignature> implements ColumnInfo {

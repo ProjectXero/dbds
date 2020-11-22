@@ -1,7 +1,6 @@
 import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
 
-import { EnumInfo } from '../database'
-import TypeMapper from '../TypeMapper'
+import { EnumInfo, TypeMapper } from '../database'
 import { ExportKeyword } from './NodeBuilder'
 import TypeBuilder, { CaseFunction } from './TypeBuilder'
 
