@@ -2,22 +2,20 @@ import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
 
 import { EnumInfo } from '../database'
 import TypeMapper from '../TypeMapper'
-import NodeBuilder, { ExportKeyword } from './NodeBuilder'
+import { ExportKeyword } from './NodeBuilder'
+import TypeBuilder, { CaseFunction } from './TypeBuilder'
 
-export default class EnumBuilder extends NodeBuilder<EnumDeclaration> {
+export default class EnumBuilder extends TypeBuilder<EnumDeclaration> {
   public readonly values: readonly string[]
 
-  constructor(options: EnumInfo, types: TypeMapper) {
-    super(options.name, types)
+  constructor(options: EnumInfo, types: TypeMapper, convertCase: CaseFunction) {
+    super(options.name, types, convertCase)
     this.values = options.values
   }
 
-  public get typeName(): Identifier {
-    return this.types.getIdentifier(this.name)
-  }
 
   public get members(): [Identifier, string][] {
-    return this.values.map((value) => [this.types.getIdentifier(value), value])
+    return this.values.map((value) => [this.typename(value), value])
   }
 
   protected buildMemberNodes(): EnumMember[] {
@@ -30,6 +28,6 @@ export default class EnumBuilder extends NodeBuilder<EnumDeclaration> {
   public buildNode(): EnumDeclaration {
     const members = this.buildMemberNodes()
 
-    return factory.createEnumDeclaration(undefined, [ExportKeyword], this.typeName, members)
+    return factory.createEnumDeclaration(undefined, [ExportKeyword], this.typename(), members)
   }
 }

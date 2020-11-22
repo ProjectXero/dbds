@@ -2,6 +2,7 @@ import { pascal } from 'case'
 import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
+import { CaseFunction } from './builders/TypeBuilder'
 import SchemaInfo from './database'
 import TypeMapper from './TypeMapper'
 
@@ -18,6 +19,7 @@ export default class Generator {
   private printer: Printer
   private schema: SchemaInfo
   private types: TypeMapper
+  private convertCase: CaseFunction
 
   public readonly generate: {
     enums: boolean
@@ -42,7 +44,9 @@ export default class Generator {
     })
 
     this.schema = new SchemaInfo(options.dbUrl, options.schema)
-    this.types = new TypeMapper(pascal)
+    this.types = new TypeMapper()
+
+    this.convertCase = pascal
 
     this.generate = Object.freeze({
       enums: genEnums,
@@ -72,8 +76,8 @@ export default class Generator {
     const enums = await this.schema.getEnums()
 
     return enums.map((enumInfo) => {
-      const builder = new EnumBuilder(enumInfo, this.types)
-      this.types.registerType(builder.name, builder.typeName.text)
+      const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
+      this.types.registerType(builder.name, builder.typename().text)
       return builder.buildNode()
     })
   }
@@ -86,12 +90,12 @@ export default class Generator {
 
 
       if (this.generate.tables) {
-        const tableBuilder = new TableBuilder(tableInfo, this.types)
+        const tableBuilder = new TableBuilder(tableInfo, this.types, this.convertCase)
         tableTypes.push(tableBuilder.buildNode())
       }
 
       if (this.generate.insertTypes) {
-        const insertBuilder = new InsertTypeBuilder(tableInfo, this.types)
+        const insertBuilder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
         tableTypes.push(insertBuilder.buildNode())
       }
 
