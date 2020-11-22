@@ -1,6 +1,6 @@
 import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from "typescript";
 
-import { EnumBuilder, TableBuilder } from "./builders";
+import { EnumBuilder, InsertTypeBuilder, TableBuilder } from "./builders";
 import SchemaInfo from "./database";
 import TypeMapper from "./TypeMapper";
 
@@ -59,8 +59,12 @@ export default class Generator {
     const tables = await this.schema.getTables()
 
     return tables.map((tableInfo) => {
-      const builder = new TableBuilder(tableInfo, this.types)
-      return builder.buildDeclaration()
-    })
+      const tableBuilder = new TableBuilder(tableInfo, this.types)
+      const insertBuilder = new InsertTypeBuilder(tableInfo, this.types)
+      return [
+        tableBuilder.buildDeclaration(),
+        insertBuilder.buildDeclaration(),
+      ]
+    }).flat()
   }
 }
