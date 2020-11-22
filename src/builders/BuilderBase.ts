@@ -8,5 +8,5 @@ export default abstract class BuilderBase<T extends Node> {
 
   constructor(public readonly name: string, protected readonly types: TypeMapper) { }
 
-  public abstract buildDeclaration(): T;
+  public abstract buildNode(): T;
 }

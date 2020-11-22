@@ -37,7 +37,7 @@ export default class ColumnBuilder extends BuilderBase<PropertySignature> implem
     return typeName
   }
 
-  public buildDeclaration(): PropertySignature {
+  public buildNode(): PropertySignature {
     const name = factory.createIdentifier(this.name)
 
     const type = this.buildType()

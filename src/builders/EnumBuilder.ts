@@ -27,7 +27,7 @@ export default class EnumBuilder extends BuilderBase<EnumDeclaration> {
     })
   }
 
-  public buildDeclaration(): EnumDeclaration {
+  public buildNode(): EnumDeclaration {
     const members = this.buildMemberNodes()
 
     return factory.createEnumDeclaration(undefined, [ExportKeyword], this.typeName, members)

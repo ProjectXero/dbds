@@ -74,7 +74,7 @@ export default class Generator {
     return enums.map((enumInfo) => {
       const builder = new EnumBuilder(enumInfo, this.types)
       this.types.registerType(builder.name, builder.typeName.text)
-      return builder.buildDeclaration()
+      return builder.buildNode()
     })
   }
 
@@ -87,12 +87,12 @@ export default class Generator {
 
       if (this.generate.tables) {
         const tableBuilder = new TableBuilder(tableInfo, this.types)
-        tableTypes.push(tableBuilder.buildDeclaration())
+        tableTypes.push(tableBuilder.buildNode())
       }
 
       if (this.generate.insertTypes) {
         const insertBuilder = new InsertTypeBuilder(tableInfo, this.types)
-        tableTypes.push(insertBuilder.buildDeclaration())
+        tableTypes.push(insertBuilder.buildNode())
       }
 
       return tableTypes

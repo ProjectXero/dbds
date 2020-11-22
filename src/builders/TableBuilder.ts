@@ -23,11 +23,11 @@ export default class TableBuilder extends BuilderBase<InterfaceDeclaration> {
   protected buildMemberNodes(): TypeElement[] {
     return this.columns.map<TypeElement>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types)
-      return builder.buildDeclaration()
+      return builder.buildNode()
     })
   }
 
-  public buildDeclaration(): InterfaceDeclaration {
+  public buildNode(): InterfaceDeclaration {
     const members = this.buildMemberNodes()
     return factory.createInterfaceDeclaration(undefined, [ExportKeyword], this.typeName, undefined, undefined, members)
   }
