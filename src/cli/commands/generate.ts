@@ -1,7 +1,7 @@
 import { close, open, write } from 'fs';
 import { promisify } from 'util';
 import { Arguments, Argv, BuilderCallback } from 'yargs';
-import { Generator } from '../..';
+import { Generator, GeneratorOptions } from '../..';
 
 import { Params } from '../';
 
@@ -15,6 +15,7 @@ export const desc: string = 'Generate types for the database';
 
 export interface GenerateParams extends Params {
   output: string
+  newline: Required<GeneratorOptions>['newline']
 }
 
 export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
@@ -28,7 +29,14 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         description: 'Destination filename for generated types',
         default: '-',
         defaultDescription: 'STDOUT',
-      }
+      },
+      newline: {
+        alias: 'N',
+        requiresArg: true,
+        choices: ['lf', 'crlf'] as ReadonlyArray<GeneratorOptions['newline']>,
+        description: "Type of newline to use",
+        default: 'lf' as GeneratorOptions['newline'],
+      },
     })
     .version(false);
 

@@ -1,7 +1,5 @@
 import yargs from 'yargs'
 
-import { GeneratorOptions } from '..'
-
 const program = yargs(process.argv.slice(2))
   .options({
     database: {
@@ -11,13 +9,6 @@ const program = yargs(process.argv.slice(2))
       description: 'Database connection URL, e.g. postgres:///dbname',
       default: process.env.DATABASE_URL,
       defaultDescription: 'DATABASE_URL',
-    },
-    newline: {
-      alias: 'N',
-      requiresArg: true,
-      choices: ['lf', 'crlf'] as ReadonlyArray<GeneratorOptions['newline']>,
-      description: "Type of newline to use",
-      default: 'lf' as GeneratorOptions['newline'],
     },
     schema: {
       alias: 'S',
