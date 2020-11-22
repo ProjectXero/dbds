@@ -36,7 +36,8 @@ export default class Generator {
     }
 
     this.printer = createPrinter({
-      newLine: newline === 'crlf' ? NewLineKind.CarriageReturnLineFeed : NewLineKind.LineFeed
+      newLine: newline === 'crlf' ? NewLineKind.CarriageReturnLineFeed : NewLineKind.LineFeed,
+      removeComments: false,
     })
 
     this.schema = new SchemaInfo(options.dbUrl, options.schema)
