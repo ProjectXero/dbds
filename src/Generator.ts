@@ -2,6 +2,7 @@ import { pascal } from 'case'
 import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
+import NodeBuilder from './builders/NodeBuilder'
 import { CaseFunction } from './builders/TypeBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 
@@ -59,46 +60,48 @@ export default class Generator {
   }
 
   public async build(): Promise<string> {
-    const statements: Statement[] = []
+    const statementBuilders: NodeBuilder<Statement>[] = []
 
     try {
-      await this.buildEnums(statements)
-      await this.buildTables(statements)
+      await this.buildEnums(statementBuilders)
+      await this.buildTables(statementBuilders)
     } catch (error) {
       console.error(error?.message)
       process.exit(1)
     }
+
+    const statements = statementBuilders.map<Statement>((builder) => builder.buildNode())
 
     const sourceFile = factory.createSourceFile(statements, factory.createToken(SyntaxKind.EndOfFileToken), NodeFlags.None)
 
     return this.printer.printFile(sourceFile)
   }
 
-  private async buildEnums(statements: Statement[]): Promise<void> {
+  private async buildEnums(builders: NodeBuilder<Statement>[]): Promise<void> {
     const enums = await this.schema.getEnums()
 
     enums.forEach((enumInfo) => {
       if (this.generate.enums) {
         const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
         this.types.add(builder.name, builder.typename().text)
-        statements.push(builder.buildNode())
+        builders.push(builder)
       }
     })
   }
 
-  private async buildTables(statements: Statement[]): Promise<void> {
+  private async buildTables(builders: NodeBuilder<Statement>[]): Promise<void> {
     const tables = await this.schema.getTables()
 
     tables.forEach((tableInfo) => {
       if (this.generate.tables) {
         const builder = new TableBuilder(tableInfo, this.types, this.convertCase)
         this.types.add(builder.name, builder.typename().text)
-        statements.push(builder.buildNode())
+        builders.push(builder)
       }
 
       if (this.generate.insertTypes) {
         const builder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
-        statements.push(builder.buildNode())
+        builders.push(builder)
       }
     })
   }
