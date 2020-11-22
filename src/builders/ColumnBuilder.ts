@@ -2,9 +2,9 @@ import { factory, PropertySignature, SyntaxKind, TypeNode } from 'typescript'
 
 import { ColumnInfo } from '../database'
 import TypeMapper from '../TypeMapper'
-import BuilderBase from './BuilderBase'
+import NodeBuilder from './NodeBuilder'
 
-export default class ColumnBuilder extends BuilderBase<PropertySignature> implements ColumnInfo {
+export default class ColumnBuilder extends NodeBuilder<PropertySignature> implements ColumnInfo {
   public readonly nullable: boolean
   public readonly hasDefault: boolean
   public readonly isArray: boolean

@@ -4,7 +4,7 @@ import TypeMapper from '../TypeMapper'
 
 export const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
 
-export default abstract class BuilderBase<T extends Node> {
+export default abstract class NodeBuilder<T extends Node> {
 
   constructor(public readonly name: string, protected readonly types: TypeMapper) { }
 

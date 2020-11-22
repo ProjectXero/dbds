@@ -2,9 +2,9 @@ import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
 
 import { EnumInfo } from '../database'
 import TypeMapper from '../TypeMapper'
-import BuilderBase, { ExportKeyword } from './BuilderBase'
+import NodeBuilder, { ExportKeyword } from './NodeBuilder'
 
-export default class EnumBuilder extends BuilderBase<EnumDeclaration> {
+export default class EnumBuilder extends NodeBuilder<EnumDeclaration> {
   public readonly values: readonly string[]
 
   constructor(options: EnumInfo, types: TypeMapper) {

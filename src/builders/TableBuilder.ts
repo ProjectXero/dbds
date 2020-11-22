@@ -3,10 +3,10 @@ import { factory, Identifier, InterfaceDeclaration, TypeElement } from 'typescri
 import TypeMapper from '../TypeMapper'
 import { ColumnInfo, TableInfo } from '../database'
 
-import BuilderBase, { ExportKeyword } from './BuilderBase'
+import NodeBuilder, { ExportKeyword } from './NodeBuilder'
 import ColumnBuilder from './ColumnBuilder'
 
-export default class TableBuilder extends BuilderBase<InterfaceDeclaration> {
+export default class TableBuilder extends NodeBuilder<InterfaceDeclaration> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
