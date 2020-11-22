@@ -91,13 +91,13 @@ export default class Generator {
 
     tables.forEach((tableInfo) => {
       if (this.generate.tables) {
-        const tableBuilder = new TableBuilder(tableInfo, this.types, this.convertCase)
-        statements.push(tableBuilder.buildNode())
+        const builder = new TableBuilder(tableInfo, this.types, this.convertCase)
+        statements.push(builder.buildNode())
       }
 
       if (this.generate.insertTypes) {
-        const insertBuilder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
-        statements.push(insertBuilder.buildNode())
+        const builder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
+        statements.push(builder.buildNode())
       }
     })
   }
