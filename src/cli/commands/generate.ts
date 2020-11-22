@@ -29,6 +29,7 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         description: 'Destination filename for generated types',
         default: '-',
         defaultDescription: 'STDOUT',
+        group: 'Generation options',
       },
       newline: {
         alias: 'N',
@@ -36,6 +37,7 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         choices: ['lf', 'crlf'] as ReadonlyArray<GeneratorOptions['newline']>,
         description: "Type of newline to use",
         default: 'lf' as GeneratorOptions['newline'],
+        group: 'Generation options',
       },
     })
     .version(false);
