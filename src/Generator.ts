@@ -80,7 +80,7 @@ export default class Generator {
     enums.forEach((enumInfo) => {
       if (this.generate.enums) {
         const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
-        this.types.registerType(builder.name, builder.typename().text)
+        this.types.add(builder.name, builder.typename().text)
         statements.push(builder.buildNode())
       }
     })

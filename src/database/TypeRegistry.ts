@@ -38,26 +38,26 @@ export default class TypeRegistry {
     this.typeMap = { ...defaultTypeMap }
   }
 
-  public isKnownType(typeName: string): boolean {
-    return Object.prototype.hasOwnProperty.call(this.typeMap, typeName)
+  public has(typename: string): boolean {
+    return Object.prototype.hasOwnProperty.call(this.typeMap, typename)
   }
 
-  public getTypeNode(typeName: string): TypeNode {
-    if (this.isKnownType(typeName)) {
-      return factory.createTypeReferenceNode(this.typeMap[typeName])
+  public get(typename: string): TypeNode {
+    if (this.has(typename)) {
+      return factory.createTypeReferenceNode(this.typeMap[typename])
     }
 
-    console.warn(`Unknown type detected: '${typeName}'. This is probably a bug.`)
-    this.registerType(typeName, 'unknown')
+    console.warn(`Unknown type detected: '${typename}'. This is probably a bug.`)
+    this.add(typename, 'unknown')
 
     return UNKNOWN
   }
 
-  public registerType(typeName: string, target: string): void {
-    if (this.isKnownType(typeName)) {
-      console.warn(`Re-registering known type '${typeName}': ${this.typeMap[typeName]} => ${target}`)
+  public add(typename: string, target: string): void {
+    if (this.has(typename)) {
+      console.warn(`Re-registering known type '${typename}': ${this.typeMap[typename]} => ${target}`)
     }
 
-    this.typeMap[typeName] = target;
+    this.typeMap[typename] = target;
   }
 }

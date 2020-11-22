@@ -20,20 +20,20 @@ export default class ColumnBuilder extends NodeBuilder<PropertySignature> implem
   }
 
   protected buildType(): TypeNode {
-    let typeName = this.types.getTypeNode(this.type)
+    let typename = this.types.get(this.type)
 
     if (this.isArray) {
-      typeName = factory.createArrayTypeNode(typeName)
+      typename = factory.createArrayTypeNode(typename)
     }
 
     if (this.nullable) {
-      typeName = factory.createUnionTypeNode([
-        typeName,
+      typename = factory.createUnionTypeNode([
+        typename,
         factory.createLiteralTypeNode(factory.createToken(SyntaxKind.NullKeyword))
       ])
     }
 
-    return typeName
+    return typename
   }
 
   public buildNode(): PropertySignature {
