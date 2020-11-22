@@ -15,6 +15,9 @@ export const desc: string = 'Generate types for the database';
 
 export interface GenerateParams extends Params {
   output: string
+  genEnums: boolean
+  genInsertTypes: boolean
+  genTables: boolean
   newline: Required<GeneratorOptions>['newline']
 }
 
@@ -29,6 +32,24 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         description: 'Destination filename for generated types',
         default: '-',
         defaultDescription: 'STDOUT',
+        group: 'Generation options',
+      },
+      'gen-tables': {
+        type: 'boolean',
+        description: 'Generate table types',
+        default: true,
+        group: 'Generation options',
+      },
+      'gen-enums': {
+        type: 'boolean',
+        description: 'Generate enum types',
+        default: true,
+        group: 'Generation options',
+      },
+      'gen-insert-types': {
+        type: 'boolean',
+        description: 'Generate table insert types',
+        default: true,
         group: 'Generation options',
       },
       newline: {
@@ -55,7 +76,10 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
     const generator = new Generator({
       dbUrl: argv.database,
       newline: argv.newline,
-      schema: argv.schema
+      schema: argv.schema,
+      genEnums: argv.genEnums,
+      genTables: argv.genTables,
+      genInsertTypes: argv.genInsertTypes,
     })
 
     const result = await generator.build()
