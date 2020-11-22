@@ -23,7 +23,7 @@ export default class EnumBuilder {
     return this.values.map((value) => [pascal(value), value])
   }
 
-  private buildMemberNodes() {
+  protected buildMemberNodes() {
     return this.members.map(([name, value]) => {
       const expression = factory.createStringLiteral(value)
       return factory.createEnumMember(name, expression)

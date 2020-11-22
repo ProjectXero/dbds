@@ -13,7 +13,7 @@ export default class TableBuilder {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  private types: TypeMapper
+  protected types: TypeMapper
 
   constructor(options: TableInfo, types: TypeMapper) {
     this.name = options.name
@@ -27,7 +27,7 @@ export default class TableBuilder {
     return pascal(this.name)
   }
 
-  private buildMemberNodes(): TypeElement[] {
+  protected buildMemberNodes(): TypeElement[] {
     return this.columns.map<TypeElement>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types)
       return builder.buildSignature()

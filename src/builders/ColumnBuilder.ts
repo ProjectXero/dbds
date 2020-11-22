@@ -11,7 +11,7 @@ export default class ColumnBuilder implements ColumnInfo {
   public readonly order: number
   public readonly type: string
 
-  private types: TypeMapper
+  protected types: TypeMapper
 
   constructor(options: ColumnInfo, types: TypeMapper) {
     this.name = options.name
