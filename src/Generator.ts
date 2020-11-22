@@ -3,7 +3,7 @@ import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, Syn
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
 import { CaseFunction } from './builders/TypeBuilder'
-import { SchemaInfo, TypeMapper } from './database'
+import { SchemaInfo, TypeRegistry } from './database'
 
 export interface GeneratorOptions {
   dbUrl: string
@@ -17,7 +17,7 @@ export interface GeneratorOptions {
 export default class Generator {
   private printer: Printer
   private schema: SchemaInfo
-  private types: TypeMapper
+  private types: TypeRegistry
   private convertCase: CaseFunction
 
   public readonly generate: {
@@ -43,7 +43,7 @@ export default class Generator {
     })
 
     this.schema = new SchemaInfo(options.dbUrl, options.schema)
-    this.types = new TypeMapper()
+    this.types = new TypeRegistry()
 
     this.convertCase = pascal
 

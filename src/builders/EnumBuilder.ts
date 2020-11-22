@@ -1,13 +1,13 @@
 import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
 
-import { EnumInfo, TypeMapper } from '../database'
+import { EnumInfo, TypeRegistry } from '../database'
 import { ExportKeyword } from './NodeBuilder'
 import TypeBuilder, { CaseFunction } from './TypeBuilder'
 
 export default class EnumBuilder extends TypeBuilder<EnumDeclaration> {
   public readonly values: readonly string[]
 
-  constructor(options: EnumInfo, types: TypeMapper, convertCase: CaseFunction) {
+  constructor(options: EnumInfo, types: TypeRegistry, convertCase: CaseFunction) {
     super(options.name, types, convertCase)
     this.values = options.values
   }

@@ -1,6 +1,6 @@
 import { factory, PropertySignature, SyntaxKind, TypeNode } from 'typescript'
 
-import { ColumnInfo, TypeMapper } from '../database'
+import { ColumnInfo, TypeRegistry } from '../database'
 import NodeBuilder from './NodeBuilder'
 
 export default class ColumnBuilder extends NodeBuilder<PropertySignature> implements ColumnInfo {
@@ -10,7 +10,7 @@ export default class ColumnBuilder extends NodeBuilder<PropertySignature> implem
   public readonly order: number
   public readonly type: string
 
-  constructor(options: ColumnInfo, types: TypeMapper) {
+  constructor(options: ColumnInfo, types: TypeRegistry) {
     super(options.name, types)
     this.hasDefault = options.hasDefault
     this.isArray = options.isArray

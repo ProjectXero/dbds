@@ -1,6 +1,6 @@
 import { factory, InterfaceDeclaration, TypeElement } from 'typescript'
 
-import { ColumnInfo, TableInfo, TypeMapper } from '../database'
+import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
 
 import { ExportKeyword } from './NodeBuilder'
 import ColumnBuilder from './ColumnBuilder'
@@ -10,7 +10,7 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  constructor(options: TableInfo, types: TypeMapper, convertCase: CaseFunction) {
+  constructor(options: TableInfo, types: TypeRegistry, convertCase: CaseFunction) {
     super(options.name, types, convertCase)
     this.canInsert = options.canInsert
     this.columns = options.columns

@@ -1,6 +1,6 @@
 import { factory, Node, Identifier } from 'typescript'
 
-import { TypeMapper } from '../database'
+import { TypeRegistry } from '../database'
 
 import NodeBuilder from './NodeBuilder'
 
@@ -9,7 +9,7 @@ export interface CaseFunction {
 }
 
 export default abstract class TypeBuilder<T extends Node> extends NodeBuilder<T> {
-  constructor(name: string, types: TypeMapper, protected readonly convertCase: CaseFunction) {
+  constructor(name: string, types: TypeRegistry, protected readonly convertCase: CaseFunction) {
     super(name, types)
   }
 

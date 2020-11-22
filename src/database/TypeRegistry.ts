@@ -31,7 +31,7 @@ export const defaultTypeMap = Object.freeze({
   timestamptz: 'Date',
 })
 
-export default class TypeMapper {
+export default class TypeRegistry {
   public readonly typeMap: Record<string, string>
 
   constructor() {
