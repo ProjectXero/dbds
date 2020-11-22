@@ -2,6 +2,16 @@
 
 A simple CLI utility for generating TypeScript types for a PostgreSQL database.
 
+## Table of Contents
+
+* [Background](#background)
+* [Install](#install)
+  * [Dependencies](#dependencies)
+* [Usage](#usage)
+  * [CLI](#cli)
+* [Contributing](#contributing)
+* [License](#license)
+
 ## Background
 
 Various options exist for generating TypeScript types for PostgreSQL databases,
