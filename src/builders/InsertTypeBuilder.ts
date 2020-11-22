@@ -23,7 +23,7 @@ export default class InsertTypeBuilder extends TableBuilder {
     })
   }
 
-  public buildDeclaration(): InterfaceDeclaration {
+  public buildDeclaration() {
     let declaration = super.buildDeclaration()
     declaration = factory.updateInterfaceDeclaration(
       declaration,

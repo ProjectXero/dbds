@@ -1,19 +1,17 @@
-import { factory, Identifier, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
+import { factory, Identifier, InterfaceDeclaration, TypeElement } from 'typescript'
 
 import TypeMapper from '../TypeMapper'
 import { ColumnInfo, TableInfo } from '../database'
 
+import BuilderBase, { ExportKeyword } from './BuilderBase'
 import ColumnBuilder from './ColumnBuilder'
 
-const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
-
-export default class TableBuilder {
-  public readonly name: string
+export default class TableBuilder extends BuilderBase<InterfaceDeclaration> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  constructor(options: TableInfo, protected readonly types: TypeMapper) {
-    this.name = options.name
+  constructor(options: TableInfo, types: TypeMapper) {
+    super(options.name, types)
     this.canInsert = options.canInsert
     this.columns = options.columns
   }
@@ -25,7 +23,7 @@ export default class TableBuilder {
   protected buildMemberNodes(): TypeElement[] {
     return this.columns.map<TypeElement>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types)
-      return builder.buildSignature()
+      return builder.buildDeclaration()
     })
   }
 

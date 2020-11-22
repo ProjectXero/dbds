@@ -1,16 +1,14 @@
-import { EnumDeclaration, EnumMember, factory, Identifier, SyntaxKind } from 'typescript'
+import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
 
 import { EnumInfo } from '../database'
 import TypeMapper from '../TypeMapper'
+import BuilderBase, { ExportKeyword } from './BuilderBase'
 
-const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
-
-export default class EnumBuilder {
-  public readonly name: string
+export default class EnumBuilder extends BuilderBase<EnumDeclaration> {
   public readonly values: readonly string[]
 
-  constructor(options: EnumInfo, protected readonly types: TypeMapper) {
-    this.name = options.name
+  constructor(options: EnumInfo, types: TypeMapper) {
+    super(options.name, types)
     this.values = options.values
   }
 
