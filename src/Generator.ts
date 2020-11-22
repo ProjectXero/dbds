@@ -8,6 +8,9 @@ export interface GeneratorOptions {
   dbUrl: string
   schema: string
   newline?: 'lf' | 'crlf'
+  genEnums?: boolean
+  genInsertTypes?: boolean
+  genTables?: boolean
 }
 
 export default class Generator {
@@ -15,8 +18,17 @@ export default class Generator {
   private schema: SchemaInfo
   private types: TypeMapper
 
+  public readonly generate: {
+    enums: boolean
+    insertTypes: boolean
+    tables: boolean
+  }
+
   constructor({
     newline = 'lf',
+    genEnums = true,
+    genInsertTypes = true,
+    genTables = true,
     ...options
   }: GeneratorOptions) {
     if (newline !== 'lf' && newline !== 'crlf') {
@@ -29,6 +41,12 @@ export default class Generator {
 
     this.schema = new SchemaInfo(options.dbUrl, options.schema)
     this.types = new TypeMapper()
+
+    this.generate = Object.freeze({
+      enums: genEnums,
+      insertTypes: genInsertTypes,
+      tables: genTables,
+    })
   }
 
   public async destroy() {
@@ -38,7 +56,10 @@ export default class Generator {
   public async build(): Promise<string> {
     const statements: Statement[] = []
 
-    statements.push(...await this.buildEnums())
+    if (this.generate.enums) {
+      statements.push(...await this.buildEnums())
+    }
+
     statements.push(...await this.buildTables())
     const sourceFile = factory.createSourceFile(statements, factory.createToken(SyntaxKind.EndOfFileToken), NodeFlags.None)
 
@@ -59,12 +80,20 @@ export default class Generator {
     const tables = await this.schema.getTables()
 
     return tables.map((tableInfo) => {
-      const tableBuilder = new TableBuilder(tableInfo, this.types)
-      const insertBuilder = new InsertTypeBuilder(tableInfo, this.types)
-      return [
-        tableBuilder.buildDeclaration(),
-        insertBuilder.buildDeclaration(),
-      ]
-    }).flat()
+      const tableTypes: InterfaceDeclaration[] = []
+
+
+      if (this.generate.tables) {
+        const tableBuilder = new TableBuilder(tableInfo, this.types)
+        tableTypes.push(tableBuilder.buildDeclaration())
+      }
+
+      if (this.generate.insertTypes) {
+        const insertBuilder = new InsertTypeBuilder(tableInfo, this.types)
+        tableTypes.push(insertBuilder.buildDeclaration())
+      }
+
+      return tableTypes
+    }).flat().filter((v): v is InterfaceDeclaration => !!v)
   }
 }

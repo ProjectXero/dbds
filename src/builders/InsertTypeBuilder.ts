@@ -2,7 +2,7 @@ import { pascal } from 'case'
 import { factory, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
 
 import ColumnBuilder from './ColumnBuilder'
-import { TableBuilder } from '.'
+import TableBuilder from './TableBuilder'
 
 export default class InsertTypeBuilder extends TableBuilder {
   public get typeName(): string {
