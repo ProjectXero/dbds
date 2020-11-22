@@ -1,14 +1,9 @@
-import { pascal } from 'case'
 import { factory, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
 
 import ColumnBuilder from './ColumnBuilder'
 import TableBuilder from './TableBuilder'
 
 export default class InsertTypeBuilder extends TableBuilder {
-  public get typeName(): string {
-    return pascal(this.name)
-  }
-
   protected buildMemberNodes(): TypeElement[] {
     return this.columns.map<TypeElement>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types)

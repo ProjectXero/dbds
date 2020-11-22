@@ -1,7 +1,7 @@
-import { pascal } from 'case'
-import { factory, SyntaxKind } from 'typescript'
+import { EnumDeclaration, EnumMember, factory, Identifier, SyntaxKind } from 'typescript'
 
 import { EnumInfo } from '../database'
+import TypeMapper from '../TypeMapper'
 
 const ExportKeyword = factory.createModifier(SyntaxKind.ExportKeyword)
 
@@ -9,27 +9,27 @@ export default class EnumBuilder {
   public readonly name: string
   public readonly values: readonly string[]
 
-  constructor(options: EnumInfo) {
+  constructor(options: EnumInfo, protected readonly types: TypeMapper) {
     this.name = options.name
     this.values = options.values
   }
 
-  public get typeName(): string {
-    return pascal(this.name)
+  public get typeName(): Identifier {
+    return this.types.getIdentifier(this.name)
   }
 
-  public get members(): [string, string][] {
-    return this.values.map((value) => [pascal(value), value])
+  public get members(): [Identifier, string][] {
+    return this.values.map((value) => [this.types.getIdentifier(value), value])
   }
 
-  protected buildMemberNodes() {
+  protected buildMemberNodes(): EnumMember[] {
     return this.members.map(([name, value]) => {
       const expression = factory.createStringLiteral(value)
       return factory.createEnumMember(name, expression)
     })
   }
 
-  public buildDeclaration() {
+  public buildDeclaration(): EnumDeclaration {
     const members = this.buildMemberNodes()
 
     return factory.createEnumDeclaration(undefined, [ExportKeyword], this.typeName, members)

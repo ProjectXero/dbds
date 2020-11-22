@@ -1,4 +1,4 @@
-import { factory, TypeNode } from 'typescript'
+import { factory, Identifier, TypeNode } from 'typescript'
 
 export const UNKNOWN = factory.createTypeReferenceNode('unknown')
 
@@ -34,12 +34,16 @@ export const defaultTypeMap = Object.freeze({
 export default class TypeMapper {
   public readonly typeMap: Record<string, string>
 
-  constructor() {
+  constructor(protected readonly caseConversion: (value: string) => string) {
     this.typeMap = { ...defaultTypeMap }
   }
 
   public isKnownType(typeName: string): boolean {
     return Object.prototype.hasOwnProperty.call(this.typeMap, typeName)
+  }
+
+  public getIdentifier(typeName: string): Identifier {
+    return factory.createIdentifier(this.caseConversion(typeName))
   }
 
   public getTypeNode(typeName: string): TypeNode {

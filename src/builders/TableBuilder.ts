@@ -1,5 +1,4 @@
-import { pascal } from 'case'
-import { factory, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
+import { factory, Identifier, InterfaceDeclaration, SyntaxKind, TypeElement } from 'typescript'
 
 import TypeMapper from '../TypeMapper'
 import { ColumnInfo, TableInfo } from '../database'
@@ -13,18 +12,14 @@ export default class TableBuilder {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  protected types: TypeMapper
-
-  constructor(options: TableInfo, types: TypeMapper) {
+  constructor(options: TableInfo, protected readonly types: TypeMapper) {
     this.name = options.name
     this.canInsert = options.canInsert
     this.columns = options.columns
-
-    this.types = types
   }
 
-  public get typeName(): string {
-    return pascal(this.name)
+  public get typeName(): Identifier {
+    return this.types.getIdentifier(this.name)
   }
 
   protected buildMemberNodes(): TypeElement[] {

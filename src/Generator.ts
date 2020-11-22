@@ -1,3 +1,4 @@
+import { pascal } from 'case'
 import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
@@ -41,7 +42,7 @@ export default class Generator {
     })
 
     this.schema = new SchemaInfo(options.dbUrl, options.schema)
-    this.types = new TypeMapper()
+    this.types = new TypeMapper(pascal)
 
     this.generate = Object.freeze({
       enums: genEnums,
@@ -71,8 +72,8 @@ export default class Generator {
     const enums = await this.schema.getEnums()
 
     return enums.map((enumInfo) => {
-      const builder = new EnumBuilder(enumInfo)
-      this.types.registerType(builder.name, builder.typeName)
+      const builder = new EnumBuilder(enumInfo, this.types)
+      this.types.registerType(builder.name, builder.typeName.text)
       return builder.buildDeclaration()
     })
   }
