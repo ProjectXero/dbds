@@ -74,9 +74,9 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
     }
 
     const generator = new Generator({
-      dbUrl: argv.database,
+      dbUrl: argv["config-database"] || argv.database,
+      schema: argv["config-schema"] || argv.schema,
       newline: argv.newline,
-      schema: argv.schema,
       genEnums: argv.genEnums,
       genTables: argv.genTables,
       genInsertTypes: argv.genInsertTypes,
