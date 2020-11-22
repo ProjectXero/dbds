@@ -1,9 +1,9 @@
 import { pascal } from 'case'
-import { createPrinter, EnumDeclaration, factory, InterfaceDeclaration, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
+import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
 import { CaseFunction } from './builders/TypeBuilder'
-import SchemaInfo from './database'
+import { SchemaInfo } from './database'
 import TypeMapper from './TypeMapper'
 
 export interface GeneratorOptions {
@@ -62,44 +62,44 @@ export default class Generator {
   public async build(): Promise<string> {
     const statements: Statement[] = []
 
-    if (this.generate.enums) {
-      statements.push(...await this.buildEnums())
+    try {
+      await this.buildEnums(statements)
+      await this.buildTables(statements)
+    } catch (error) {
+      console.error(error?.message)
+      process.exit(1)
     }
 
-    statements.push(...await this.buildTables())
     const sourceFile = factory.createSourceFile(statements, factory.createToken(SyntaxKind.EndOfFileToken), NodeFlags.None)
 
     return this.printer.printFile(sourceFile)
   }
 
-  private async buildEnums(): Promise<EnumDeclaration[]> {
+  private async buildEnums(statements: Statement[]): Promise<void> {
     const enums = await this.schema.getEnums()
 
-    return enums.map((enumInfo) => {
-      const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
-      this.types.registerType(builder.name, builder.typename().text)
-      return builder.buildNode()
+    enums.forEach((enumInfo) => {
+      if (this.generate.enums) {
+        const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
+        this.types.registerType(builder.name, builder.typename().text)
+        statements.push(builder.buildNode())
+      }
     })
   }
 
-  private async buildTables(): Promise<InterfaceDeclaration[]> {
+  private async buildTables(statements: Statement[]): Promise<void> {
     const tables = await this.schema.getTables()
 
-    return tables.map((tableInfo) => {
-      const tableTypes: InterfaceDeclaration[] = []
-
-
+    tables.forEach((tableInfo) => {
       if (this.generate.tables) {
         const tableBuilder = new TableBuilder(tableInfo, this.types, this.convertCase)
-        tableTypes.push(tableBuilder.buildNode())
+        statements.push(tableBuilder.buildNode())
       }
 
       if (this.generate.insertTypes) {
         const insertBuilder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
-        tableTypes.push(insertBuilder.buildNode())
+        statements.push(insertBuilder.buildNode())
       }
-
-      return tableTypes
-    }).flat().filter((v): v is InterfaceDeclaration => !!v)
+    })
   }
 }
