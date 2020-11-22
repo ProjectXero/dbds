@@ -38,6 +38,10 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       ? 1 // STDOUT
       : await openAsync(argv.output, 'w')
 
+    if (!argv.database) {
+      throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
+    }
+
     const generator = new Generator({
       dbUrl: argv.database,
       newline: argv.newline,

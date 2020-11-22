@@ -1,7 +1,5 @@
 import { createPool, DatabasePoolType, sql } from "slonik"
 
-const PUBLIC_SCHEMA = 'public'
-
 export interface EnumInfo {
   name: string
   values: string[]
@@ -22,16 +20,11 @@ export interface TableInfo {
   columns: readonly ColumnInfo[]
 }
 
-
 export default class SchemaInfo {
   private readonly pool: DatabasePoolType
   public readonly name: string
 
-  constructor(dbUrl: string | undefined = process.env.DATABASE_URL, name: string = PUBLIC_SCHEMA) {
-    if (!dbUrl) {
-      throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
-    }
-
+  constructor(dbUrl: string, name: string) {
     this.pool = createPool(dbUrl)
     this.name = name
   }

@@ -5,8 +5,8 @@ import SchemaInfo from "./database";
 import TypeMapper from "./TypeMapper";
 
 export interface GeneratorOptions {
-  dbUrl?: string
-  schema?: string
+  dbUrl: string
+  schema: string
   newline?: 'lf' | 'crlf'
 }
 
@@ -18,7 +18,7 @@ export default class Generator {
   constructor({
     newline = 'lf',
     ...options
-  }: GeneratorOptions = {}) {
+  }: GeneratorOptions) {
     if (newline !== 'lf' && newline !== 'crlf') {
       console.warn(`Unknown newline type '${newline}' received. Acceptable values: lf, crlf. Defaulting to 'lf'.`)
     }
