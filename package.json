@@ -20,6 +20,7 @@
   "license": "MIT",
   "dependencies": {
     "case": "^1.6.3",
+    "dataloader": "^2.0.0",
     "slonik": "^23.0.2",
     "typescript": ">= 3.9.0",
     "yargs": "^16.1.1"
