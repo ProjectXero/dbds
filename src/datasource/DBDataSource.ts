@@ -49,7 +49,7 @@ export const buildConditions = <TData extends Record<string, any>>(
   return conditions
 }
 
-export class DBDataSource<
+export default class DBDataSource<
   TRowType extends Record<string, any>,
   TContext = unknown
   > implements DataSource<TContext> {
