@@ -19,6 +19,7 @@
   "author": "Matthew Lanigan (rintaun@gmail.com)",
   "license": "MIT",
   "dependencies": {
+    "apollo-datasource": "^0.7.2",
     "case": "^1.6.3",
     "dataloader": "^2.0.0",
     "slonik": "^23.0.2",
