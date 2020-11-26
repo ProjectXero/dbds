@@ -12,6 +12,8 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource'
 
 export type { DatabasePoolType } from 'slonik'
 
+import { LoaderFactory } from './loaders'
+
 export { DataLoader, sql }
 
 export type LoaderCallback<TRowType> = (
@@ -54,6 +56,7 @@ export class DBDataSource<
   protected pool: DatabasePoolType
   protected context?: TContext
   protected cache: any
+  protected loaders: LoaderFactory<TRowType>
 
   protected defaultOrder: SqlSqlTokenType = sql``
 
@@ -62,6 +65,10 @@ export class DBDataSource<
   constructor(pool: DatabasePoolType, table: string) {
     this.table = table
     this.pool = pool
+    this.loaders = new LoaderFactory(this.getDataByColumn, {
+      columnToKey: camel,
+      keyToColumn: snake,
+    })
   }
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
@@ -83,15 +90,15 @@ export class DBDataSource<
     return result
   }
 
-  private async getDataByColumn<TColType extends string | number = string>(
-    args: TColType[],
+  private async getDataByColumn<TColType extends string | number>(
+    args: TColType[] | readonly TColType[],
     column: string,
     type: string
   ): Promise<readonly TRowType[]> {
     const query = sql<TRowType>`
         SELECT *
         FROM ${sql.identifier([this.table])}
-        WHERE ${sql.identifier([this.table, column.toString()])} =
+        WHERE ${sql.identifier([this.table, column])} =
           ANY(${sql.array(args as TColType[], sql`${raw(type)}[]`)})
         ${this.defaultOrder}
       `
@@ -99,69 +106,48 @@ export class DBDataSource<
     return await this.pool.any(query)
   }
 
-  protected createColumnLoader<TColType extends string | number = string>(
+  /**
+   * @deprecated Use the loader factory instead
+   */
+  protected createColumnLoader<
+    TColType extends string | number = string
+  >(
     column: string,
     type: string,
-    callbackFn: LoaderCallback<TRowType> = () => { }
+    callbackFn?: LoaderCallback<TRowType>
   ): DataLoader<TColType, TRowType | undefined> {
-    const camelColumn = camel(column)
-    return new DataLoader<TColType, TRowType | undefined>(
-      async (args: readonly TColType[]) => {
-        const data = await this.getDataByColumn(
-          args as TColType[],
-          column,
-          type
-        )
-        data.forEach(callbackFn)
-        return args.map((arg) => data.find((row) => row[camelColumn] === arg))
-      }
-    )
+    return this.loaders.create(column as any, type, { callbackFn })
   }
 
-  protected createColumnMultiLoader<TColType extends string | number = string>(
+  /**
+   * @deprecated Use the loader factory instead
+   */
+  protected createColumnMultiLoader<
+    TColType extends string | number = string
+  >(
     column: string,
     type: string,
-    callbackFn: LoaderCallback<TRowType> = () => { }
+    callbackFn?: LoaderCallback<TRowType>
   ): DataLoader<TColType, TRowType[]> {
-    const camelColumn = camel(column)
-    return new DataLoader<TColType, TRowType[]>(
-      async (args: readonly TColType[]) => {
-        const data = await this.getDataByColumn(
-          args as TColType[],
-          column,
-          type
-        )
-        data.forEach(callbackFn)
-        return args.map((arg) => data.filter((row) => row[camelColumn] === arg))
-      }
-    )
+    return this.loaders.create(column as any, type, { multi: true, callbackFn })
   }
 
-  protected createColumnLoaderCI<TColType extends string | number = string>(
+  /**
+   * @deprecated Use the loader factory instead
+   */
+  protected createColumnLoaderCI<
+    TColType extends string | number = string
+  >(
     column: string,
     type: string,
-    callbackFn: LoaderCallback<TRowType> = () => { }
+    callbackFn?: LoaderCallback<TRowType>
   ): DataLoader<TColType, TRowType | undefined> {
-    const camelColumn = camel(column)
-    return new DataLoader<TColType, TRowType | undefined>(
-      async (args: readonly TColType[]) => {
-        const data = await this.getDataByColumn(
-          args as TColType[],
-          column,
-          type
-        )
-        data.forEach(callbackFn)
-        return args.map((arg) =>
-          data.find(
-            (row) =>
-              row[camelColumn].toString().toLowerCase() ===
-              arg.toString().toLowerCase()
-          )
-        )
-      }
-    )
+    return this.loaders.create(column as any, type, { ignoreCase: true as any, callbackFn })
   }
 
+  /**
+   * @deprecated Use the loader factory instead
+   */
   protected createColumnMultiLoaderCI<
     TColType extends string | number = string
   >(
@@ -169,24 +155,7 @@ export class DBDataSource<
     type: string,
     callbackFn: LoaderCallback<TRowType> = () => { }
   ): DataLoader<TColType, TRowType[]> {
-    const camelColumn = camel(column)
-    return new DataLoader<TColType, TRowType[]>(
-      async (args: readonly TColType[]) => {
-        const data = await this.getDataByColumn(
-          args as TColType[],
-          column,
-          type
-        )
-        data.forEach(callbackFn)
-        return args.map((arg) =>
-          data.filter(
-            (row) =>
-              row[camelColumn].toString().toLowerCase() ===
-              arg.toString().toLowerCase()
-          )
-        )
-      }
-    )
+    return this.loaders.create(column as any, type, { multi: true, ignoreCase: true as any, callbackFn })
   }
 
   protected createFinder<TInput, TOutput>(
