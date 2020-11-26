@@ -1,10 +1,10 @@
 import { pascal } from 'case'
 import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
-import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
-import NodeBuilder from './builders/NodeBuilder'
-import { CaseFunction } from './builders/TypeBuilder'
-import { SchemaInfo, TypeRegistry } from './database'
+import { EnumBuilder, InsertTypeBuilder, TableBuilder } from '../builders'
+import NodeBuilder from '../builders/NodeBuilder'
+import { CaseFunction } from '../builders/TypeBuilder'
+import { SchemaInfo, TypeRegistry } from '../database'
 
 export interface GeneratorOptions {
   dbUrl: string
