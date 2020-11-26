@@ -245,6 +245,11 @@ lodash.sortby@^4.7.0:
   resolved "https://registry.yarnpkg.com/lodash.sortby/-/lodash.sortby-4.7.0.tgz#edd14c824e2cc9c1e0b0a1b42bb5210516a42438"
   integrity sha1-7dFMgk4sycHgsKG0K7UhBRakJDg=
 
+lodash@^4.17.15:
+  version "4.17.20"
+  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.20.tgz#b44a9b6297bcb698f1c51a3545a2b3b368d59c52"
+  integrity sha512-PlhdFcillOINfeV7Ni6oF1TAEayyZBoZ8bcshTHqOYJYlrqzRK5hagpagky5o4HfCzzd1TRkXPMFq6cKk9rGmA==
+
 make-error@^1.1.1:
   version "1.3.6"
   resolved "https://registry.yarnpkg.com/make-error/-/make-error-1.3.6.tgz#2eb2e37ea9b67c4891f684a1394799af484cf7a2"
@@ -420,7 +425,7 @@ require-directory@^2.1.1:
   resolved "https://registry.yarnpkg.com/require-directory/-/require-directory-2.1.1.tgz#8c64ad5fd30dab1c976e2344ffe7f792a6a6df42"
   integrity sha1-jGStX9MNqxyXbiNE/+f3kqam30I=
 
-roarr@^2.15.4:
+roarr@^2.15.2, roarr@^2.15.4:
   version "2.15.4"
   resolved "https://registry.yarnpkg.com/roarr/-/roarr-2.15.4.tgz#f5fe795b7b838ccfe35dc608e0282b9eba2e7afd"
   integrity sha512-CHhPh+UNHD2GTXNYhPWLnU8ONHdI+5DI+4EYIAOaiD63rHeYlZvyh8P+in5999TTSFgUYuKUAjzRI4mdh/p+2A==
@@ -442,12 +447,54 @@ semver-compare@^1.0.0:
   resolved "https://registry.yarnpkg.com/semver-compare/-/semver-compare-1.0.0.tgz#0dee216a1c941ab37e9efb1788f6afc5ff5537fc"
   integrity sha1-De4hahyUGrN+nvsXiPavxf9VN/w=
 
+serialize-error@^6.0.0:
+  version "6.0.0"
+  resolved "https://registry.yarnpkg.com/serialize-error/-/serialize-error-6.0.0.tgz#ccfb887a1dd1c48d6d52d7863b92544331fd752b"
+  integrity sha512-3vmBkMZLQO+BR4RPHcyRGdE09XCF6cvxzk2N2qn8Er3F91cy8Qt7VvEbZBOpaL53qsBbe2cFOefU6tRY6WDelA==
+  dependencies:
+    type-fest "^0.12.0"
+
 serialize-error@^7.0.1:
   version "7.0.1"
   resolved "https://registry.yarnpkg.com/serialize-error/-/serialize-error-7.0.1.tgz#f1360b0447f61ffb483ec4157c737fab7d778e18"
   integrity sha512-8I8TjW5KMOKsZQTvoxjuSIa7foAwPWGOts+6o7sgjz41/qMD9VQHEDxi6PBvK2l0MXUmqZyNpUK+T2tQaaElvw==
   dependencies:
     type-fest "^0.13.1"
+
+slonik-sql-tag-raw@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/slonik-sql-tag-raw/-/slonik-sql-tag-raw-1.0.2.tgz#15e3ab1184e96a3f1c16ce38d4acd08f17a3767b"
+  integrity sha512-wjUsnDUtUTYnxBReFVjuy35l4YO4alWJwrAMqQz04UuhPA29cRGR9VojFBLhCPxD9F9/MsjNYVWa3YTFBqhlxA==
+  dependencies:
+    lodash "^4.17.15"
+    roarr "^2.15.2"
+    serialize-error "^6.0.0"
+    slonik "^22.4.4"
+
+slonik@^22.4.4, slonik@^23.0.0:
+  version "23.0.3"
+  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.0.3.tgz#723626325c8e9728a05e93123073313fe6cadf48"
+  integrity sha512-YWkzQ2iUC06h2jKMwTzqbun/tMp9KJXBJJj/51p8UnXyXQC6CiH3nD9A3GWKAF346kH6VpJ2ve8AnI7zjKvbAA==
+  dependencies:
+    "@types/roarr" "^2.14.2"
+    concat-stream "^2.0.0"
+    delay "^4.4.0"
+    es6-error "^4.1.1"
+    get-stack-trace "^2.0.3"
+    is-plain-object "^5.0.0"
+    iso8601-duration "^1.2.0"
+    pg "^8.4.1"
+    pg-connection-string "^2.4.0"
+    pg-copy-streams "^5.1.1"
+    pg-copy-streams-binary "^2.0.1"
+    pg-cursor "^2.4.1"
+    pg-types "^3.0.1"
+    postgres-array "^2.0.0"
+    postgres-interval "^2.1.0"
+    roarr "^2.15.4"
+    serialize-error "^7.0.1"
+    through2 "^4.0.2"
+    ulid "^2.3.0"
 
 slonik@^23.0.2:
   version "23.0.2"
@@ -561,6 +608,11 @@ ts-node@^9.0.0:
     make-error "^1.1.1"
     source-map-support "^0.5.17"
     yn "3.1.1"
+
+type-fest@^0.12.0:
+  version "0.12.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-0.12.0.tgz#f57a27ab81c68d136a51fd71467eff94157fa1ee"
+  integrity sha512-53RyidyjvkGpnWPMF9bQgFtWp+Sl8O2Rp13VavmJgfAP9WWG6q6TkrKU8iyJdnwnfgHI6k2hTlgqH4aSdjoTbg==
 
 type-fest@^0.13.1:
   version "0.13.1"
