@@ -40,6 +40,23 @@ export default class QueryBuilder<TRowType> {
     `
   }
 
+  public delete(options: QueryOptions<TRowType> | true): TaggedTemplateLiteralInvocationType<TRowType> {
+    if (!options) {
+      throw new Error('Implicit deletion of everything is not allowed. To delete everything, please pass `true` or include options.')
+    }
+
+    if (options === true) {
+      options = {}
+    }
+
+    const deleteQuery = sql<TRowType>`
+      DELETE FROM ${this.identifier()}
+      ${options?.where ? this.where(options.where) : EMPTY}
+      RETURNING *
+    `
+    return this.wrapCte('delete', deleteQuery, options)
+  }
+
   /* Public clause builders */
 
   /**
@@ -97,6 +114,18 @@ export default class QueryBuilder<TRowType> {
   }
 
   /* Protected query-building utilities */
+
+  protected wrapCte(queryName: string, query: TaggedTemplateLiteralInvocationType<TRowType>, options?: Omit<QueryOptions<TRowType>, 'where'>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const queryId = sql.identifier([queryName + '_rows'])
+    return sql<TRowType>`
+      WITH ${queryId} AS (
+        ${query}
+      ) SELECT *
+        FROM ${queryId}
+        ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+        ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+    `
+  }
 
   protected conditions(conditions: Conditions<TRowType> | SqlSqlTokenType[]): SqlSqlTokenType[] {
     if (Array.isArray(conditions)) {

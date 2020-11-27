@@ -363,5 +363,65 @@ describe(QueryBuilder, () => {
         `)
       })
     })
+
+    describe('delete', () => {
+      it("doesn't let you delete everything without explicitly okaying it", () => {
+        // @ts-expect-error
+        expect(() => builder.delete()).toThrowErrorMatchingInlineSnapshot(
+          `"Implicit deletion of everything is not allowed. To delete everything, please pass \`true\` or include options."`
+        )
+      })
+
+      it('can be forced to delete everything', () => {
+        expect(builder.delete(true)).toMatchInlineSnapshot(`
+          Object {
+            "sql": "
+                WITH \\"delete_rows\\" AS (
+
+                DELETE FROM \\"any_table\\"
+
+                RETURNING *
+
+                ) SELECT *
+                  FROM \\"delete_rows\\"
+
+
+              ",
+            "type": "SLONIK_TOKEN_SQL",
+            "values": Array [],
+          }
+        `)
+      })
+
+      it('builds clauses correctly', () => {
+        expect(
+          builder.delete({
+            where: { id: 1 },
+            groupBy: 'id',
+            orderBy: 'id',
+            having: { id: 1 },
+          })
+        ).toMatchInlineSnapshot(`
+          Object {
+            "sql": "
+                WITH \\"delete_rows\\" AS (
+
+                DELETE FROM \\"any_table\\"
+                WHERE (\\"any_table\\".\\"id\\" = $1)
+                RETURNING *
+
+                ) SELECT *
+                  FROM \\"delete_rows\\"
+                  GROUP BY \\"any_table\\".\\"id\\"
+                  ORDER BY \\"any_table\\".\\"id\\"
+              ",
+            "type": "SLONIK_TOKEN_SQL",
+            "values": Array [
+              1,
+            ],
+          }
+        `)
+      })
+    })
   })
 })
