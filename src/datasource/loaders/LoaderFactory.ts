@@ -3,7 +3,7 @@ import DataLoader from 'dataloader'
 import { GetDataFunction, LoaderFactoryOptions, LoaderOptions, SearchableKeys } from './types'
 import { identity, match } from './utils'
 
-export default class LoaderFactory<TRowType extends { [column: string]: unknown }> {
+export default class LoaderFactory<TRowType> {
   private defaultOptions: LoaderFactoryOptions = {
     columnToKey: identity,
     keyToColumn: identity,
@@ -17,21 +17,28 @@ export default class LoaderFactory<TRowType extends { [column: string]: unknown 
     }
   }
 
-  public create<TColumnName extends SearchableKeys<TRowType>>(
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
     key: TColumnName,
     columnType: string,
     options: LoaderOptions<TRowType, TColumnName> & {
       multi: true,
     }
   ): DataLoader<TRowType[TColumnName], TRowType[]>
-  public create<TColumnName extends SearchableKeys<TRowType>>(
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
     key: TColumnName,
     columnType: string,
     options?: LoaderOptions<TRowType, TColumnName> & {
       multi?: false,
     }
   ): DataLoader<TRowType[TColumnName], TRowType | undefined>
-  public create<TColumnName extends SearchableKeys<TRowType>, TColType extends string | number & TRowType[TColumnName]>(
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string,
+    TColType extends string | number & TRowType[TColumnName]
+  >(
     key: TColumnName,
     columnType: string,
     {

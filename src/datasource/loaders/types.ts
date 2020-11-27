@@ -1,5 +1,5 @@
-export type SearchableKeys<T, SearchableType = string | number> = {
-  [K in keyof T]-?: T extends Record<K, SearchableType> ? K extends string ? K : never : never
+export type SearchableKeys<T, SearchableType = string | number | null> = {
+  [K in keyof T]?: T extends { [_ in K]?: SearchableType } ? K : never
 }[keyof T]
 
 export interface GetDataFunction<TRowType> {
