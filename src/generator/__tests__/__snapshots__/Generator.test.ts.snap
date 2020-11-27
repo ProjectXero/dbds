@@ -1,0 +1,129 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Generator with default options generates everything 1`] = `
+"export enum TestEnum {
+    A = \\"A\\",
+    B = \\"b\\",
+    CamelCaseRules = \\"camel_case_rules\\"
+}
+export interface TableWithNoColumns {
+}
+export interface TableWithNoColumns$Insert {
+}
+export interface TableWithNumericId {
+    id: number;
+}
+export interface TableWithNumericId$Insert {
+    id?: number;
+}
+export interface TableWithCustomTypes {
+    enum_type: TestEnum;
+    enum_array_type: TestEnum[];
+    table_type: TableWithUuidId;
+    table_array_type: TableWithUuidId[];
+}
+export interface TableWithCustomTypes$Insert {
+    enum_type: TestEnum;
+    enum_array_type: TestEnum[];
+    table_type: TableWithUuidId;
+    table_array_type: TableWithUuidId[];
+}
+export interface TableWithUuidId {
+    id: string;
+}
+export interface TableWithUuidId$Insert {
+    id?: string;
+}
+export interface TableWithNullableFields {
+    nullable: string | null;
+    nullable_with_default: string | null;
+    nullable_array: string[] | null;
+    nullable_array_with_default: string[] | null;
+}
+export interface TableWithNullableFields$Insert {
+    nullable: string | null;
+    nullable_with_default?: string | null;
+    nullable_array: string[] | null;
+    nullable_array_with_default?: string[] | null;
+}
+"
+`;
+
+exports[`Generator with enums enabled generates enums 1`] = `
+"export enum TestEnum {
+    A = \\"A\\",
+    B = \\"b\\",
+    CamelCaseRules = \\"camel_case_rules\\"
+}
+"
+`;
+
+exports[`Generator with insert types enabled generates insert types 1`] = `
+"export interface TableWithNoColumns$Insert {
+}
+export interface TableWithNumericId$Insert {
+    id?: number;
+}
+export interface TableWithCustomTypes$Insert {
+    enum_type: unknown;
+    enum_array_type: unknown[];
+    table_type: unknown;
+    table_array_type: unknown[];
+}
+export interface TableWithUuidId$Insert {
+    id?: string;
+}
+export interface TableWithNullableFields$Insert {
+    nullable: string | null;
+    nullable_with_default?: string | null;
+    nullable_array: string[] | null;
+    nullable_array_with_default?: string[] | null;
+}
+"
+`;
+
+exports[`Generator with insert types enabled generates insert types 2`] = `
+Array [
+  Array [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  Array [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  Array [
+    "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
+  ],
+]
+`;
+
+exports[`Generator with tables enabled generates tables 1`] = `
+"export interface TableWithNoColumns {
+}
+export interface TableWithNumericId {
+    id: number;
+}
+export interface TableWithCustomTypes {
+    enum_type: unknown;
+    enum_array_type: unknown[];
+    table_type: TableWithUuidId;
+    table_array_type: TableWithUuidId[];
+}
+export interface TableWithUuidId {
+    id: string;
+}
+export interface TableWithNullableFields {
+    nullable: string | null;
+    nullable_with_default: string | null;
+    nullable_array: string[] | null;
+    nullable_array_with_default: string[] | null;
+}
+"
+`;
+
+exports[`Generator with tables enabled generates tables 2`] = `
+Array [
+  Array [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+]
+`;
