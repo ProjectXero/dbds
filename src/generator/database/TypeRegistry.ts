@@ -47,7 +47,7 @@ export default class TypeRegistry {
       return factory.createTypeReferenceNode(this.typeMap[typename])
     }
 
-    console.warn(`Unknown type detected: '${typename}'. This is probably a bug.`)
+    console.warn(`Unknown type detected: '${typename}'. You have either disabled generation of the type or this is a bug.`)
     this.add(typename, 'unknown')
 
     return UNKNOWN
