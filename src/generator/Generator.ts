@@ -1,5 +1,4 @@
 import { pascal } from 'case'
-import { DatabasePoolType } from 'slonik'
 import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
@@ -8,8 +7,7 @@ import { CaseFunction } from './builders/TypeBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 
 export interface GeneratorOptions {
-  pool: DatabasePoolType
-  schema: string
+  schema: SchemaInfo
   newline?: 'lf' | 'crlf'
   genEnums?: boolean
   genInsertTypes?: boolean
@@ -29,12 +27,11 @@ export default class Generator {
   }
 
   constructor({
-    pool,
+    schema,
     newline = 'lf',
     genEnums = true,
     genInsertTypes = true,
     genTables = true,
-    ...options
   }: GeneratorOptions) {
     if (newline !== 'lf' && newline !== 'crlf') {
       console.warn(`Unknown newline type '${newline}' received. Acceptable values: lf, crlf. Defaulting to 'lf'.`)
@@ -45,7 +42,7 @@ export default class Generator {
       removeComments: false,
     })
 
-    this.schema = new SchemaInfo(pool, options.schema)
+    this.schema = schema
     this.types = new TypeRegistry()
 
     this.convertCase = pascal

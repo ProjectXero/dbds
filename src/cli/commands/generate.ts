@@ -6,6 +6,7 @@ import { Generator, GeneratorOptions } from '../..'
 
 import { Params } from '../';
 import { createPool } from 'slonik';
+import { SchemaInfo } from '../../generator/database';
 
 const openAsync = promisify(open)
 const closeAsync = promisify(close)
@@ -77,9 +78,10 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
     }
 
+    const schemaInfo = new SchemaInfo(createPool(dbUrl), argv["config-schema"] || argv.schema)
+
     const generator = new Generator({
-      pool: createPool(dbUrl),
-      schema: argv["config-schema"] || argv.schema,
+      schema: schemaInfo,
       newline: argv.newline,
       genEnums: argv.genEnums,
       genTables: argv.genTables,
