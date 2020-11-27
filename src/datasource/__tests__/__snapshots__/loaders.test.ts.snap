@@ -1,0 +1,170 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoaderFactory multi: false, ignoreCase: false is able to load many items 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "def",
+    "id": 2,
+    "name": "bbb",
+  },
+  Object {
+    "code": "ghi",
+    "id": 3,
+    "name": "Aaa",
+  },
+]
+`;
+
+exports[`LoaderFactory multi: false, ignoreCase: false returns the first matching result 1`] = `
+Object {
+  "code": "abc",
+  "id": 1,
+  "name": "aaa",
+}
+`;
+
+exports[`LoaderFactory multi: false, ignoreCase: true is able to load many items 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "def",
+    "id": 2,
+    "name": "bbb",
+  },
+]
+`;
+
+exports[`LoaderFactory multi: false, ignoreCase: true returns the first matching result 1`] = `
+Object {
+  "code": "abc",
+  "id": 1,
+  "name": "aaa",
+}
+`;
+
+exports[`LoaderFactory multi: true, ignoreCase: false gets all matching results 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "abc",
+    "id": 7,
+    "name": "AAA",
+  },
+]
+`;
+
+exports[`LoaderFactory multi: true, ignoreCase: false is able to load many sets of items 1`] = `
+Array [
+  Array [
+    Object {
+      "code": "abc",
+      "id": 1,
+      "name": "aaa",
+    },
+    Object {
+      "code": "abc",
+      "id": 7,
+      "name": "AAA",
+    },
+  ],
+  Array [
+    Object {
+      "code": "def",
+      "id": 2,
+      "name": "bbb",
+    },
+    Object {
+      "code": "def",
+      "id": 8,
+      "name": "BBB",
+    },
+  ],
+]
+`;
+
+exports[`LoaderFactory multi: true, ignoreCase: true gets all matching results 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "ghi",
+    "id": 3,
+    "name": "Aaa",
+  },
+  Object {
+    "code": "DEF",
+    "id": 5,
+    "name": "AAa",
+  },
+  Object {
+    "code": "abc",
+    "id": 7,
+    "name": "AAA",
+  },
+]
+`;
+
+exports[`LoaderFactory multi: true, ignoreCase: true is able to load many sets of items 1`] = `
+Array [
+  Array [
+    Object {
+      "code": "abc",
+      "id": 1,
+      "name": "aaa",
+    },
+    Object {
+      "code": "ghi",
+      "id": 3,
+      "name": "Aaa",
+    },
+    Object {
+      "code": "DEF",
+      "id": 5,
+      "name": "AAa",
+    },
+    Object {
+      "code": "abc",
+      "id": 7,
+      "name": "AAA",
+    },
+  ],
+  Array [
+    Object {
+      "code": "def",
+      "id": 2,
+      "name": "bbb",
+    },
+    Object {
+      "code": "ABC",
+      "id": 4,
+      "name": "Bbb",
+    },
+    Object {
+      "code": "GHI",
+      "id": 6,
+      "name": "BBb",
+    },
+    Object {
+      "code": "def",
+      "id": 8,
+      "name": "BBB",
+    },
+  ],
+]
+`;
