@@ -344,4 +344,24 @@ describe(QueryBuilder, () => {
       })
     })
   })
+
+  describe('core query builders', () => {
+    describe('select', () => {
+      it('selects everything by default', () => {
+        expect(builder.select()).toMatchInlineSnapshot(`
+          Object {
+            "sql": "
+                SELECT *
+                FROM \\"any_table\\"
+                
+                
+                
+              ",
+            "type": "SLONIK_TOKEN_SQL",
+            "values": Array [],
+          }
+        `)
+      })
+    })
+  })
 })

@@ -3,6 +3,7 @@ import {
   sql,
   SqlSqlTokenType,
   SqlTokenType,
+  TaggedTemplateLiteralInvocationType,
 } from "slonik";
 import { raw } from "slonik-sql-tag-raw";
 
@@ -16,6 +17,8 @@ export interface QueryOptions<TRowType> {
   having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
 }
 
+const EMPTY = sql``
+
 export default class QueryBuilder<TRowType> {
   constructor(public readonly table: string, protected readonly columnTypes?: Record<keyof TRowType, string>) { }
 
@@ -23,6 +26,18 @@ export default class QueryBuilder<TRowType> {
     const params = [this.table]
     column !== undefined && params.push(column)
     return sql.identifier(params)
+  }
+
+  /* Public core query builders */
+
+  public select(options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    return sql<TRowType>`
+      SELECT *
+      FROM ${this.identifier()}
+      ${options?.where ? this.where(options.where) : EMPTY}
+      ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+      ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+    `
   }
 
   /* Public clause builders */
