@@ -1,4 +1,4 @@
-import { createPool, DatabasePoolType, sql } from 'slonik'
+import { DatabasePoolType, sql } from 'slonik'
 
 export interface EnumInfo {
   name: string
@@ -21,13 +21,10 @@ export interface TableInfo {
 }
 
 export default class SchemaInfo {
-  private readonly pool: DatabasePoolType
-  public readonly name: string
-
-  constructor(dbUrl: string, name: string) {
-    this.pool = createPool(dbUrl)
-    this.name = name
-  }
+  constructor(
+    private readonly pool: DatabasePoolType,
+    public readonly name: string
+  ) { }
 
   public async disconnect(): Promise<void> {
     await this.pool.end()

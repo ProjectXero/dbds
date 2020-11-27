@@ -5,6 +5,7 @@ import { Arguments, Argv, BuilderCallback } from 'yargs'
 import { Generator, GeneratorOptions } from '../..'
 
 import { Params } from '../';
+import { createPool } from 'slonik';
 
 const openAsync = promisify(open)
 const closeAsync = promisify(close)
@@ -70,12 +71,14 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       ? 1 // STDOUT
       : await openAsync(argv.output, 'w')
 
-    if (!argv.database) {
+    const dbUrl = argv["config-database"] || argv.database
+
+    if (!dbUrl) {
       throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
     }
 
     const generator = new Generator({
-      dbUrl: argv["config-database"] || argv.database,
+      pool: createPool(dbUrl),
       schema: argv["config-schema"] || argv.schema,
       newline: argv.newline,
       genEnums: argv.genEnums,

@@ -1,4 +1,5 @@
 import { pascal } from 'case'
+import { DatabasePoolType } from 'slonik'
 import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
@@ -7,7 +8,7 @@ import { CaseFunction } from './builders/TypeBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 
 export interface GeneratorOptions {
-  dbUrl: string
+  pool: DatabasePoolType
   schema: string
   newline?: 'lf' | 'crlf'
   genEnums?: boolean
@@ -28,6 +29,7 @@ export default class Generator {
   }
 
   constructor({
+    pool,
     newline = 'lf',
     genEnums = true,
     genInsertTypes = true,
@@ -43,7 +45,7 @@ export default class Generator {
       removeComments: false,
     })
 
-    this.schema = new SchemaInfo(options.dbUrl, options.schema)
+    this.schema = new SchemaInfo(pool, options.schema)
     this.types = new TypeRegistry()
 
     this.convertCase = pascal
