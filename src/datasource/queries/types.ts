@@ -1,4 +1,4 @@
-import { SqlSqlTokenType } from "slonik"
+import { IdentifierSqlTokenType, SqlSqlTokenType } from "slonik"
 
 export type PrimitiveValueType = string | number | boolean | null
 export type ValueType =
@@ -19,3 +19,6 @@ export type Conditions<TRowType> = {
   ? ConditionValue<boolean>
   : SqlSqlTokenType
 } & GenericConditions
+
+export type ColumnListEntry = string | IdentifierSqlTokenType | SqlSqlTokenType
+export type ColumnList = ColumnListEntry | Array<ColumnListEntry> | ReadonlyArray<ColumnListEntry>

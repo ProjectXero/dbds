@@ -2,16 +2,18 @@ import {
   IdentifierSqlTokenType,
   sql,
   SqlSqlTokenType,
+  SqlTokenType,
 } from "slonik";
 import { raw } from "slonik-sql-tag-raw";
 
-import { Conditions, GenericConditions } from "./types";
+import { ColumnList, Conditions, GenericConditions } from "./types";
 import { isSqlSqlTokenType } from "./utils";
 
 export interface QueryOptions<TRowType> {
   where?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
-  groupBy?: any
-  orderBy?: any
+  groupBy?: ColumnList
+  orderBy?: ColumnList
+  having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
 }
 
 export default class QueryBuilder<TRowType> {
@@ -21,6 +23,36 @@ export default class QueryBuilder<TRowType> {
     const params = [this.table]
     column !== undefined && params.push(column)
     return sql.identifier(params)
+  }
+
+  /* Public clause builders */
+
+  /**
+   * Generate a WHERE clause
+   * @param rawConditions Conditions expression
+   */
+  public where(rawConditions: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType): SqlSqlTokenType {
+    let conditions = isSqlSqlTokenType(rawConditions) ? rawConditions : this.and(rawConditions)
+
+    return sql`WHERE ${conditions}`
+  }
+
+  public orderBy(...columns: Array<ColumnList>): SqlSqlTokenType {
+    const list = this.columnList(...columns)
+
+    return sql`ORDER BY ${sql.join(list, sql`, `)}`
+  }
+
+  public groupBy(...columns: Array<ColumnList>): SqlSqlTokenType {
+    const list = this.columnList(...columns)
+
+    return sql`GROUP BY ${sql.join(list, sql`, `)}`
+  }
+
+  public having(rawConditions: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType): SqlSqlTokenType {
+    let conditions = isSqlSqlTokenType(rawConditions) ? rawConditions : this.and(rawConditions)
+
+    return sql`HAVING ${conditions}`
   }
 
   /* Public query-building utilities */
@@ -49,16 +81,6 @@ export default class QueryBuilder<TRowType> {
     return sql`ANY(${sql.array(values, sql`${raw(type)}[]`)})`
   }
 
-  /**
-   * Generate a WHERE clause
-   * @param rawConditions Conditions expression
-   */
-  public where(rawConditions: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType): SqlSqlTokenType {
-    let conditions = isSqlSqlTokenType(rawConditions) ? rawConditions : this.and(rawConditions)
-
-    return sql`WHERE ${conditions}`
-  }
-
   /* Protected query-building utilities */
 
   protected conditions(conditions: Conditions<TRowType> | SqlSqlTokenType[]): SqlSqlTokenType[] {
@@ -82,5 +104,14 @@ export default class QueryBuilder<TRowType> {
 
         return sql`${this.identifier(column)} = ${sqlValue}`
       })
+  }
+
+  protected columnList(...columns: Array<ColumnList>): SqlTokenType[] {
+    return columns.flat().map<SqlTokenType>((column) => {
+      if (typeof column === 'string') {
+        return this.identifier(column)
+      }
+      return column
+    })
   }
 }
