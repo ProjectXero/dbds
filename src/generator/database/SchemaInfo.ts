@@ -1,4 +1,4 @@
-import { DatabasePoolType, sql } from 'slonik'
+import { DatabasePoolType, sql, TaggedTemplateLiteralInvocationType } from 'slonik'
 
 export interface EnumInfo {
   name: string
@@ -26,32 +26,19 @@ export default class SchemaInfo {
     public readonly name: string
   ) { }
 
-  public async disconnect(): Promise<void> {
-    await this.pool.end()
-  }
-
-  public async getTables(): Promise<readonly TableInfo[]> {
-    const tables = await this.pool.any(sql<Omit<TableInfo, 'columns'>>`
+  public tableQuery(): TaggedTemplateLiteralInvocationType<Omit<TableInfo, 'columns'>> {
+    return sql<Omit<TableInfo, 'columns'>>`
       SELECT table_name AS "name"
-           , (is_insertable_into = 'YES') AS "canInsert"
-           , pg_catalog.obj_description(('"' || table_name || '"')::regclass::oid) AS "comment"
+          , (is_insertable_into = 'YES') AS "canInsert"
+          , pg_catalog.obj_description(('"' || table_name || '"')::regclass::oid) AS "comment"
       FROM information_schema.tables
       WHERE table_schema = ${this.name}
       ORDER BY table_name ASC
-    `)
-
-    return Promise.all(
-      tables.map<Promise<TableInfo>>(async (table) => {
-        return {
-          ...table,
-          columns: await this.getTableColumns(table.name)
-        }
-      })
-    )
+    `
   }
 
-  public async getTableColumns(table: string): Promise<readonly ColumnInfo[]> {
-    return await this.pool.many(sql<ColumnInfo>`
+  public columnQuery(table: string): TaggedTemplateLiteralInvocationType<ColumnInfo> {
+    return sql<ColumnInfo>`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
            , (c.column_default IS NOT NULL) AS "hasDefault"
@@ -82,11 +69,11 @@ export default class SchemaInfo {
         c.table_name = ${table}
       )
       ORDER BY c.ordinal_position
-    `)
+    `
   }
 
-  public async getEnums(): Promise<readonly EnumInfo[]> {
-    return await this.pool.any(sql<EnumInfo>`
+  public enumQuery(): TaggedTemplateLiteralInvocationType<EnumInfo> {
+    return sql<EnumInfo>`
       SELECT t.typname AS "name"
            , array_agg(e.enumlabel)::TEXT[] AS "values"
            , pg_catalog.obj_description(e.enumtypid) AS "comment"
@@ -105,7 +92,32 @@ export default class SchemaInfo {
              , t.typname
              , e.enumtypid
       ORDER BY t.typname
-    `);
+    `
+  }
+
+  public async disconnect(): Promise<void> {
+    await this.pool.end()
+  }
+
+  public async getTables(): Promise<readonly TableInfo[]> {
+    const tables = await this.pool.any(this.tableQuery())
+
+    return Promise.all(
+      tables.map<Promise<TableInfo>>(async (table) => {
+        return {
+          ...table,
+          columns: await this.getTableColumns(table.name)
+        }
+      })
+    )
+  }
+
+  public async getTableColumns(table: string): Promise<readonly ColumnInfo[]> {
+    return await this.pool.many(this.columnQuery(table))
+  }
+
+  public async getEnums(): Promise<readonly EnumInfo[]> {
+    return await this.pool.any(this.enumQuery());
   }
 
 }
