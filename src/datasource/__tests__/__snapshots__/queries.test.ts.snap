@@ -255,6 +255,36 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders count can use where clauses 1`] = `
+Object {
+  "sql": "
+      SELECT COUNT(*)
+      FROM \\"any_table\\"
+      WHERE (\\"any_table\\".\\"id\\" = $1)
+      
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders count creates a count query 1`] = `
+Object {
+  "sql": "
+      SELECT COUNT(*)
+      FROM \\"any_table\\"
+      
+      
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
 exports[`QueryBuilder core query builders delete builds clauses correctly 1`] = `
 Object {
   "sql": "

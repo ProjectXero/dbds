@@ -8,7 +8,7 @@ import {
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { AllowSql, ColumnList, Conditions, GenericConditions, UpdateSet, ValueOrArray } from "./types"
+import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, UpdateSet, ValueOrArray } from "./types"
 import { isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
@@ -106,6 +106,20 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       RETURNING *
     `
     return this.wrapCte('delete', deleteQuery, options)
+  }
+
+  public count(options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<CountQueryRowType> {
+    if (options?.groupBy) {
+      throw new Error('count does not currently support GROUP BY clauses')
+    }
+
+    return sql<CountQueryRowType>`
+      SELECT COUNT(*)
+      FROM ${this.identifier()}
+      ${options?.where ? this.where(options.where) : EMPTY}
+      ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+      ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+    `
   }
 
   /* Public clause builders */

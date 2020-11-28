@@ -57,3 +57,7 @@ export type ColumnList = ColumnListEntry | Array<ColumnListEntry> | ReadonlyArra
 export type AllowSql<T> = {
   [K in keyof T]?: T[K] | SqlTokenType
 }
+
+export interface CountQueryRowType {
+  count: number
+}

@@ -176,6 +176,24 @@ describe(QueryBuilder, () => {
       })
     })
 
+    describe('count', () => {
+      it('creates a count query', () => {
+        expect(builder.count()).toMatchSnapshot()
+      })
+
+      it('can use where clauses', () => {
+        expect(builder.count({ where: { id: 1 } })).toMatchSnapshot()
+      })
+
+      it('does not support group by clauses for the moment', () => {
+        expect(() =>
+          builder.count({ groupBy: 'id' })
+        ).toThrowErrorMatchingInlineSnapshot(
+          `"count does not currently support GROUP BY clauses"`
+        )
+      })
+    })
+
     describe('insert', () => {
       it('accepts a basic object', () => {
         expect(builder.insert({
