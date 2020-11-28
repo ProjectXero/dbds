@@ -19,7 +19,7 @@ export interface QueryOptions<TRowType> {
 
 const EMPTY = sql``
 
-export default class QueryBuilder<TRowType> {
+export default class QueryBuilder<TRowType, TInsertType = TRowType> {
   constructor(public readonly table: string, protected readonly columnTypes?: Record<keyof TRowType, string>) { }
 
   public identifier(column?: string): IdentifierSqlTokenType {
@@ -38,6 +38,11 @@ export default class QueryBuilder<TRowType> {
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
     `
+  }
+
+  public insert(rows: Array<TInsertType | TInsertType[]>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const insertQuery = sql<TRowType>``
+    return this.wrapCte('insert', insertQuery, options)
   }
 
   public update(values: UpdateSet<TRowType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {

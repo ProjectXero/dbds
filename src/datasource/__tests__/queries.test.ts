@@ -7,7 +7,7 @@ interface DummyRowType {
   optional?: string
   nullable: string | null
   optionallyNullable?: string | null
-  stringOrNumber: string | number | null
+  stringOrNumber: string | number | null // i think this is a nonsense type but i needed to test the type system...
 }
 
 const DummyRowColumnTypes = Object.freeze({
@@ -174,6 +174,12 @@ describe(QueryBuilder, () => {
       it('selects everything by default', () => {
         expect(builder.select()).toMatchSnapshot()
       })
+    })
+
+    describe('insert', () => {
+      it('accepts a basic object', () => { })
+
+      it('accepts many basic objects', () => { })
     })
 
     describe('update', () => {

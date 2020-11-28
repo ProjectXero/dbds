@@ -291,6 +291,7 @@ Object {
         FROM \\"delete_rows\\"
         
         
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
@@ -325,6 +326,7 @@ Object {
         FROM \\"update_rows\\"
         
         
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
@@ -350,6 +352,7 @@ Object {
     
       ) SELECT *
         FROM \\"update_rows\\"
+        
         
         
     ",
