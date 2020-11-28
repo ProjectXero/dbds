@@ -4,10 +4,11 @@ import {
   SqlSqlTokenType,
   SqlTokenType,
   TaggedTemplateLiteralInvocationType,
+  ValueExpressionType,
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { ColumnList, Conditions, GenericConditions, UpdateSet } from "./types"
+import { AllowSql, ColumnList, Conditions, GenericConditions, UpdateSet, ValueOrArray } from "./types"
 import { isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
@@ -19,8 +20,8 @@ export interface QueryOptions<TRowType> {
 
 const EMPTY = sql``
 
-export default class QueryBuilder<TRowType, TInsertType = TRowType> {
-  constructor(public readonly table: string, protected readonly columnTypes?: Record<keyof TRowType, string>) { }
+export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType> {
+  constructor(public readonly table: string, protected readonly columnTypes: Record<keyof TRowType, string>) { }
 
   public identifier(column?: string): IdentifierSqlTokenType {
     const params = [this.table]
@@ -40,8 +41,43 @@ export default class QueryBuilder<TRowType, TInsertType = TRowType> {
     `
   }
 
-  public insert(rows: Array<TInsertType | TInsertType[]>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
-    const insertQuery = sql<TRowType>``
+  public insert(rows: ValueOrArray<AllowSql<TInsertType>>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    if (!Array.isArray(rows)) {
+      rows = [rows]
+    }
+
+    if (rows.length === 0) {
+      throw new Error('insert requires at least one row')
+    }
+
+    // convince TS that these are actually the keys of our object... dumb, but ugh.
+    const columns: Array<keyof TInsertType & keyof TRowType & string> =
+      Object.keys(rows[0]) as Array<keyof TInsertType & keyof TRowType & string>
+
+    const values: ValueExpressionType[][] = rows.map(({ ...row }) => {
+      const rowValues = columns.map((column) => {
+        const columnValue = row[column] as ValueExpressionType
+        delete row[column]
+        return columnValue
+      })
+
+      const remainingKeys = Object.keys(row)
+      if (remainingKeys.length > 0) {
+        throw new Error(`Row has extra keys: ${remainingKeys.join(', ')}`)
+      }
+
+      return rowValues
+    })
+
+    const columnExpression = sql.join(columns.map((c) => sql.identifier([c])), sql`, `)
+    const columnTypes = columns.map((col) => this.columnTypes[col])
+
+    const insertQuery = sql<TRowType>`
+      INSERT INTO ${this.identifier()} (${columnExpression})
+      SELECT *
+      FROM  ${sql.unnest(values, columnTypes)}
+    `
+
     return this.wrapCte('insert', insertQuery, options)
   }
 
@@ -153,10 +189,6 @@ export default class QueryBuilder<TRowType, TInsertType = TRowType> {
       .map<SqlSqlTokenType>(([column, value]) => {
         let sqlValue: SqlSqlTokenType
         if (Array.isArray(value)) {
-          if (!this.columnTypes) {
-            throw new TypeError('Cannot use array types as column types were not provided')
-          }
-
           sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
         } else {
           sqlValue = sql`${value}`

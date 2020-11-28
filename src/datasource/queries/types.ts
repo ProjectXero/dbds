@@ -1,5 +1,7 @@
 import { IdentifierSqlTokenType, SqlSqlTokenType, SqlTokenType } from "slonik"
 
+export type { ValueExpressionType } from "slonik"
+
 export type PrimitiveValueType = string | number | boolean | null
 export type ValueType =
   | PrimitiveValueType
@@ -51,3 +53,7 @@ export type UpdateSet<TRowType> = {
 
 export type ColumnListEntry = string | IdentifierSqlTokenType | SqlSqlTokenType
 export type ColumnList = ColumnListEntry | Array<ColumnListEntry> | ReadonlyArray<ColumnListEntry>
+
+export type AllowSql<T> = {
+  [K in keyof T]?: T[K] | SqlTokenType
+}

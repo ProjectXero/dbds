@@ -298,6 +298,76 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders insert accepts a basic object 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
+      SELECT *
+      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+    ],
+    Array [
+      "name",
+    ],
+    Array [
+      null,
+    ],
+    Array [
+      1,
+    ],
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders insert accepts many basic objects 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
+      SELECT *
+      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+      2,
+    ],
+    Array [
+      "name",
+      "name",
+    ],
+    Array [
+      null,
+      "hi",
+    ],
+    Array [
+      1,
+      "wat",
+    ],
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders select selects everything by default 1`] = `
 Object {
   "sql": "

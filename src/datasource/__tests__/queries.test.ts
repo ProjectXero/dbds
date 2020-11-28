@@ -177,9 +177,31 @@ describe(QueryBuilder, () => {
     })
 
     describe('insert', () => {
-      it('accepts a basic object', () => { })
+      it('accepts a basic object', () => {
+        expect(builder.insert({
+          id: 1,
+          name: 'name',
+          nullable: null,
+          stringOrNumber: 1,
+        })).toMatchSnapshot()
+      })
 
-      it('accepts many basic objects', () => { })
+      it('accepts many basic objects', () => {
+        expect(builder.insert([
+          {
+            id: 1,
+            name: 'name',
+            nullable: null,
+            stringOrNumber: 1,
+          },
+          {
+            stringOrNumber: 'wat',
+            id: 2,
+            name: 'name',
+            nullable: 'hi',
+          },
+        ])).toMatchSnapshot()
+      })
     })
 
     describe('update', () => {
