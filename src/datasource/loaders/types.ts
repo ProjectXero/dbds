@@ -7,7 +7,7 @@ export interface GetDataFunction<TRowType> {
     args: TColType[] | readonly TColType[],
     column: string,
     type: string
-  ): TRowType[] | Promise<readonly TRowType[]>
+  ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
 
 export interface LoaderFactoryOptions {

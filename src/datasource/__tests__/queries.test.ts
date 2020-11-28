@@ -32,7 +32,9 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts complex conditions', () => {
-        expect(builder.where({ id: 1, nullable: null, stringOrNumber: ['a', null] })).toMatchSnapshot()
+        expect(
+          builder.where({ id: 1, nullable: null, stringOrNumber: ['a', null] })
+        ).toMatchSnapshot()
       })
 
       it('uses AND for multiple columns in a simple object', () => {
@@ -78,8 +80,7 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts identifier tokens', () => {
-        expect(builder.orderBy(sql.identifier(['column'])))
-          .toMatchSnapshot()
+        expect(builder.orderBy(sql.identifier(['column']))).toMatchSnapshot()
       })
 
       it('accepts arbitrary sql tokens', () => {
@@ -107,8 +108,7 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts identifier tokens', () => {
-        expect(builder.groupBy(sql.identifier(['column'])))
-          .toMatchSnapshot()
+        expect(builder.groupBy(sql.identifier(['column']))).toMatchSnapshot()
       })
 
       it('accepts arbitrary sql tokens', () => {
@@ -196,42 +196,48 @@ describe(QueryBuilder, () => {
 
     describe('insert', () => {
       it('accepts a basic object', () => {
-        expect(builder.insert({
-          id: 1,
-          name: 'name',
-          nullable: null,
-          stringOrNumber: 1,
-        })).toMatchSnapshot()
-      })
-
-      it('accepts many basic objects', () => {
-        expect(builder.insert([
-          {
+        expect(
+          builder.insert({
             id: 1,
             name: 'name',
             nullable: null,
             stringOrNumber: 1,
-          },
-          {
-            stringOrNumber: 'wat',
-            id: 2,
-            name: 'name',
-            nullable: 'hi',
-          },
-        ])).toMatchSnapshot()
+          })
+        ).toMatchSnapshot()
+      })
+
+      it('accepts many basic objects', () => {
+        expect(
+          builder.insert([
+            {
+              id: 1,
+              name: 'name',
+              nullable: null,
+              stringOrNumber: 1,
+            },
+            {
+              stringOrNumber: 'wat',
+              id: 2,
+              name: 'name',
+              nullable: 'hi',
+            },
+          ])
+        ).toMatchSnapshot()
       })
     })
 
     describe('update', () => {
       it('accepts a basic object', () => {
-        expect(builder.update({
-          id: 5,
-          name: 'any',
-          nullable: null,
-          optional: 'asdf',
-          optionallyNullable: null,
-          stringOrNumber: 5,
-        })).toMatchSnapshot()
+        expect(
+          builder.update({
+            id: 5,
+            name: 'any',
+            nullable: null,
+            optional: 'asdf',
+            optionallyNullable: null,
+            stringOrNumber: 5,
+          })
+        ).toMatchSnapshot()
       })
 
       it('accepts raw sql values', () => {

@@ -5,70 +5,62 @@ import {
   DatabasePoolType,
   SqlSqlTokenType,
   TaggedTemplateLiteralInvocationType,
+  IdentifierNormalizerType,
+  IdentifierSqlTokenType,
 } from 'slonik'
-import { raw } from 'slonik-sql-tag-raw'
 
 import { DataSource, DataSourceConfig } from 'apollo-datasource'
 
 export type { DatabasePoolType } from 'slonik'
 
 import { LoaderFactory } from './loaders'
+import QueryBuilder, { QueryOptions as BuilderOptions } from './queries/QueryBuilder'
+import { AllowSql, CountQueryRowType, UpdateSet, ValueOrArray } from './queries/types'
+
+export interface QueryOptions<TRowType, TResultType = TRowType> extends BuilderOptions<TRowType> {
+  keyToColumn?: IdentifierNormalizerType;
+  columnToKey?: IdentifierNormalizerType;
+  eachResult?: LoaderCallback<TResultType>;
+  expected?: 'one' | 'many' | 'maybeOne' | 'any'
+}
 
 export { DataLoader, sql }
 
-export type LoaderCallback<TRowType> = (
-  value: TRowType,
+export type LoaderCallback<TResultType> = (
+  value: TResultType,
   index: number,
-  array: readonly TRowType[]
+  array: readonly TResultType[]
 ) => void
 
-export interface QueryOptions {
-  columnTransformation?: (column: string) => string
-}
-
-export interface CountQueryRowType {
-  count: number
-}
-
-export const buildConditions = <TData extends Record<string, any>>(
-  data: TData,
-  { columnTransformation = snake }: QueryOptions = {}
-): SqlSqlTokenType[] => {
-  const conditions = Object.keys(data)
-    .filter((value) => value !== undefined)
-    .map<SqlSqlTokenType | undefined>((key) => {
-      const column = columnTransformation(key)
-      const value = data[key]
-      if (value === undefined) {
-        return
-      }
-
-      return sql`${sql.identifier([column])} = ${value}`
-    })
-    .filter<SqlSqlTokenType>((v): v is SqlSqlTokenType => v !== undefined)
-  return conditions
-}
-
 export default class DBDataSource<
-  TRowType extends Record<string, any>,
-  TContext = unknown
+  TRowType extends Record<string, any> & { id: string },
+  TContext = unknown,
+  TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
   > implements DataSource<TContext> {
-  protected pool: DatabasePoolType
   protected context?: TContext
   protected cache: any
   protected loaders: LoaderFactory<TRowType>
+  protected builder: QueryBuilder<TRowType, TInsertType>
 
   protected defaultOrder: SqlSqlTokenType = sql``
 
-  public readonly table: string
+  /**
+   * Types of the columns in the database.
+   * Used to map values for insert and lookups on multiple values.
+   *
+   * EVERY DATASOURCE SHOULD PROVIDE THIS AS STUFF WILL BREAK OTHERWISE.
+   */
+  protected readonly columnTypes: Record<keyof TRowType, string> = {} as any
 
-  constructor(pool: DatabasePoolType, table: string) {
-    this.table = table
-    this.pool = pool
-    this.loaders = new LoaderFactory(this.getDataByColumn, {
+  constructor(
+    protected readonly pool: DatabasePoolType,
+    protected readonly table: string
+  ) {
+    this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
       columnToKey: camel,
       keyToColumn: snake,
     })
+    this.builder = new QueryBuilder(table, this.columnTypes)
   }
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
@@ -76,34 +68,323 @@ export default class DBDataSource<
     this.cache = config.cache
   }
 
-  public async all(
-    callbackFn: LoaderCallback<TRowType> = () => { }
-  ): Promise<readonly TRowType[]> {
-    const query = sql<TRowType>`
-      SELECT *
-      FROM ${sql.identifier([this.table])}
-      ${this.defaultOrder}
-    `
-    const result = await this.pool.any(query)
-    result.forEach(callbackFn)
+  /**
+   * Find a single row
+   *
+   * @param options Query options
+   */
+  public async get(
+    options: QueryOptions<TRowType> & { expected: 'one' }
+  ): Promise<TRowType>
 
-    return result
+  /**
+   * Possibly find a single row
+   *
+   * @param options Query options
+   */
+  public async get(
+    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
+  ): Promise<TRowType | null>
+
+  /**
+   * Find multiple rows
+   *
+   * @param options Query options
+   */
+  public async get(
+    options?: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
+  ): Promise<readonly TRowType[]>
+
+  public async get(
+    options?: QueryOptions<TRowType>
+  ): Promise<TRowType | readonly TRowType[] | null> {
+    const query = this.builder.select(options)
+
+    return await this.query(query, options)
   }
 
-  private async getDataByColumn<TColType extends string | number>(
-    args: TColType[] | readonly TColType[],
-    column: string,
-    type: string
-  ): Promise<readonly TRowType[]> {
-    const query = sql<TRowType>`
-        SELECT *
-        FROM ${sql.identifier([this.table])}
-        WHERE ${sql.identifier([this.table, column])} =
-          ANY(${sql.array(args as TColType[], sql`${raw(type)}[]`)})
-        ${this.defaultOrder}
-      `
+  public async count(
+    options?: Omit<QueryOptions<TRowType, CountQueryRowType>, 'expected'>
+  ): Promise<number> {
+    const query = this.builder.count(options)
+    const result = await this.query(query, {
+      ...options,
+      expected: 'one',
+    })
+    return result.count
+  }
 
-    return await this.pool.any(query)
+  /**
+   * Insert a single row
+   * @param rows Row data to insert
+   * @param options Query options
+   */
+  protected async insert(
+    rows: AllowSql<TInsertType>,
+    options?: QueryOptions<TRowType> & { expected?: undefined }
+  ): Promise<TRowType>
+
+  /**
+   * Insert multiple rows
+   * @param rows Row data to insert
+   * @param options Query options
+   */
+  protected async insert(
+    rows: Array<AllowSql<TInsertType>>,
+    options?: QueryOptions<TRowType> & { expected?: undefined }
+  ): Promise<readonly TRowType[]>
+
+  /**
+   * Expect a single row to be inserted from the given data
+   * @param rows Row data to insert
+   * @param options Query options
+   */
+  protected async insert(
+    rows: ValueOrArray<AllowSql<TInsertType>>,
+    options?: QueryOptions<TRowType> & { expected: 'one' }
+  ): Promise<TRowType>
+
+  /**
+   * Expect zero or one rows to be inserted from the given data
+   * @param rows Row data to insert
+   * @param options Query options
+   */
+  protected async insert(
+    rows: ValueOrArray<AllowSql<TInsertType>>,
+    options?: QueryOptions<TRowType> & { expected: 'maybeOne' }
+  ): Promise<TRowType | null>
+
+  /**
+   * Insert multiple rows
+   * @param rows Row data to insert
+   * @param options Query options
+   */
+  protected async insert(
+    rows: ValueOrArray<AllowSql<TInsertType>>,
+    options?: QueryOptions<TRowType> & { expected: 'any' | 'many' }
+  ): Promise<readonly TRowType[]>
+
+  /**
+   * Implementation
+   */
+  protected async insert(
+    rows: ValueOrArray<AllowSql<TInsertType>>,
+    options?: QueryOptions<TRowType>
+  ): Promise<TRowType | readonly TRowType[] | null> {
+    const query = this.builder.insert(rows, options)
+
+    options = {
+      ...options,
+      expected: options?.expected ?? rows.length === 1 ? 'one' : 'many'
+    }
+
+    return await this.query(query, options)
+  }
+
+  /**
+   * Update a single row
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async update(
+    data: UpdateSet<TRowType>,
+    options: QueryOptions<TRowType> & { expected: 'one' }
+  ): Promise<TRowType>
+
+  /**
+   * Update a zero or one rows
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async update(
+    data: UpdateSet<TRowType>,
+    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
+  ): Promise<TRowType | null>
+
+  /**
+   * Update multiple rows
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async update(
+    data: UpdateSet<TRowType>,
+    options?: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
+  ): Promise<readonly TRowType[]>
+
+  /**
+   * Implementation
+   */
+  protected async update(
+    data: UpdateSet<TRowType>,
+    options?: QueryOptions<TRowType>
+  ): Promise<TRowType | readonly TRowType[] | null> {
+    const query = this.builder.update(data)
+    return await this.query(query, options)
+  }
+
+  /**
+   * Update a single row
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async delete(
+    options: QueryOptions<TRowType> & { expected: 'one' }
+  ): Promise<TRowType>
+
+  /**
+   * Update a zero or one rows
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async delete(
+    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
+  ): Promise<TRowType | null>
+
+  /**
+   * Update multiple rows
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async delete(
+    options: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
+  ): Promise<readonly TRowType[]>
+
+  /**
+   * Delete every row in the table
+   *
+   * @param data Update expression
+   * @param options Query options
+   */
+  protected async delete(
+    options: true
+  ): Promise<readonly TRowType[]>
+
+  /**
+   * Implementation
+   */
+  protected async delete(
+    options: QueryOptions<TRowType> | true
+  ): Promise<TRowType | readonly TRowType[] | null> {
+    const query = this.builder.delete(options)
+    return await this.query(query, options === true ? undefined : options)
+  }
+
+  /**
+   * Perform a query. Ideally all queries should go through this.
+   *
+   * This mainly exists to get around TypeScript complaining that the invocation
+   * expressions of the different execution functions (any, one, etc.) aren't
+   * compatible. They are, of course, but I guess type inference can't overcome
+   * the barrier of variable key-based lookup, rather than explicit calls.
+   *
+   * @param query Executable query
+   * @param options Query options
+   */
+  protected async query<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options: QueryOptions<TData> & { expected?: 'any' | 'many' }
+  ): Promise<readonly TData[]>
+  protected async query<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options: QueryOptions<TData> & { expected: 'one' }
+  ): Promise<TData>
+  protected async query<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options: QueryOptions<TData> & { expected: 'maybeOne' }
+  ): Promise<TData | null>
+  protected async query<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<TData | null | readonly TData[]>
+  protected async query<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<TData | null | readonly TData[]> {
+    switch (options?.expected || 'any') {
+      case 'one':
+        return this.one(query, options)
+      case 'maybeOne':
+        return this.maybeOne(query, options)
+      case 'many':
+        return this.many(query, options)
+      case 'any':
+        return this.any(query, options)
+    }
+  }
+
+  private async any<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<readonly TData[]> {
+    const results = await this.pool.any(query)
+    this.eachResult(results, options)
+    return results
+  }
+
+  private async many<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<readonly TData[]> {
+    const results = await this.pool.many(query)
+    this.eachResult(results, options)
+    return results
+  }
+
+  private async one<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<TData> {
+    const results = await this.pool.one(query)
+    this.eachResult(results, options)
+    return results
+  }
+
+  private async maybeOne<TData>(
+    query: TaggedTemplateLiteralInvocationType<TData>,
+    options?: QueryOptions<TData>
+  ): Promise<TData | null> {
+    const results = await this.pool.maybeOne(query)
+    this.eachResult(results, options)
+    return results
+  }
+
+  private eachResult<TData>(
+    results: TData | null | ReadonlyArray<TData | null>,
+    { eachResult }: QueryOptions<TData> = {}
+  ): void {
+    if (!eachResult) {
+      return
+    }
+
+    if (!Array.isArray(results)) {
+      results = [results]
+    }
+
+    results
+      .filter((val): val is TData => val !== null)
+      .forEach(eachResult)
+  }
+
+  private getDataByColumn<TColType extends string | number = string>(
+    args: readonly TColType[],
+    column: keyof TRowType,
+    type: string,
+    options?: Omit<QueryOptions<TRowType>, 'expected'>
+  ): Promise<readonly TRowType[]> {
+    return this.get({
+      ...options,
+      expected: 'any',
+      where: {
+        [column]: this.builder.any([...args] as string[] | number[], type),
+        ...options?.where,
+      },
+    });
   }
 
   /**
@@ -114,8 +395,11 @@ export default class DBDataSource<
   >(
     column: string,
     type: string,
-    callbackFn?: LoaderCallback<TRowType>
+    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
   ): DataLoader<TColType, TRowType | undefined> {
+    if (typeof callbackFn === 'object') {
+      callbackFn = callbackFn.eachResult
+    }
     return this.loaders.create(column as any, type, { callbackFn })
   }
 
@@ -127,8 +411,11 @@ export default class DBDataSource<
   >(
     column: string,
     type: string,
-    callbackFn?: LoaderCallback<TRowType>
+    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
   ): DataLoader<TColType, TRowType[]> {
+    if (typeof callbackFn === 'object') {
+      callbackFn = callbackFn.eachResult
+    }
     return this.loaders.create(column as any, type, { multi: true, callbackFn })
   }
 
@@ -140,8 +427,11 @@ export default class DBDataSource<
   >(
     column: string,
     type: string,
-    callbackFn?: LoaderCallback<TRowType>
+    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
   ): DataLoader<TColType, TRowType | undefined> {
+    if (typeof callbackFn === 'object') {
+      callbackFn = callbackFn.eachResult
+    }
     return this.loaders.create(column as any, type, { ignoreCase: true as any, callbackFn })
   }
 
@@ -153,11 +443,32 @@ export default class DBDataSource<
   >(
     column: string,
     type: string,
-    callbackFn: LoaderCallback<TRowType> = () => { }
+    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
   ): DataLoader<TColType, TRowType[]> {
+    if (typeof callbackFn === 'object') {
+      callbackFn = callbackFn.eachResult
+    }
     return this.loaders.create(column as any, type, { multi: true, ignoreCase: true as any, callbackFn })
   }
 
+  /**
+   * @deprecated Use the query builder instead
+  */
+  protected buildWhere(options?: QueryOptions<TRowType>): SqlSqlTokenType {
+    return this.builder.where(options?.where || {})
+  }
+
+  /**
+   * @deprecated Use query builder instead
+   */
+  public column(columnName: string): IdentifierSqlTokenType {
+    return this.builder.identifier(columnName)
+  }
+
+
+  /**
+   * @deprecated TBD
+   */
   protected createFinder<TInput, TOutput>(
     loader: DataLoader<TInput, TOutput | undefined>
   ): (input: TInput) => Promise<TOutput | null> {
@@ -170,6 +481,9 @@ export default class DBDataSource<
     }
   }
 
+  /**
+   * @deprecated TBD
+   */
   protected createMultiFinder<TInput, TOutput>(
     loader: DataLoader<TInput, TOutput[]>
   ): (input: TInput) => Promise<TOutput[]> {
@@ -182,129 +496,129 @@ export default class DBDataSource<
     }
   }
 
-  private findByQuery<TData extends Partial<TRowType>>(
-    where: TData
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
-    const conditions = buildConditions(where)
-    const query = sql<TRowType>`
-      SELECT *
-      FROM ${sql.identifier([this.table])}
-      WHERE (
-        ${sql.join(conditions, sql` AND `)}
-      )
-      ${this.defaultOrder}
-    `
-    return query
-  }
-
-  public async findOneBy<TData extends Partial<TRowType>>(
-    where: TData
-  ): Promise<TRowType | null> {
-    const query = this.findByQuery(where)
-    return await this.pool.maybeOne<TRowType>(query)
-  }
-
-  public async findManyBy<TData extends Partial<TRowType>>(
-    where: TData
-  ): Promise<readonly TRowType[]> {
-    const query = this.findByQuery(where)
-    return await this.pool.any<TRowType>(query)
-  }
-
-  protected async insert<TData extends Partial<TRowType>>(
-    data: TData,
-    { columnTransformation = snake }: QueryOptions = {}
+  /**
+   * @deprecated Use `insert`
+   */
+  protected insertOne(
+    data: AllowSql<TInsertType>,
+    options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType> {
-    const columns = Object.keys(data)
-      .map((key) => columnTransformation(key))
-      .map((column) => sql.identifier([column]))
-
-    const values = Object.values(data).map((value) => sql`${value}`)
-
-    const query = sql<TRowType>`
-      INSERT INTO ${sql.identifier([this.table])} (
-        ${sql.join(columns, sql`, `)}
-      ) VALUES (
-        ${sql.join(values, sql`, `)}
-      ) RETURNING *
-    `
-
-    return await this.pool.one(query)
+    return this.insert(data, {
+      ...options,
+      expected: 'one',
+    })
   }
 
-  private updateQuery<
-    TData extends Partial<TRowType>,
-    TWhere extends Partial<TRowType>
-  >(
-    data: TData,
-    where: TWhere,
-    options: QueryOptions = {}
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
-    const columns = buildConditions(data, options)
-    const conditions = buildConditions(where, options)
+  /**
+   * @deprecated Use `insert`
+   */
+  protected async insertMany(
+    data: Array<AllowSql<TInsertType>>,
+    options?: Omit<QueryOptions<TRowType>, 'expected'>
+  ): Promise<TRowType[]> {
+    return [
+      ...await this.insert(data, {
+        ...options,
+        expected: 'any',
+      })
+    ]
+  }
 
-    let whereClause = sql``
-    if (conditions.length > 0) {
-      whereClause = sql`WHERE (
-        ${sql.join(conditions, sql` AND `)}
-      )`
+  /**
+   * @deprecated Use `update`
+   */
+  protected updateOne(
+    data: UpdateSet<TRowType>,
+    options?: Omit<QueryOptions<TRowType>, 'expected'>
+  ): Promise<TRowType> {
+    return this.update(data, {
+      ...options,
+      expected: 'one',
+    })
+  }
+
+  /**
+   * @deprecated Use `update`
+   */
+  protected async updateMany(
+    data: UpdateSet<TRowType>,
+    options?: Omit<QueryOptions<TRowType>, 'expected'>
+  ): Promise<TRowType[]> {
+    return [
+      ...await this.update(data, {
+        ...options,
+        expected: 'any',
+      })
+    ]
+  }
+
+  /**
+   * @deprecated Use `delete`
+   */
+  protected deleteOne(
+    options: Pick<QueryOptions<TRowType>, 'where' | 'eachResult'>
+  ): Promise<TRowType | null> {
+    return this.delete({
+      ...options,
+      expected: 'maybeOne'
+    })
+  }
+
+  /**
+   * @deprecated Use `delete`
+   */
+  protected async deleteMany(
+    options: Pick<QueryOptions<TRowType>, 'where' | 'eachResult'>
+  ): Promise<TRowType[]> {
+    return [
+      ...await this.delete({
+        ...options,
+        expected: 'any'
+      })
+    ]
+  }
+
+  /**
+   * @deprecated use `get`
+   */
+  public async findOneBy(
+    where: Required<QueryOptions<TRowType>>['where']
+  ): Promise<TRowType | null> {
+    return this.get({
+      where,
+      expected: 'one',
+    })
+  }
+
+  /**
+   * @deprecated use `get`
+   */
+  public async findManyBy(
+    where: Required<QueryOptions<TRowType>>['where']
+  ): Promise<TRowType[]> {
+    return [
+      ...await this.get({
+        where,
+        expected: 'any',
+      })
+    ]
+  }
+
+  /**
+   * @deprecated use `get`
+   */
+  public async all(
+    options: LoaderCallback<TRowType> | QueryOptions<TRowType> = {}
+  ): Promise<TRowType[]> {
+    if (typeof options === 'function') {
+      options = { eachResult: options }
     }
 
-    const query = sql<TRowType>`
-      UPDATE ${sql.identifier([this.table])}
-      SET
-        ${sql.join(columns, sql`, `)}
-      ${whereClause} RETURNING *
-    `
-    return query
-  }
+    const result = await this.get({
+      ...options,
+      expected: 'any',
+    })
 
-  protected async updateOne<
-    TData extends Partial<TRowType>,
-    TWhere extends Partial<TRowType>
-  >(data: TData, where: TWhere, options: QueryOptions = {}): Promise<TRowType> {
-    const query = this.updateQuery(data, where, options)
-    return await this.pool.one<TRowType>(query)
-  }
-
-  protected async updateMany<
-    TData extends Partial<TRowType>,
-    TWhere extends Partial<TRowType>
-  >(
-    data: TData,
-    where: TWhere,
-    options: QueryOptions = {}
-  ): Promise<readonly TRowType[]> {
-    const query = this.updateQuery(data, where, options)
-    return await this.pool.any<TRowType>(query)
-  }
-
-  private countQuery<TWhere extends Partial<TRowType>>(
-    where: TWhere,
-    options: QueryOptions = {}
-  ): TaggedTemplateLiteralInvocationType<CountQueryRowType> {
-    const conditions = buildConditions(where, options)
-
-    let whereClause = sql``
-    if (conditions.length > 0) {
-      whereClause = sql`WHERE (
-        ${sql.join(conditions, sql` AND `)}
-      )`
-    }
-
-    const query = sql<CountQueryRowType>`
-      SELECT COUNT(*)
-      FROM ${sql.identifier([this.table])}
-      ${whereClause}
-    `
-    return query
-  }
-
-  public async count<TWhere extends Partial<TRowType>>(
-    where: TWhere,
-    options: QueryOptions = {}
-  ): Promise<number> {
-    const query = this.countQuery(where, options)
-    return await this.pool.oneFirst(query)
+    return [...result]
   }
 }
