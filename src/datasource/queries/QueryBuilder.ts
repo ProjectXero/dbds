@@ -92,7 +92,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
   }
 
   public delete(options: QueryOptions<TRowType> | true): TaggedTemplateLiteralInvocationType<TRowType> {
-    if (!options) {
+    if (options !== true && !options?.where) {
       throw new Error('Implicit deletion of everything is not allowed. To delete everything, please pass `true` or include options.')
     }
 
