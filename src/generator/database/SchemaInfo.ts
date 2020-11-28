@@ -117,7 +117,7 @@ export default class SchemaInfo {
   }
 
   public async getEnums(): Promise<readonly EnumInfo[]> {
-    return await this.pool.any(this.enumQuery());
+    return await this.pool.any(this.enumQuery())
   }
 
 }

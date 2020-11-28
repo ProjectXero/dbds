@@ -4,17 +4,17 @@ import { Arguments, Argv, BuilderCallback } from 'yargs'
 
 import { Generator, GeneratorOptions } from '../..'
 
-import { Params } from '../';
-import { createPool } from 'slonik';
-import { SchemaInfo } from '../../generator/database';
+import { Params } from '../'
+import { createPool } from 'slonik'
+import { SchemaInfo } from '../../generator/database'
 
 const openAsync = promisify(open)
 const closeAsync = promisify(close)
 const writeAsync = promisify(write)
 
-export const command: string = 'generate';
-export const aliases: string[] = ['g', 'gen'];
-export const desc: string = 'Generate types for the database';
+export const command: string = 'generate'
+export const aliases: string[] = ['g', 'gen']
+export const desc: string = 'Generate types for the database'
 
 export interface GenerateParams extends Params {
   output: string
@@ -64,7 +64,7 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         group: 'Generation options',
       },
     })
-    .version(false);
+    .version(false)
 
 export const handler = async (argv: Arguments<GenerateParams>) => {
   try {

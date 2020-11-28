@@ -8,5 +8,5 @@ export default abstract class NodeBuilder<T extends Node> {
 
   constructor(public readonly name: string, protected readonly types: TypeRegistry) { }
 
-  public abstract buildNode(): T;
+  public abstract buildNode(): T
 }

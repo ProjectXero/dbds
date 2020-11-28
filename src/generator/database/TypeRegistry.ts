@@ -58,6 +58,6 @@ export default class TypeRegistry {
       console.warn(`Re-registering known type '${typename}': ${this.typeMap[typename]} => ${target}`)
     }
 
-    this.typeMap[typename] = target;
+    this.typeMap[typename] = target
   }
 }

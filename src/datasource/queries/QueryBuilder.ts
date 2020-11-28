@@ -4,11 +4,11 @@ import {
   SqlSqlTokenType,
   SqlTokenType,
   TaggedTemplateLiteralInvocationType,
-} from "slonik";
-import { raw } from "slonik-sql-tag-raw";
+} from "slonik"
+import { raw } from "slonik-sql-tag-raw"
 
-import { ColumnList, Conditions, GenericConditions, UpdateSet } from "./types";
-import { isSqlSqlTokenType } from "./utils";
+import { ColumnList, Conditions, GenericConditions, UpdateSet } from "./types"
+import { isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
   where?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
