@@ -176,6 +176,23 @@ describe(QueryBuilder, () => {
       })
     })
 
+    describe('update', () => {
+      it('accepts a basic object', () => {
+        expect(builder.update({
+          id: 5,
+          name: 'any',
+          nullable: null,
+          optional: 'asdf',
+          optionallyNullable: null,
+          stringOrNumber: 5,
+        })).toMatchSnapshot()
+      })
+
+      it('accepts raw sql values', () => {
+        expect(builder.update({ name: sql`anything i want` })).toMatchSnapshot()
+      })
+    })
+
     describe('delete', () => {
       it("doesn't let you delete everything without explicitly okaying it", () => {
         // @ts-expect-error

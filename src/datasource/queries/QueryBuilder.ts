@@ -7,7 +7,7 @@ import {
 } from "slonik";
 import { raw } from "slonik-sql-tag-raw";
 
-import { ColumnList, Conditions, GenericConditions } from "./types";
+import { ColumnList, Conditions, GenericConditions, UpdateSet } from "./types";
 import { isSqlSqlTokenType } from "./utils";
 
 export interface QueryOptions<TRowType> {
@@ -38,6 +38,16 @@ export default class QueryBuilder<TRowType> {
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
     `
+  }
+
+  public update(values: UpdateSet<TRowType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const updateQuery = sql<TRowType>`
+      UPDATE ${this.identifier()}
+      ${this.set(values)}
+      ${options?.where ? this.where(options.where) : EMPTY}
+      RETURNING *
+    `
+    return this.wrapCte('update', updateQuery, options)
   }
 
   public delete(options: QueryOptions<TRowType> | true): TaggedTemplateLiteralInvocationType<TRowType> {
@@ -148,6 +158,15 @@ export default class QueryBuilder<TRowType> {
 
         return sql`${this.identifier(column)} = ${sqlValue}`
       })
+  }
+
+  protected set(values: UpdateSet<TRowType>): SqlSqlTokenType {
+    const pairs = Object.entries(values)
+      .filter(([column, value]) => column !== undefined && value !== undefined)
+      .map<SqlSqlTokenType>(([column, value]) => {
+        return sql`${this.identifier(column)} = ${value}`
+      })
+    return sql`SET ${sql.join(pairs, sql`, `)}`
   }
 
   protected columnList(...columns: Array<ColumnList>): SqlTokenType[] {

@@ -308,3 +308,50 @@ Object {
   "values": Array [],
 }
 `;
+
+exports[`QueryBuilder core query builders update accepts a basic object 1`] = `
+Object {
+  "sql": "
+      WITH \\"update_rows\\" AS (
+        
+      UPDATE \\"any_table\\"
+      SET \\"any_table\\".\\"id\\" = $1, \\"any_table\\".\\"name\\" = $2, \\"any_table\\".\\"nullable\\" = $3, \\"any_table\\".\\"optional\\" = $4, \\"any_table\\".\\"optionallyNullable\\" = $5, \\"any_table\\".\\"stringOrNumber\\" = $6
+      
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"update_rows\\"
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    5,
+    "any",
+    null,
+    "asdf",
+    null,
+    5,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders update accepts raw sql values 1`] = `
+Object {
+  "sql": "
+      WITH \\"update_rows\\" AS (
+        
+      UPDATE \\"any_table\\"
+      SET \\"any_table\\".\\"name\\" = anything i want
+      
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"update_rows\\"
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
