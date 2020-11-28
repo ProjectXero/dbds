@@ -1,0 +1,295 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`QueryBuilder clause generators groupBy accepts a list of column names as an array of strings 1`] = `
+Object {
+  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators groupBy accepts a list of column names as strings 1`] = `
+Object {
+  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators groupBy accepts a mix of different types 1`] = `
+Object {
+  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators groupBy accepts arbitrary sql tokens 1`] = `
+Object {
+  "sql": "GROUP BY anything i want!",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators groupBy accepts identifier tokens 1`] = `
+Object {
+  "sql": "GROUP BY \\"column\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators having accepts a list of expressions 1`] = `
+Object {
+  "sql": "HAVING (true AND false AND more raw expressions etc.)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators having accepts a simple object 1`] = `
+Object {
+  "sql": "HAVING (\\"any_table\\".\\"id\\" = $1)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators having handles multiple values for a column 1`] = `
+Object {
+  "sql": "HAVING (\\"any_table\\".\\"id\\" = ANY($1::integer[]))",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+      2,
+      3,
+    ],
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators having lets you pass in a raw expression 1`] = `
+Object {
+  "sql": "HAVING true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators having produces a valid clause with no conditions 1`] = `
+Object {
+  "sql": "HAVING true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators having produces a valid clause with no conditions 2`] = `
+Object {
+  "sql": "HAVING true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators having sanely handles output from the \`and\` and \`or\` utilities 1`] = `
+Object {
+  "sql": "HAVING ((\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2) OR (\\"any_table\\".\\"id\\" = $3 AND \\"any_table\\".\\"name\\" = $4))",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    "asdf",
+    2,
+    "wow",
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators having uses AND for multiple columns in a simple object 1`] = `
+Object {
+  "sql": "HAVING (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    "Bob",
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts a list of column names as an array of strings 1`] = `
+Object {
+  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts a list of column names as strings 1`] = `
+Object {
+  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts a mix of different types 1`] = `
+Object {
+  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts arbitrary sql tokens 1`] = `
+Object {
+  "sql": "ORDER BY anything i want!",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts identifier tokens 1`] = `
+Object {
+  "sql": "ORDER BY \\"column\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators where accepts a list of expressions 1`] = `
+Object {
+  "sql": "WHERE (true AND false AND more raw expressions etc.)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators where accepts a simple object 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::integer[]))",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+      2,
+      3,
+    ],
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators where lets you pass in a raw expression 1`] = `
+Object {
+  "sql": "WHERE true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators where produces a valid clause with no conditions 1`] = `
+Object {
+  "sql": "WHERE true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators where produces a valid clause with no conditions 2`] = `
+Object {
+  "sql": "WHERE true",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators where sanely handles output from the \`and\` and \`or\` utilities 1`] = `
+Object {
+  "sql": "WHERE ((\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2) OR (\\"any_table\\".\\"id\\" = $3 AND \\"any_table\\".\\"name\\" = $4))",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    "asdf",
+    2,
+    "wow",
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators where uses AND for multiple columns in a simple object 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    "Bob",
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders delete builds clauses correctly 1`] = `
+Object {
+  "sql": "
+      WITH \\"delete_rows\\" AS (
+        
+      DELETE FROM \\"any_table\\"
+      WHERE (\\"any_table\\".\\"id\\" = $1)
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"delete_rows\\"
+        GROUP BY \\"any_table\\".\\"id\\"
+        ORDER BY \\"any_table\\".\\"id\\"
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders delete can be forced to delete everything 1`] = `
+Object {
+  "sql": "
+      WITH \\"delete_rows\\" AS (
+        
+      DELETE FROM \\"any_table\\"
+      
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"delete_rows\\"
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder core query builders select selects everything by default 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
