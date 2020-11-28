@@ -60,7 +60,7 @@ Object {
 
 exports[`QueryBuilder clause generators having handles multiple values for a column 1`] = `
 Object {
-  "sql": "HAVING (\\"any_table\\".\\"id\\" = ANY($1::integer[]))",
+  "sql": "HAVING (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
     Array [
@@ -195,7 +195,7 @@ Object {
 
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
 Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::integer[]))",
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
     Array [

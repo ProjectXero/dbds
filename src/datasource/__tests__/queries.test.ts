@@ -11,8 +11,8 @@ interface DummyRowType {
 }
 
 const DummyRowColumnTypes = Object.freeze({
-  id: 'integer',
-  name: 'text',
+  id: 'these',
+  name: 'types',
   optional: 'do',
   nullable: 'not',
   optionallyNullable: 'matter',
