@@ -4,11 +4,19 @@ import { QueryBuilder } from '../queries'
 interface DummyRowType {
   id: number
   name: string
+  optional?: string
+  nullable: string | null
+  optionallyNullable?: string | null
+  stringOrNumber: string | number | null
 }
 
 const DummyRowColumnTypes = Object.freeze({
   id: 'integer',
   name: 'text',
+  optional: 'do',
+  nullable: 'not',
+  optionallyNullable: 'matter',
+  stringOrNumber: 'here',
 })
 
 describe(QueryBuilder, () => {
@@ -21,6 +29,10 @@ describe(QueryBuilder, () => {
     describe('where', () => {
       it('accepts a simple object', () => {
         expect(builder.where({ id: 1 })).toMatchSnapshot()
+      })
+
+      it('accepts complex conditions', () => {
+        expect(builder.where({ id: 1, nullable: null, stringOrNumber: ['a', null] })).toMatchSnapshot()
       })
 
       it('uses AND for multiple columns in a simple object', () => {

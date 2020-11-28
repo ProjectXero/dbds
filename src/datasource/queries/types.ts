@@ -1,4 +1,4 @@
-import { IdentifierSqlTokenType, SqlSqlTokenType } from "slonik"
+import { IdentifierSqlTokenType, SqlSqlTokenType, SqlTokenType } from "slonik"
 
 export type PrimitiveValueType = string | number | boolean | null
 export type ValueType =
@@ -6,18 +6,30 @@ export type ValueType =
   | Array<PrimitiveValueType>
   | ReadonlyArray<PrimitiveValueType>
 
-export type ConditionValue<T extends string | number | boolean> = T | null | Array<T | null>
+export type ValueOrArray<T> = T | T[]
 
-export type GenericConditions = Record<string, ConditionValue<string> | ConditionValue<number> | ConditionValue<boolean> | SqlSqlTokenType>
+export type Nullable<T> = T | null
+
+export type GenericConditions = Record<
+  string,
+  | ValueOrArray<string | null>
+  | ValueOrArray<number | null>
+  | ValueOrArray<boolean | null>
+  | null
+  | SqlTokenType
+>
+
+export type Arrayify<T> =
+  T extends string | number | boolean | null
+  ? T extends string | number | boolean
+  ? ValueOrArray<T | null>
+  : never
+  : T extends string | number | boolean
+  ? ValueOrArray<T>
+  : never
 
 export type Conditions<TRowType> = {
-  [K in keyof TRowType]?: TRowType[K] extends string
-  ? ConditionValue<string>
-  : TRowType[K] extends number
-  ? ConditionValue<number>
-  : TRowType[K] extends boolean
-  ? ConditionValue<boolean>
-  : SqlSqlTokenType
+  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType
 } & GenericConditions
 
 export type ColumnListEntry = string | IdentifierSqlTokenType | SqlSqlTokenType

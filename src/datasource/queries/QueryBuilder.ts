@@ -136,14 +136,14 @@ export default class QueryBuilder<TRowType> {
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
         let sqlValue: SqlSqlTokenType
-        if (value === null || typeof value !== 'object' || isSqlSqlTokenType(value)) {
-          sqlValue = sql`${value}`
-        } else {
+        if (Array.isArray(value)) {
           if (!this.columnTypes) {
             throw new TypeError('Cannot use array types as column types were not provided')
           }
 
           sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
+        } else {
+          sqlValue = sql`${value}`
         }
 
         return sql`${this.identifier(column)} = ${sqlValue}`

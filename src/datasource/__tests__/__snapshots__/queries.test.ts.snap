@@ -178,6 +178,21 @@ Object {
 }
 `;
 
+exports[`QueryBuilder clause generators where accepts complex conditions 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" = $2 AND \\"any_table\\".\\"stringOrNumber\\" = ANY($3::here[]))",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    null,
+    Array [
+      "a",
+      null,
+    ],
+  ],
+}
+`;
+
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
 Object {
   "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::integer[]))",
