@@ -134,6 +134,7 @@ export default class QueryBuilder<TRowType> {
         FROM ${queryId}
         ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
         ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+        ${options?.having ? this.having(options.having) : EMPTY}
     `
   }
 
