@@ -166,6 +166,7 @@ Generation options
       --gen-tables        Generate table types         [boolean] [default: true]
       --gen-enums         Generate enum types          [boolean] [default: true]
       --gen-insert-types  Generate table insert types  [boolean] [default: true]
+      --gen-type-objects  Generate column type objects [boolean] [default: true]
   -N, --newline           Type of newline to use
                                          [choices: "lf", "crlf"] [default: "lf"]
 
