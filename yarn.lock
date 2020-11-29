@@ -6680,35 +6680,10 @@ slonik-sql-tag-raw@^1.0.2:
     serialize-error "^6.0.0"
     slonik "^22.4.4"
 
-slonik@^22.4.4, slonik@^23.0.0:
+slonik@^22.4.4, slonik@^23.0.0, slonik@^23.0.3:
   version "23.0.3"
   resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.0.3.tgz#723626325c8e9728a05e93123073313fe6cadf48"
   integrity sha512-YWkzQ2iUC06h2jKMwTzqbun/tMp9KJXBJJj/51p8UnXyXQC6CiH3nD9A3GWKAF346kH6VpJ2ve8AnI7zjKvbAA==
-  dependencies:
-    "@types/roarr" "^2.14.2"
-    concat-stream "^2.0.0"
-    delay "^4.4.0"
-    es6-error "^4.1.1"
-    get-stack-trace "^2.0.3"
-    is-plain-object "^5.0.0"
-    iso8601-duration "^1.2.0"
-    pg "^8.4.1"
-    pg-connection-string "^2.4.0"
-    pg-copy-streams "^5.1.1"
-    pg-copy-streams-binary "^2.0.1"
-    pg-cursor "^2.4.1"
-    pg-types "^3.0.1"
-    postgres-array "^2.0.0"
-    postgres-interval "^2.1.0"
-    roarr "^2.15.4"
-    serialize-error "^7.0.1"
-    through2 "^4.0.2"
-    ulid "^2.3.0"
-
-slonik@^23.0.2:
-  version "23.0.2"
-  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.0.2.tgz#f8c15d49c4075dc43ba3eaedb8dcf207e10f50a2"
-  integrity sha512-sZ7Nkp+YrFdPKcJLciXF3xIavtp3HSQQzbhulIF1l4EGWZNmHkkGMvZ0vvIGAPdIYCsh/orM6K2afyhQjszcEw==
   dependencies:
     "@types/roarr" "^2.14.2"
     concat-stream "^2.0.0"
