@@ -44,17 +44,16 @@ export default class DBDataSource<
 
   protected defaultOrder: SqlSqlTokenType = sql``
 
-  /**
-   * Types of the columns in the database.
-   * Used to map values for insert and lookups on multiple values.
-   *
-   * EVERY DATASOURCE SHOULD PROVIDE THIS AS STUFF WILL BREAK OTHERWISE.
-   */
-  protected readonly columnTypes: Record<keyof TRowType, string> = {} as any
-
   constructor(
     protected readonly pool: DatabasePoolType,
-    protected readonly table: string
+    protected readonly table: string,
+    /**
+    * Types of the columns in the database.
+    * Used to map values for insert and lookups on multiple values.
+    *
+    * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
+    */
+    protected readonly columnTypes: Record<keyof TRowType, string>
   ) {
     this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
       columnToKey: camel,

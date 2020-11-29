@@ -32,7 +32,7 @@ describe(DBDataSource, () => {
 
   class DummyDBDataSource extends DBDataSource<DummyRowType> {
     constructor() {
-      super(createMockPool(), 'any_table')
+      super(createMockPool(), 'any_table', { id: 'any', name: 'any', code: 'any' })
       this.loaders = factory
     }
   }
