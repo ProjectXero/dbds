@@ -10,12 +10,16 @@ export interface TableWithNoColumns {
 }
 export interface TableWithNoColumns$Insert {
 }
+export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
 export interface TableWithNumericId {
     id: number;
 }
 export interface TableWithNumericId$Insert {
     id?: number;
 }
+export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+    id: \\"int8\\"
+};
 export interface TableWithCustomTypes {
     enum_type: TestEnum;
     enum_array_type: TestEnum[];
@@ -28,12 +32,21 @@ export interface TableWithCustomTypes$Insert {
     table_type: TableWithUuidId;
     table_array_type: TableWithUuidId[];
 }
+export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+    enum_type: \\"test_enum\\",
+    enum_array_type: \\"test_enum\\",
+    table_type: \\"table_with_uuid_id\\",
+    table_array_type: \\"table_with_uuid_id\\"
+};
 export interface TableWithUuidId {
     id: string;
 }
 export interface TableWithUuidId$Insert {
     id?: string;
 }
+export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+    id: \\"uuid\\"
+};
 export interface TableWithNullableFields {
     nullable: string | null;
     nullable_with_default: string | null;
@@ -46,6 +59,12 @@ export interface TableWithNullableFields$Insert {
     nullable_array: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
+export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+    nullable: \\"text\\",
+    nullable_with_default: \\"text\\",
+    nullable_array: \\"text\\",
+    nullable_array_with_default: \\"text\\"
+};
 "
 `;
 
@@ -124,6 +143,43 @@ exports[`Generator with tables enabled generates tables 2`] = `
 Array [
   Array [
     "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+]
+`;
+
+exports[`Generator with type objects enabled generates type objects 1`] = `
+"export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+    id: \\"int8\\"
+};
+export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+    enum_type: \\"test_enum\\",
+    enum_array_type: \\"test_enum\\",
+    table_type: \\"table_with_uuid_id\\",
+    table_array_type: \\"table_with_uuid_id\\"
+};
+export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+    id: \\"uuid\\"
+};
+export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+    nullable: \\"text\\",
+    nullable_with_default: \\"text\\",
+    nullable_array: \\"text\\",
+    nullable_array_with_default: \\"text\\"
+};
+"
+`;
+
+exports[`Generator with type objects enabled generates type objects 2`] = `
+Array [
+  Array [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  Array [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  Array [
+    "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
   ],
 ]
 `;

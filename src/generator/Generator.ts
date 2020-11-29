@@ -4,6 +4,7 @@ import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, Syn
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
 import NodeBuilder from './builders/NodeBuilder'
 import { CaseFunction } from './builders/TypeBuilder'
+import TypeObjectBuilder from './builders/TypeObjectBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 
 export interface GeneratorOptions {
@@ -12,6 +13,7 @@ export interface GeneratorOptions {
   genEnums?: boolean
   genInsertTypes?: boolean
   genTables?: boolean
+  genTypeObjects?: boolean
 }
 
 export default class Generator {
@@ -24,6 +26,7 @@ export default class Generator {
     enums: boolean
     insertTypes: boolean
     tables: boolean
+    typeObjects: boolean
   }
 
   constructor({
@@ -32,6 +35,7 @@ export default class Generator {
     genEnums = true,
     genInsertTypes = true,
     genTables = true,
+    genTypeObjects = true,
   }: GeneratorOptions) {
     if (newline !== 'lf' && newline !== 'crlf') {
       console.warn(`Unknown newline type '${newline}' received. Acceptable values: lf, crlf. Defaulting to 'lf'.`)
@@ -51,6 +55,7 @@ export default class Generator {
       enums: genEnums,
       insertTypes: genInsertTypes,
       tables: genTables,
+      typeObjects: genTypeObjects,
     })
   }
 
@@ -100,6 +105,11 @@ export default class Generator {
 
       if (this.generate.insertTypes) {
         const builder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
+        builders.push(builder)
+      }
+
+      if (this.generate.typeObjects) {
+        const builder = new TypeObjectBuilder(tableInfo, this.types, this.convertCase)
         builders.push(builder)
       }
     })

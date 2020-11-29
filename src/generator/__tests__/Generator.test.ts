@@ -34,6 +34,7 @@ describe(Generator, () => {
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
+      genTypeObjects: false,
     })
 
     it('generates nothing', async () => {
@@ -47,6 +48,7 @@ describe(Generator, () => {
       genEnums: false,
       genInsertTypes: false,
       genTables: true,
+      genTypeObjects: false,
     })
 
     it('generates tables', async () => {
@@ -63,6 +65,7 @@ describe(Generator, () => {
       genEnums: true,
       genInsertTypes: false,
       genTables: false,
+      genTypeObjects: false,
     })
 
     it('generates enums', async () => {
@@ -76,9 +79,27 @@ describe(Generator, () => {
       genEnums: false,
       genInsertTypes: true,
       genTables: false,
+      genTypeObjects: false,
     })
 
     it('generates insert types', async () => {
+      const warnSpy = jest.spyOn(console, 'warn')
+      warnSpy.mockImplementation(() => { })
+      expect(await instance.build()).toMatchSnapshot()
+      expect(warnSpy.mock.calls).toMatchSnapshot()
+    })
+  })
+
+  describe('with type objects enabled', () => {
+    const instance = new Generator({
+      schema: dummySchema,
+      genEnums: false,
+      genInsertTypes: false,
+      genTables: false,
+      genTypeObjects: true,
+    })
+
+    it('generates type objects', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
       warnSpy.mockImplementation(() => { })
       expect(await instance.build()).toMatchSnapshot()

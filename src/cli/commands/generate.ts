@@ -21,6 +21,7 @@ export interface GenerateParams extends Params {
   genEnums: boolean
   genInsertTypes: boolean
   genTables: boolean
+  genTypeObjects: boolean
   newline: Required<GeneratorOptions>['newline']
 }
 
@@ -55,6 +56,12 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         default: true,
         group: 'Generation options',
       },
+      'gen-type-objects': {
+        type: 'boolean',
+        description: 'Generate column type objects',
+        default: true,
+        group: 'Generation options',
+      },
       newline: {
         alias: 'N',
         requiresArg: true,
@@ -86,6 +93,7 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       genEnums: argv.genEnums,
       genTables: argv.genTables,
       genInsertTypes: argv.genInsertTypes,
+      genTypeObjects: argv.genTypeObjects,
     })
 
     const result = await generator.build()
