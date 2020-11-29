@@ -1,10 +1,10 @@
 {
-  "name": "@fallingfish/pg-typegen",
+  "name": "@fallingfish/dbds",
   "version": "1.0.0",
   "description": "TypeScript type generator for PostgreSQL databases",
   "main": "./dist/index.js",
   "bin": {
-    "pg-typegen": "./bin/pg-typegen"
+    "dbds": "./bin/dbds"
   },
   "scripts": {
     "build": "tsc",
@@ -16,7 +16,7 @@
     "bin",
     "dist"
   ],
-  "repository": "https://github.com/ProjectXero/pg-typegen",
+  "repository": "https://github.com/ProjectXero/dbds",
   "author": "Matthew Lanigan (rintaun@gmail.com)",
   "license": "MIT",
   "dependencies": {
