@@ -71,53 +71,67 @@ describe(QueryBuilder, () => {
     })
 
     describe('orderBy', () => {
-      it('accepts a list of column names as strings', () => {
-        expect(builder.orderBy('a', 'b', 'c')).toMatchSnapshot()
+      it('accepts a single column name as a string', () => {
+        expect(builder.orderBy('a')).toMatchSnapshot()
       })
 
       it('accepts a list of column names as an array of strings', () => {
         expect(builder.orderBy(['a', 'b', 'c'])).toMatchSnapshot()
       })
 
-      it('accepts identifier tokens', () => {
+      it('accepts a single column name as an identifier', () => {
         expect(builder.orderBy(sql.identifier(['column']))).toMatchSnapshot()
       })
 
-      it('accepts arbitrary sql tokens', () => {
+      it('accepts a single column name as arbitrary sql', () => {
         expect(builder.orderBy(sql`anything i want!`)).toMatchSnapshot()
       })
 
       it('accepts a mix of different types', () => {
         expect(
-          builder.orderBy('a', sql.identifier(['b']), sql`c`, [
+          builder.orderBy([
+            'a',
+            sql.identifier(['b']),
+            sql`c`,
             'd',
             sql.identifier(['e']),
             sql`f`,
           ])
         ).toMatchSnapshot()
       })
+
+      it('can use order tuples', () => {
+        expect(builder.orderBy([
+          ['a', 'DESC'],
+          'b',
+          [sql`c`, 'ASC']
+        ])).toMatchSnapshot()
+      })
     })
 
     describe('groupBy', () => {
-      it('accepts a list of column names as strings', () => {
-        expect(builder.groupBy('a', 'b', 'c')).toMatchSnapshot()
+      it('accepts a single column name as a string', () => {
+        expect(builder.groupBy('a')).toMatchSnapshot()
       })
 
       it('accepts a list of column names as an array of strings', () => {
         expect(builder.groupBy(['a', 'b', 'c'])).toMatchSnapshot()
       })
 
-      it('accepts identifier tokens', () => {
+      it('accepts a single column name as an identifier', () => {
         expect(builder.groupBy(sql.identifier(['column']))).toMatchSnapshot()
       })
 
-      it('accepts arbitrary sql tokens', () => {
+      it('accepts a single column name as arbitrary sql', () => {
         expect(builder.groupBy(sql`anything i want!`)).toMatchSnapshot()
       })
 
       it('accepts a mix of different types', () => {
         expect(
-          builder.groupBy('a', sql.identifier(['b']), sql`c`, [
+          builder.groupBy([
+            'a',
+            sql.identifier(['b']),
+            sql`c`,
             'd',
             sql.identifier(['e']),
             sql`f`,
