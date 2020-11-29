@@ -1,0 +1,14 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "18:30"
+  open-pull-requests-limit: 10
+  versioning-strategy: increase
+  labels:
+    - "dependencies"
+    - "automerge"
+  reviewers:
+    - "rintaun"

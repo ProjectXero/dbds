@@ -1,0 +1,28 @@
+version = 1
+
+[merge]
+automerge_label = "automerge"
+require_automerge_label = true
+blocking_labels = ["wip"]
+method = "merge"
+notify_on_conflict = false
+optimistic_updates = true # default: true
+dont_wait_on_status_checks = []
+prioritize_ready_to_merge = true
+do_not_merge = false
+
+[merge.message]
+title = "pull_request_title"
+body = "pull_request_body"
+include_pull_request_url = false
+include_pr_number = true
+body_type = "plain_text"
+
+strip_html_comments = true # default: false
+
+[update]
+always = false
+require_automerge_label = true
+
+[approve]
+auto_approve_usernames = ["rintaun"]
