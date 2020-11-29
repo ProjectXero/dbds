@@ -33,7 +33,7 @@ export type LoaderCallback<TResultType> = (
 ) => void
 
 export default class DBDataSource<
-  TRowType extends Record<string, any> & { id: string },
+  TRowType extends Record<string, any>,
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
   > implements DataSource<TContext> {
