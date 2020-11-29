@@ -52,7 +52,10 @@ export type UpdateSet<TRowType> = {
 } & GenericSet
 
 export type ColumnListEntry = string | IdentifierSqlTokenType | SqlSqlTokenType
-export type ColumnList = ColumnListEntry | Array<ColumnListEntry> | ReadonlyArray<ColumnListEntry>
+export type ColumnList = ValueOrArray<ColumnListEntry>
+
+export type OrderTuple = [ColumnListEntry] | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlTokenType];
+export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>;
 
 export type AllowSql<T> = {
   [K in keyof T]?: T[K] | SqlTokenType
