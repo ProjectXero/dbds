@@ -2,7 +2,7 @@ import { close, open, write } from 'fs'
 import { promisify } from 'util'
 import { Arguments, Argv, BuilderCallback } from 'yargs'
 
-import { Generator, GeneratorOptions } from '../..'
+import { Generator } from '../..'
 
 import { Params } from '../'
 import { createPool } from 'slonik'
@@ -22,7 +22,6 @@ export interface GenerateParams extends Params {
   genInsertTypes: boolean
   genTables: boolean
   genTypeObjects: boolean
-  newline: Required<GeneratorOptions>['newline']
 }
 
 export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
@@ -62,14 +61,6 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         default: true,
         group: 'Generation options',
       },
-      newline: {
-        alias: 'N',
-        requiresArg: true,
-        choices: ['lf', 'crlf'] as ReadonlyArray<GeneratorOptions['newline']>,
-        description: "Type of newline to use",
-        default: 'lf' as GeneratorOptions['newline'],
-        group: 'Generation options',
-      },
     })
     .version(false)
 
@@ -89,7 +80,6 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
 
     const generator = new Generator({
       schema: schemaInfo,
-      newline: argv.newline,
       genEnums: argv.genEnums,
       genTables: argv.genTables,
       genInsertTypes: argv.genInsertTypes,

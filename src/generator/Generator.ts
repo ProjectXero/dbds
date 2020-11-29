@@ -9,7 +9,6 @@ import { SchemaInfo, TypeRegistry } from './database'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
-  newline?: 'lf' | 'crlf'
   genEnums?: boolean
   genInsertTypes?: boolean
   genTables?: boolean
@@ -31,18 +30,13 @@ export default class Generator {
 
   constructor({
     schema,
-    newline = 'lf',
     genEnums = true,
     genInsertTypes = true,
     genTables = true,
     genTypeObjects = true,
   }: GeneratorOptions) {
-    if (newline !== 'lf' && newline !== 'crlf') {
-      console.warn(`Unknown newline type '${newline}' received. Acceptable values: lf, crlf. Defaulting to 'lf'.`)
-    }
-
     this.printer = createPrinter({
-      newLine: newline === 'crlf' ? NewLineKind.CarriageReturnLineFeed : NewLineKind.LineFeed,
+      newLine: NewLineKind.LineFeed,
       removeComments: false,
     })
 
