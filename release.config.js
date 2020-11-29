@@ -1,7 +1,6 @@
 module.exports = {
   branches: ['main'],
   plugins: [
-    '@semantic-release/npm',
     [
       '@semantic-release/commit-analyzer',
       {
@@ -21,10 +20,17 @@ module.exports = {
       }
     ],
     [
+      '@semantic-release/npm',
+      {
+        tarballDir: 'release',
+      },
+    ],
+    [
       '@semantic-release/github',
       {
-        assets: 'CHANGELOG.md',
-      }
+        assets: 'release/*.tgz',
+      },
     ],
+    '@semantic-release/git',
   ],
 }
