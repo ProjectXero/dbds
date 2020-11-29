@@ -1,0 +1,33 @@
+name: Test
+
+on: [pull_request]
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.4.0
+
+      - uses: bahmutov/npm-install@v1.1.0
+
+  test:
+    name: Test
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate types
+        run: yarn -s typecheck
+
+      # TODO: set up the linter already, jeez
+      # - name: Lint
+      #   run: yarn -s lint
+
+      - name: Run tests
+        run: yarn -s test --ci
