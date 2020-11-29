@@ -10,7 +10,10 @@
     "build": "tsc",
     "typecheck": "tsc --noEmit --project .",
     "test": "yarn jest --passWithNoTests",
-    "prepack": "yarn build"
+    "prepack": "yarn build",
+    "postinstall": "husky install",
+    "prepublish": "pinst --disable",
+    "postpublish": "pinst --enable"
   },
   "files": [
     "src",
