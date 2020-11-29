@@ -8,14 +8,6 @@ Object {
 }
 `;
 
-exports[`QueryBuilder clause generators groupBy accepts a list of column names as strings 1`] = `
-Object {
-  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
-}
-`;
-
 exports[`QueryBuilder clause generators groupBy accepts a mix of different types 1`] = `
 Object {
   "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
@@ -24,17 +16,25 @@ Object {
 }
 `;
 
-exports[`QueryBuilder clause generators groupBy accepts arbitrary sql tokens 1`] = `
+exports[`QueryBuilder clause generators groupBy accepts a single column name as a string 1`] = `
 Object {
-  "sql": "GROUP BY anything i want!",
+  "sql": "GROUP BY \\"any_table\\".\\"a\\"",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
 }
 `;
 
-exports[`QueryBuilder clause generators groupBy accepts identifier tokens 1`] = `
+exports[`QueryBuilder clause generators groupBy accepts a single column name as an identifier 1`] = `
 Object {
   "sql": "GROUP BY \\"column\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators groupBy accepts a single column name as arbitrary sql 1`] = `
+Object {
+  "sql": "GROUP BY anything i want!",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
 }
@@ -128,14 +128,6 @@ Object {
 }
 `;
 
-exports[`QueryBuilder clause generators orderBy accepts a list of column names as strings 1`] = `
-Object {
-  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
-}
-`;
-
 exports[`QueryBuilder clause generators orderBy accepts a mix of different types 1`] = `
 Object {
   "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
@@ -144,7 +136,23 @@ Object {
 }
 `;
 
-exports[`QueryBuilder clause generators orderBy accepts arbitrary sql tokens 1`] = `
+exports[`QueryBuilder clause generators orderBy accepts a single column name as a string 1`] = `
+Object {
+  "sql": "ORDER BY \\"any_table\\".\\"a\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts a single column name as an identifier 1`] = `
+Object {
+  "sql": "ORDER BY \\"column\\"",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators orderBy accepts a single column name as arbitrary sql 1`] = `
 Object {
   "sql": "ORDER BY anything i want!",
   "type": "SLONIK_TOKEN_SQL",
@@ -152,9 +160,9 @@ Object {
 }
 `;
 
-exports[`QueryBuilder clause generators orderBy accepts identifier tokens 1`] = `
+exports[`QueryBuilder clause generators orderBy can use order tuples 1`] = `
 Object {
-  "sql": "ORDER BY \\"column\\"",
+  "sql": "ORDER BY \\"any_table\\".\\"a\\" DESC, \\"any_table\\".\\"b\\", c ASC",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
 }

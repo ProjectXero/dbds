@@ -8,13 +8,13 @@ import {
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, UpdateSet, ValueOrArray } from "./types"
-import { isSqlSqlTokenType } from "./utils"
+import { AllowSql, ColumnList, ColumnListEntry, Conditions, CountQueryRowType, GenericConditions, OrderColumnList, OrderTuple, UpdateSet, ValueOrArray } from "./types"
+import { isOrderTuple, isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
   where?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
   groupBy?: ColumnList
-  orderBy?: ColumnList
+  orderBy?: OrderColumnList
   having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
 }
 
@@ -134,13 +134,58 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     return sql`WHERE ${conditions}`
   }
 
-  public orderBy(...columns: Array<ColumnList>): SqlSqlTokenType {
-    const list = this.columnList(...columns)
+  public orderBy(columns: OrderColumnList): SqlSqlTokenType {
+    if (typeof columns === 'string' || isOrderTuple(columns) || (!Array.isArray(columns) && typeof columns === 'object')) {
+      columns = [columns]
+    }
+
+    const list = columns.map<SqlTokenType>((entry) => {
+      if (typeof entry === 'object' && !Array.isArray(entry)) {
+        return entry
+      }
+
+      if (typeof entry === 'string') {
+        entry = [entry]
+      }
+
+      if (!Array.isArray(entry)) {
+        // this shouldn't happen, but just in case
+        throw new TypeError(`Unknown column list entry: ${typeof entry}`)
+      }
+
+      let [column, direction] = entry
+
+      column = this.convertColumnEntry(column)
+
+      if (!direction) {
+        return sql`${column}`
+      }
+
+      if (typeof direction !== 'object') {
+        switch (direction) {
+          case 'ASC':
+            direction = sql`ASC`
+            break
+          case 'DESC':
+            direction = sql`DESC`
+            break
+          default:
+            // this shouldn't happen, but just in case
+            throw new TypeError(`Unknown order direction: ${direction}`)
+        }
+      }
+
+      return sql`${column} ${direction}`
+    })
 
     return sql`ORDER BY ${sql.join(list, sql`, `)}`
   }
 
-  public groupBy(...columns: Array<ColumnList>): SqlSqlTokenType {
+  public groupBy(columns: ColumnList): SqlSqlTokenType {
+    if (!Array.isArray(columns)) {
+      columns = [columns]
+    }
+
     const list = this.columnList(...columns)
 
     return sql`GROUP BY ${sql.join(list, sql`, `)}`
@@ -228,5 +273,13 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       }
       return column
     })
+  }
+
+  private convertColumnEntry(column: string | IdentifierSqlTokenType | SqlSqlTokenType): IdentifierSqlTokenType | SqlSqlTokenType {
+    if (typeof column === 'object') {
+      return column
+    }
+
+    return this.identifier(column)
   }
 }
