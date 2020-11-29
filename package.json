@@ -1,6 +1,6 @@
 {
   "name": "@fallingfish/dbds",
-  "version": "1.0.1",
+  "version": "1.0.0",
   "description": "TypeScript type generator for PostgreSQL databases",
   "main": "./dist/index.js",
   "bin": {
@@ -11,7 +11,7 @@
     "typecheck": "tsc --noEmit --project .",
     "test": "yarn jest --passWithNoTests",
     "prepack": "yarn build",
-    "_postinstall": "husky install",
+    "postinstall": "husky install",
     "prepublish": "pinst --disable",
     "postpublish": "pinst --enable"
   },
