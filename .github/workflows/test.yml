@@ -1,0 +1,26 @@
+name: Test
+
+on: [pull_request]
+
+jobs:
+  test:
+    name: Build & Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14.4.0
+
+      - uses: bahmutov/npm-install@v1.1.0
+
+      - name: Validate types
+        run: yarn -s typecheck
+
+      # TODO: set up the linter already, jeez
+      # - name: Lint
+      #   run: yarn -s lint
+
+      - name: Run tests
+        run: yarn -s test --ci

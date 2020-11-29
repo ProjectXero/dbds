@@ -8,7 +8,7 @@ import {
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { AllowSql, ColumnList, ColumnListEntry, Conditions, CountQueryRowType, GenericConditions, OrderColumnList, OrderTuple, UpdateSet, ValueOrArray } from "./types"
+import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, OrderColumnList, UpdateSet, ValueOrArray } from "./types"
 import { isOrderTuple, isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
