@@ -9,6 +9,8 @@ jobs:
   test:
     name: Release
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
     steps:
       - uses: actions/checkout@v2
         with:
