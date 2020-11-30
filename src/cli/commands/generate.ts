@@ -7,6 +7,7 @@ import { Generator } from '../..'
 import { Params } from '../'
 import { createPool } from 'slonik'
 import { SchemaInfo } from '../../generator/database'
+import { Transformations } from '../../generator/types'
 
 const openAsync = promisify(open)
 const closeAsync = promisify(close)
@@ -22,6 +23,9 @@ export interface GenerateParams extends Params {
   genInsertTypes: boolean
   genTables: boolean
   genTypeObjects: boolean
+  transformColumns: Transformations.Column
+  transformEnumMembers: Transformations.EnumMember
+  transformTypeNames: Transformations.TypeName
 }
 
 export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
@@ -61,6 +65,30 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         default: true,
         group: 'Generation options',
       },
+      'transform-columns': {
+        alias: 'C',
+        requiresArg: true,
+        choices: ['snake', 'camel', 'none'] as Transformations.Column[],
+        description: 'Case conversion for column names',
+        default: 'none' as Transformations.Column,
+        group: 'Code style options',
+      },
+      'transform-enum-members': {
+        alias: 'E',
+        requiresArg: true,
+        choices: ['constant', 'pascal', 'snake', 'camel', 'none'] as Transformations.EnumMember[],
+        description: 'Case conversion for enum type members',
+        default: 'pascal' as Transformations.EnumMember,
+        group: 'Code style options',
+      },
+      'transform-type-names': {
+        alias: 'T',
+        requiresArg: true,
+        choices: ['camel', 'constant', 'pascal'] as Transformations.TypeName[],
+        description: 'Case conversion for type names',
+        default: 'pascal' as Transformations.TypeName,
+        group: 'Code style options',
+      }
     })
     .version(false)
 
@@ -70,13 +98,13 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       ? 1 // STDOUT
       : await openAsync(argv.output, 'w')
 
-    const dbUrl = argv["config-database"] || argv.database
+    const dbUrl = argv['config-database'] || argv.database
 
     if (!dbUrl) {
       throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
     }
 
-    const schemaInfo = new SchemaInfo(createPool(dbUrl), argv["config-schema"] || argv.schema)
+    const schemaInfo = new SchemaInfo(createPool(dbUrl), argv['config-schema'] || argv.schema)
 
     const generator = new Generator({
       schema: schemaInfo,
@@ -84,6 +112,9 @@ export const handler = async (argv: Arguments<GenerateParams>) => {
       genTables: argv.genTables,
       genInsertTypes: argv.genInsertTypes,
       genTypeObjects: argv.genTypeObjects,
+      transformColumns: argv.transformColumns,
+      transformEnumMembers: argv.transformEnumMembers,
+      transformTypeNames: argv.transformTypeNames,
     })
 
     const result = await generator.build()

@@ -1,4 +1,4 @@
-import { factory, SyntaxKind, TypeElement } from 'typescript'
+import { factory, Identifier, SyntaxKind, TypeElement } from 'typescript'
 
 import ColumnBuilder from './ColumnBuilder'
 import TableBuilder from './TableBuilder'
@@ -6,7 +6,7 @@ import TableBuilder from './TableBuilder'
 export default class InsertTypeBuilder extends TableBuilder {
   protected buildMemberNodes(): TypeElement[] {
     return this.columns.map<TypeElement>((columnInfo) => {
-      const builder = new ColumnBuilder(columnInfo, this.types)
+      const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
       let signature = builder.buildNode()
 
       if (columnInfo.hasDefault) {
@@ -23,13 +23,17 @@ export default class InsertTypeBuilder extends TableBuilder {
     })
   }
 
+  public typename(name: string = this.name): Identifier {
+    return this.createIdentifier(super.typename(name).text + '$Insert')
+  }
+
   public buildNode() {
     let declaration = super.buildNode()
     declaration = factory.updateInterfaceDeclaration(
       declaration,
       declaration.decorators,
       declaration.modifiers,
-      factory.createIdentifier(declaration.name.text + '$Insert'),
+      this.typename(),
       declaration.typeParameters,
       declaration.heritageClauses,
       declaration.members
