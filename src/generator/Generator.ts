@@ -1,26 +1,29 @@
-import { pascal } from 'case'
 import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
+import * as Case from 'case'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
 import NodeBuilder from './builders/NodeBuilder'
-import { CaseFunction } from './builders/TypeBuilder'
 import TypeObjectBuilder from './builders/TypeObjectBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
+import { CaseFunction, Transformations } from './types'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
-  newline?: 'lf' | 'crlf'
   genEnums?: boolean
   genInsertTypes?: boolean
   genTables?: boolean
   genTypeObjects?: boolean
+  transformColumns?: Transformations.Column
+  transformEnumMembers?: Transformations.EnumMember
+  transformTypeNames?: Transformations.TypeName
 }
+
+const noop: CaseFunction = (value: string): string => value
 
 export default class Generator {
   private printer: Printer
   private schema: SchemaInfo
   private types: TypeRegistry
-  private convertCase: CaseFunction
 
   public readonly generate: {
     enums: boolean
@@ -29,33 +32,37 @@ export default class Generator {
     typeObjects: boolean
   }
 
+  public readonly transform: Transformations
+
   constructor({
     schema,
-    newline = 'lf',
     genEnums = true,
     genInsertTypes = true,
     genTables = true,
     genTypeObjects = true,
+    transformColumns = 'none',
+    transformEnumMembers = 'pascal',
+    transformTypeNames = 'pascal',
   }: GeneratorOptions) {
-    if (newline !== 'lf' && newline !== 'crlf') {
-      console.warn(`Unknown newline type '${newline}' received. Acceptable values: lf, crlf. Defaulting to 'lf'.`)
-    }
-
     this.printer = createPrinter({
-      newLine: newline === 'crlf' ? NewLineKind.CarriageReturnLineFeed : NewLineKind.LineFeed,
+      newLine: NewLineKind.LineFeed,
       removeComments: false,
     })
 
     this.schema = schema
     this.types = new TypeRegistry()
 
-    this.convertCase = pascal
-
     this.generate = Object.freeze({
       enums: genEnums,
       insertTypes: genInsertTypes,
       tables: genTables,
       typeObjects: genTypeObjects,
+    })
+
+    this.transform = Object.freeze({
+      columns: transformColumns === 'none' ? noop : Case[transformColumns],
+      enumMembers: transformEnumMembers === 'none' ? noop : Case[transformEnumMembers],
+      typeNames: Case[transformTypeNames]
     })
   }
 
@@ -86,7 +93,7 @@ export default class Generator {
 
     enums.forEach((enumInfo) => {
       if (this.generate.enums) {
-        const builder = new EnumBuilder(enumInfo, this.types, this.convertCase)
+        const builder = new EnumBuilder(enumInfo, this.types, this.transform)
         this.types.add(builder.name, builder.typename().text)
         builders.push(builder)
       }
@@ -98,18 +105,18 @@ export default class Generator {
 
     tables.forEach((tableInfo) => {
       if (this.generate.tables) {
-        const builder = new TableBuilder(tableInfo, this.types, this.convertCase)
+        const builder = new TableBuilder(tableInfo, this.types, this.transform)
         this.types.add(builder.name, builder.typename().text)
         builders.push(builder)
       }
 
       if (this.generate.insertTypes) {
-        const builder = new InsertTypeBuilder(tableInfo, this.types, this.convertCase)
+        const builder = new InsertTypeBuilder(tableInfo, this.types, this.transform)
         builders.push(builder)
       }
 
       if (this.generate.typeObjects) {
-        const builder = new TypeObjectBuilder(tableInfo, this.types, this.convertCase)
+        const builder = new TypeObjectBuilder(tableInfo, this.types, this.transform)
         builders.push(builder)
       }
     })

@@ -68,6 +68,74 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
 "
 `;
 
+exports[`Generator with different case conversions properly cases members 1`] = `
+"export enum TestEnum {
+    A = \\"A\\",
+    B = \\"b\\",
+    CAMEL_CASE_RULES = \\"camel_case_rules\\"
+}
+export interface TableWithNoColumns {
+}
+export interface TableWithNoColumns$Insert {
+}
+export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+export interface TableWithNumericId {
+    id: number;
+}
+export interface TableWithNumericId$Insert {
+    id?: number;
+}
+export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+    id: \\"int8\\"
+};
+export interface TableWithCustomTypes {
+    enumType: TestEnum;
+    enumArrayType: TestEnum[];
+    tableType: TableWithUuidId;
+    tableArrayType: TableWithUuidId[];
+}
+export interface TableWithCustomTypes$Insert {
+    enumType: TestEnum;
+    enumArrayType: TestEnum[];
+    tableType: TableWithUuidId;
+    tableArrayType: TableWithUuidId[];
+}
+export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+    enumType: \\"test_enum\\",
+    enumArrayType: \\"test_enum\\",
+    tableType: \\"table_with_uuid_id\\",
+    tableArrayType: \\"table_with_uuid_id\\"
+};
+export interface TableWithUuidId {
+    id: string;
+}
+export interface TableWithUuidId$Insert {
+    id?: string;
+}
+export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+    id: \\"uuid\\"
+};
+export interface TableWithNullableFields {
+    nullable: string | null;
+    nullableWithDefault: string | null;
+    nullableArray: string[] | null;
+    nullableArrayWithDefault: string[] | null;
+}
+export interface TableWithNullableFields$Insert {
+    nullable: string | null;
+    nullableWithDefault?: string | null;
+    nullableArray: string[] | null;
+    nullableArrayWithDefault?: string[] | null;
+}
+export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+    nullable: \\"text\\",
+    nullableWithDefault: \\"text\\",
+    nullableArray: \\"text\\",
+    nullableArrayWithDefault: \\"text\\"
+};
+"
+`;
+
 exports[`Generator with enums enabled generates enums 1`] = `
 "export enum TestEnum {
     A = \\"A\\",

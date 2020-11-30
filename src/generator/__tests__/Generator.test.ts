@@ -106,4 +106,16 @@ describe(Generator, () => {
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
   })
+
+  describe('with different case conversions', () => {
+    const instance = new Generator({
+      schema: dummySchema,
+      transformColumns: 'camel',
+      transformEnumMembers: 'constant',
+    })
+
+    it('properly cases members', async () => {
+      expect(await instance.build()).toMatchSnapshot()
+    })
+  })
 })
