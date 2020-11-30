@@ -18,6 +18,7 @@ export type GenericConditions = Record<
   | ValueOrArray<number | null>
   | ValueOrArray<boolean | null>
   | null
+  | undefined
   | SqlTokenType
 >
 
@@ -31,7 +32,7 @@ export type Arrayify<T> =
   : never
 
 export type Conditions<TRowType> = {
-  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType
+  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType | undefined
 } & GenericConditions
 
 export type GenericSet = Record<
@@ -40,6 +41,7 @@ export type GenericSet = Record<
   | number
   | boolean
   | null
+  | undefined
   | SqlTokenType
 >
 

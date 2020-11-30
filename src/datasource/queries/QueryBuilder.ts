@@ -250,7 +250,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
         if (Array.isArray(value)) {
           sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
         } else {
-          sqlValue = sql`${value}`
+          sqlValue = sql`${value!}`
         }
 
         return sql`${this.identifier(column)} = ${sqlValue}`
@@ -261,7 +261,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     const pairs = Object.entries(values)
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
-        return sql`${this.identifier(column)} = ${value}`
+        return sql`${this.identifier(column)} = ${value!}`
       })
     return sql`SET ${sql.join(pairs, sql`, `)}`
   }
