@@ -10,8 +10,6 @@
 
 * remove newline. it does nothing ([855b63f](https://github.com/ProjectXero/dbds/commit/855b63f6e0ad9db6d992c27def78403b711715ed))
 
-# Changelog
-
 ## 1.0.0 (2020-11-29)
 
 ### Features
