@@ -1,3 +1,15 @@
+## [1.1.0](https://github.com/ProjectXero/dbds/compare/v1.0.0...v1.1.0) (2020-11-30)
+
+
+### Features
+
+* allow case tweaking ([cc31634](https://github.com/ProjectXero/dbds/commit/cc3163433a151c691ace020b395c0bf946f594a9)), closes [#1](https://github.com/ProjectXero/dbds/issues/1)
+
+
+### Bug Fixes
+
+* remove newline. it does nothing ([855b63f](https://github.com/ProjectXero/dbds/commit/855b63f6e0ad9db6d992c27def78403b711715ed))
+
 # Changelog
 
 ## 1.0.0 (2020-11-29)
