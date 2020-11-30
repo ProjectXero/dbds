@@ -181,12 +181,37 @@ describe(QueryBuilder, () => {
         expect(builder.having([])).toMatchSnapshot()
       })
     })
+
+    describe('limit', () => {
+      it('can create a LIMIT <number> clause', () => {
+        expect(builder.limit(1)).toMatchSnapshot()
+      })
+
+      it('can create a LIMIT ALL clause', () => {
+        expect(builder.limit('ALL')).toMatchSnapshot()
+      })
+
+      it('can create an offset clause with limit', () => {
+        expect(builder.limit([1, 1])).toMatchSnapshot()
+        expect(builder.limit(['ALL', 1])).toMatchSnapshot()
+      })
+
+      it('can accept arbitrary sql', () => {
+        expect(builder.limit(sql`anything, thanks`)).toMatchSnapshot()
+      })
+    })
   })
 
   describe('core query builders', () => {
     describe('select', () => {
       it('selects everything by default', () => {
         expect(builder.select()).toMatchSnapshot()
+      })
+
+      it('supports limits', () => {
+        expect(builder.select({
+          limit: 10
+        })).toMatchSnapshot()
       })
     })
 

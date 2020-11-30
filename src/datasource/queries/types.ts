@@ -66,3 +66,5 @@ export type AllowSql<T> = {
 export interface CountQueryRowType {
   count: number
 }
+
+export type LimitClause = number | 'ALL' | SqlSqlTokenType | [number | 'ALL', number]

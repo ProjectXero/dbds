@@ -8,7 +8,7 @@ import {
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, OrderColumnList, UpdateSet, ValueOrArray } from "./types"
+import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, LimitClause, OrderColumnList, UpdateSet, ValueOrArray } from "./types"
 import { isOrderTuple, isSqlSqlTokenType } from "./utils"
 
 export interface QueryOptions<TRowType> {
@@ -16,6 +16,7 @@ export interface QueryOptions<TRowType> {
   groupBy?: ColumnList
   orderBy?: OrderColumnList
   having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
+  limit?: LimitClause
 }
 
 const EMPTY = sql``
@@ -38,6 +39,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       ${options?.where ? this.where(options.where) : EMPTY}
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -119,6 +121,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       ${options?.where ? this.where(options.where) : EMPTY}
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -197,6 +200,21 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     return sql`HAVING ${conditions}`
   }
 
+  public limit(limit: LimitClause): SqlSqlTokenType {
+    let offset: SqlSqlTokenType = sql``
+
+    if (Array.isArray(limit)) {
+      offset = sql` OFFSET ${limit[1]}`
+      limit = limit[0]
+    }
+
+    if (limit === 'ALL') {
+      limit = sql`ALL`
+    }
+
+    return sql`LIMIT ${limit}${offset}`
+  }
+
   /* Public query-building utilities */
 
   public and(rawConditions: Conditions<TRowType> | SqlSqlTokenType[]): SqlSqlTokenType {
@@ -235,6 +253,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
         ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
         ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
         ${options?.having ? this.having(options.having) : EMPTY}
+        ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
