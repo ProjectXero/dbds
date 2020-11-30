@@ -54,9 +54,9 @@ export interface TableWithNullableFields {
     nullable_array_with_default: string[] | null;
 }
 export interface TableWithNullableFields$Insert {
-    nullable: string | null;
+    nullable?: string | null;
     nullable_with_default?: string | null;
-    nullable_array: string[] | null;
+    nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
 export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
@@ -122,9 +122,9 @@ export interface TableWithNullableFields {
     nullableArrayWithDefault: string[] | null;
 }
 export interface TableWithNullableFields$Insert {
-    nullable: string | null;
+    nullable?: string | null;
     nullableWithDefault?: string | null;
-    nullableArray: string[] | null;
+    nullableArray?: string[] | null;
     nullableArrayWithDefault?: string[] | null;
 }
 export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
@@ -161,9 +161,9 @@ export interface TableWithUuidId$Insert {
     id?: string;
 }
 export interface TableWithNullableFields$Insert {
-    nullable: string | null;
+    nullable?: string | null;
     nullable_with_default?: string | null;
-    nullable_array: string[] | null;
+    nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
 "

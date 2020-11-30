@@ -9,7 +9,7 @@ export default class InsertTypeBuilder extends TableBuilder {
       const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
       let signature = builder.buildNode()
 
-      if (columnInfo.hasDefault) {
+      if (columnInfo.hasDefault || columnInfo.nullable) {
         signature = factory.updatePropertySignature(
           signature,
           signature.modifiers,
