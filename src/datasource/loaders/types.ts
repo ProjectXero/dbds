@@ -10,9 +10,10 @@ export interface GetDataFunction<TRowType> {
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
 
-export interface LoaderFactoryOptions {
-  columnToKey: (column: string) => string
-  keyToColumn: (column: string) => string
+export interface LoaderFactoryOptions<TRowType> {
+  columnToKey?: (column: string) => string
+  keyToColumn?: (column: string) => string
+  columnTypes: Record<keyof TRowType, string>
 }
 
 export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {

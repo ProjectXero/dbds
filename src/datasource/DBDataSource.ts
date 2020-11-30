@@ -58,6 +58,7 @@ export default class DBDataSource<
     this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
       columnToKey: camel,
       keyToColumn: snake,
+      columnTypes,
     })
     this.builder = new QueryBuilder(table, this.columnTypes)
   }

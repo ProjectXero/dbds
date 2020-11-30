@@ -8,6 +8,12 @@ interface DummyRowType {
   code: string
 }
 
+const columnTypes: Record<keyof DummyRowType, string> = {
+  id: 'anything',
+  name: 'anything',
+  code: 'anything',
+}
+
 describe(LoaderFactory, () => {
   const dummyBatchFn: GetDataFunction<DummyRowType> = async (_args, _column, _type): Promise<DummyRowType[]> => {
     return [
@@ -27,7 +33,7 @@ describe(LoaderFactory, () => {
     ]
   }
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn)
+  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
 
   describe('multi: false, ignoreCase: false', () => {
     const loader = factory.create('id', 'any', { multi: false, ignoreCase: false })
@@ -90,6 +96,13 @@ describe(LoaderFactory, () => {
 
     it('returns an empty array with no matching results', async () => {
       expect(await loader.load('any value with no match')).toHaveLength(0)
+    })
+  })
+
+  describe('with no column type specified', () => {
+    it('can accept options as the second parameter', async () => {
+      const loader = factory.create('name', { multi: true, ignoreCase: true })
+      expect(await loader.load('AAA')).toMatchSnapshot()
     })
   })
 })

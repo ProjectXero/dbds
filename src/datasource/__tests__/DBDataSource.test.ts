@@ -9,6 +9,12 @@ interface DummyRowType {
   code: string
 }
 
+const columnTypes: Record<keyof DummyRowType, string> = {
+  id: 'anything',
+  name: 'anything',
+  code: 'anything',
+}
+
 describe(DBDataSource, () => {
   const dummyBatchFn: GetDataFunction<DummyRowType> = async (_args, _column, _type): Promise<DummyRowType[]> => {
     return [
@@ -28,7 +34,7 @@ describe(DBDataSource, () => {
     ]
   }
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn)
+  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
 
   class DummyDBDataSource extends DBDataSource<DummyRowType> {
     constructor() {
