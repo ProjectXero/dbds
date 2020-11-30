@@ -44,7 +44,7 @@
 * make pg-typegen executable ([00182f6](https://github.com/ProjectXero/dbds/commit/00182f6286f0b541026069b432d70cc24100e0b1))
 * move columnTypes to constructor arg ([f179d89](https://github.com/ProjectXero/dbds/commit/f179d89081f0a27bd3c5fd99ac77fecb331fa3c8))
 * only warn about unknown type once ([0f56466](https://github.com/ProjectXero/dbds/commit/0f56466ba4f168561f0fb4bd0d0765110a57c535))
-* orderBy ASC/DESC API (222833a (https://github.com/ProjectXero/dbds/commit/222833a045cfe91f62ece0bae838f64005ea0c30)), closes [#3](https://github.com/ProjectXero/dbds/issues/3)
+* orderBy ASC/DESC API ([222833a](https://github.com/ProjectXero/dbds/commit/222833a045cfe91f62ece0bae838f64005ea0c30)), closes [#3](https://github.com/ProjectXero/dbds/issues/3)
 * pre-emptively stop removing comments from output ([1495e35](https://github.com/ProjectXero/dbds/commit/1495e359a0b52afbe79463142ee9a93c7d09afd6))
 * prefer udt_name over data_type for array elements ([cfb9859](https://github.com/ProjectXero/dbds/commit/cfb9859a39bf739df02dbc82f2cb199e0b72e516))
 * register table types ([01cfd17](https://github.com/ProjectXero/dbds/commit/01cfd17428b90117989558a2be63c065d468bece))
