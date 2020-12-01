@@ -6,4 +6,6 @@ module.exports = {
     '/__fixtures__/',
     '/dist/',
   ],
+  globalSetup: '<rootDir>/jest.setup.ts',
+  globalTeardown: '<rootDir>/jest.teardown.ts',
 }
