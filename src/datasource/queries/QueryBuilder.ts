@@ -30,9 +30,14 @@ export interface QueryOptions<TRowType> {
 }
 
 const EMPTY = sql``
+const noop = (v: string): string => v
 
 export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType> {
-  constructor(public readonly table: string, protected readonly columnTypes: Record<keyof TRowType, string>) {
+  constructor(
+    public readonly table: string,
+    protected readonly columnTypes: Record<keyof TRowType, string>,
+    protected readonly columnCase: (value: string) => string = noop
+  ) {
     this.value = this.value.bind(this)
   }
 
@@ -40,7 +45,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     const names = []
 
     includeTable && names.push(this.table)
-    column !== undefined && names.push(column)
+    column !== undefined && names.push(this.columnCase(column))
 
     return sql.identifier(names)
   }

@@ -60,7 +60,7 @@ export default class DBDataSource<
       keyToColumn: snake,
       columnTypes,
     })
-    this.builder = new QueryBuilder(table, this.columnTypes)
+    this.builder = new QueryBuilder(table, this.columnTypes, snake)
   }
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
