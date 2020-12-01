@@ -405,6 +405,7 @@ Object {
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
       SELECT *
       FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+      RETURNING *
     
       ) SELECT *
         FROM \\"insert_rows\\"
@@ -439,6 +440,7 @@ Object {
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
       SELECT *
       FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+      RETURNING *
     
       ) SELECT *
         FROM \\"insert_rows\\"
@@ -477,6 +479,7 @@ Object {
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\", \\"date\\")
       SELECT *
       FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[], $5::\\"date\\"[])
+      RETURNING *
     
       ) SELECT *
         FROM \\"insert_rows\\"

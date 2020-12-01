@@ -224,7 +224,7 @@ export default class DBDataSource<
     data: UpdateSet<TRowType>,
     options?: QueryOptions<TRowType>
   ): Promise<TRowType | readonly TRowType[] | null> {
-    const query = this.builder.update(data)
+    const query = this.builder.update(data, options)
     return await this.query(query, options)
   }
 
