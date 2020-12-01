@@ -98,6 +98,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       INSERT INTO ${this.identifier()} (${columnExpression})
       SELECT *
       FROM  ${sql.unnest(values, columnTypes)}
+      RETURNING *
     `
 
     return this.wrapCte('insert', insertQuery, options)
