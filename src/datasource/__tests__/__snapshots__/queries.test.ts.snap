@@ -404,7 +404,7 @@ Object {
         
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
       SELECT *
-      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
       RETURNING *
     
       ) SELECT *
@@ -416,18 +416,7 @@ Object {
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
-    Array [
-      1,
-    ],
-    Array [
-      "name",
-    ],
-    Array [
-      null,
-    ],
-    Array [
-      1,
-    ],
+    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1}]",
   ],
 }
 `;
@@ -439,7 +428,7 @@ Object {
         
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
       SELECT *
-      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[])
+      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
       RETURNING *
     
       ) SELECT *
@@ -451,22 +440,7 @@ Object {
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
-    Array [
-      1,
-      2,
-    ],
-    Array [
-      "name",
-      "name",
-    ],
-    Array [
-      null,
-      "hi",
-    ],
-    Array [
-      1,
-      "wat",
-    ],
+    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1},{\\"stringOrNumber\\":\\"wat\\",\\"id\\":2,\\"name\\":\\"name\\",\\"nullable\\":\\"hi\\"}]",
   ],
 }
 `;
@@ -478,7 +452,7 @@ Object {
         
       INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\", \\"date\\")
       SELECT *
-      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[], $5::\\"date\\"[])
+      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here, \\"date\\" date)
       RETURNING *
     
       ) SELECT *
@@ -490,21 +464,7 @@ Object {
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
-    Array [
-      1,
-    ],
-    Array [
-      "name",
-    ],
-    Array [
-      null,
-    ],
-    Array [
-      1,
-    ],
-    Array [
-      "2020-11-30T05:00:00.000Z",
-    ],
+    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1,\\"date\\":\\"2020-11-30T05:00:00.000Z\\"}]",
   ],
 }
 `;
