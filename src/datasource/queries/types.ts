@@ -17,21 +17,23 @@ export type GenericConditions = Record<
   | ValueOrArray<string | null>
   | ValueOrArray<number | null>
   | ValueOrArray<boolean | null>
+  | ValueOrArray<Date | null>
   | null
+  | undefined
   | SqlTokenType
 >
 
 export type Arrayify<T> =
-  T extends string | number | boolean | null
-  ? T extends string | number | boolean
+  T extends string | number | boolean | Date | null
+  ? T extends string | number | boolean | Date
   ? ValueOrArray<T | null>
   : never
-  : T extends string | number | boolean
+  : T extends string | number | boolean | Date
   ? ValueOrArray<T>
   : never
 
 export type Conditions<TRowType> = {
-  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType
+  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType | undefined
 } & GenericConditions
 
 export type GenericSet = Record<
@@ -39,13 +41,15 @@ export type GenericSet = Record<
   | string
   | number
   | boolean
+  | Date
   | null
+  | undefined
   | SqlTokenType
 >
 
 export type UpdateSet<TRowType> = {
   [K in keyof TRowType]?: (
-    TRowType[K] extends string | number | boolean | null | undefined
+    TRowType[K] extends string | number | boolean | Date | null | undefined
     ? TRowType[K]
     : never
   ) | SqlTokenType
@@ -57,10 +61,8 @@ export type ColumnList = ValueOrArray<ColumnListEntry>
 export type OrderTuple = [ColumnListEntry] | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlTokenType];
 export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>;
 
-export type AllowSql<T> = {
-  [K in keyof T]?: T[K] | SqlTokenType
-}
-
 export interface CountQueryRowType {
   count: number
 }
+
+export type LimitClause = number | 'ALL' | SqlSqlTokenType | [number | 'ALL', number]

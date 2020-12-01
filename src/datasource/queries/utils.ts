@@ -1,5 +1,9 @@
-import { IdentifierSqlTokenType, SqlSqlTokenType } from "slonik"
+import { IdentifierSqlTokenType, SqlSqlTokenType, isSqlToken as a, SqlTokenType } from "slonik"
 import { OrderTuple } from "./types"
+
+export const isSqlToken = (subject: any): subject is SqlTokenType => {
+  return a(subject)
+}
 
 export const isSqlSqlTokenType = (v: any): v is SqlSqlTokenType => {
   return typeof v === 'object' &&

@@ -2,24 +2,41 @@
   "name": "@fallingfish/dbds",
   "version": "1.1.0",
   "description": "TypeScript type generator for PostgreSQL databases",
-  "main": "./dist/index.js",
-  "bin": {
-    "dbds": "./bin/dbds"
-  },
-  "scripts": {
-    "build": "tsc",
-    "typecheck": "tsc --noEmit --project .",
-    "test": "yarn jest --passWithNoTests",
-    "prepack": "yarn build"
+  "keywords": [
+    "sql",
+    "postgresql",
+    "typescript",
+    "generation",
+    "typings",
+    "graphql",
+    "apollo-server",
+    "dataloader",
+    "dao"
+  ],
+  "homepage": "https://github.com/ProjectXero/dbds",
+  "bugs": "https://github.com/ProjectXero/dbds/issues",
+  "license": "MIT",
+  "author": {
+    "name": "Matthew Lanigan (rintaun)",
+    "email": "rintaun@gmail.com",
+    "url": "https://github.com/rintaun"
   },
   "files": [
     "src",
     "bin",
     "dist"
   ],
-  "repository": "https://github.com/ProjectXero/dbds",
-  "author": "Matthew Lanigan (rintaun@gmail.com)",
-  "license": "MIT",
+  "main": "./dist/index.js",
+  "bin": {
+    "dbds": "./bin/dbds"
+  },
+  "repository": "github:ProjectXero/dbds",
+  "scripts": {
+    "build": "tsc",
+    "typecheck": "tsc --noEmit --project .",
+    "test": "yarn jest --passWithNoTests",
+    "prepack": "yarn build"
+  },
   "dependencies": {
     "apollo-datasource": "^0.7.2",
     "case": "^1.6.3",

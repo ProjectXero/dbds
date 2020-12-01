@@ -120,6 +120,53 @@ Object {
 }
 `;
 
+exports[`QueryBuilder clause generators limit can accept arbitrary sql 1`] = `
+Object {
+  "sql": "LIMIT anything, thanks",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators limit can create a LIMIT <number> clause 1`] = `
+Object {
+  "sql": "LIMIT $1",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators limit can create a LIMIT ALL clause 1`] = `
+Object {
+  "sql": "LIMIT ALL",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder clause generators limit can create an offset clause with limit 1`] = `
+Object {
+  "sql": "LIMIT $1 OFFSET $2",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder clause generators limit can create an offset clause with limit 2`] = `
+Object {
+  "sql": "LIMIT ALL OFFSET $1",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
 exports[`QueryBuilder clause generators orderBy accepts a list of column names as an array of strings 1`] = `
 Object {
   "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
@@ -201,6 +248,16 @@ Object {
 }
 `;
 
+exports[`QueryBuilder clause generators where correctly handles Date objects 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"date\\" = $1)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "2020-11-30T05:00:00.000Z",
+  ],
+}
+`;
+
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
 Object {
   "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
@@ -271,6 +328,7 @@ Object {
       WHERE (\\"any_table\\".\\"id\\" = $1)
       
       
+      
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
@@ -284,6 +342,7 @@ Object {
   "sql": "
       SELECT COUNT(*)
       FROM \\"any_table\\"
+      
       
       
       
@@ -307,6 +366,7 @@ Object {
         GROUP BY \\"any_table\\".\\"id\\"
         ORDER BY \\"any_table\\".\\"id\\"
         HAVING (\\"any_table\\".\\"id\\" = $2)
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
@@ -330,6 +390,7 @@ Object {
         
         
         
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
@@ -347,6 +408,7 @@ Object {
     
       ) SELECT *
         FROM \\"insert_rows\\"
+        
         
         
         
@@ -383,6 +445,7 @@ Object {
         
         
         
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
@@ -406,11 +469,49 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders insert correctly inserts Date objects as ISO8601 strings 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\", \\"date\\")
+      SELECT *
+      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[], $5::\\"date\\"[])
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+    ],
+    Array [
+      "name",
+    ],
+    Array [
+      null,
+    ],
+    Array [
+      1,
+    ],
+    Array [
+      "2020-11-30T05:00:00.000Z",
+    ],
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders select selects everything by default 1`] = `
 Object {
   "sql": "
       SELECT *
       FROM \\"any_table\\"
+      
       
       
       
@@ -420,18 +521,36 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders select supports limits 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      
+      LIMIT $1
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    10,
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders update accepts a basic object 1`] = `
 Object {
   "sql": "
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"any_table\\".\\"id\\" = $1, \\"any_table\\".\\"name\\" = $2, \\"any_table\\".\\"nullable\\" = $3, \\"any_table\\".\\"optional\\" = $4, \\"any_table\\".\\"optionallyNullable\\" = $5, \\"any_table\\".\\"stringOrNumber\\" = $6
+      SET \\"id\\" = $1, \\"name\\" = $2, \\"nullable\\" = $3, \\"optional\\" = $4, \\"optionallyNullable\\" = $5, \\"stringOrNumber\\" = $6
       
       RETURNING *
     
       ) SELECT *
         FROM \\"update_rows\\"
+        
         
         
         
@@ -454,7 +573,7 @@ Object {
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"any_table\\".\\"name\\" = anything i want
+      SET \\"name\\" = anything i want
       
       RETURNING *
     
@@ -463,8 +582,33 @@ Object {
         
         
         
+        
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
+}
+`;
+
+exports[`QueryBuilder core query builders update correctly updates date values Date objects as ISO8601 strings 1`] = `
+Object {
+  "sql": "
+      WITH \\"update_rows\\" AS (
+        
+      UPDATE \\"any_table\\"
+      SET \\"date\\" = $1
+      
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"update_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "2020-11-30T05:00:00.000Z",
+  ],
 }
 `;

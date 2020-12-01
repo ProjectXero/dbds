@@ -8,6 +8,7 @@ interface DummyRowType {
   nullable: string | null
   optionallyNullable?: string | null
   stringOrNumber: string | number | null // i think this is a nonsense type but i needed to test the type system...
+  date?: Date
 }
 
 const DummyRowColumnTypes = Object.freeze({
@@ -17,6 +18,7 @@ const DummyRowColumnTypes = Object.freeze({
   nullable: 'not',
   optionallyNullable: 'matter',
   stringOrNumber: 'here',
+  date: 'date',
 })
 
 describe(QueryBuilder, () => {
@@ -67,6 +69,10 @@ describe(QueryBuilder, () => {
       it('produces a valid clause with no conditions', () => {
         expect(builder.where({})).toMatchSnapshot()
         expect(builder.where([])).toMatchSnapshot()
+      })
+
+      it('correctly handles Date objects', () => {
+        expect(builder.where({ date: new Date('2020-11-30T00:00:00.000-0500') })).toMatchSnapshot()
       })
     })
 
@@ -181,12 +187,37 @@ describe(QueryBuilder, () => {
         expect(builder.having([])).toMatchSnapshot()
       })
     })
+
+    describe('limit', () => {
+      it('can create a LIMIT <number> clause', () => {
+        expect(builder.limit(1)).toMatchSnapshot()
+      })
+
+      it('can create a LIMIT ALL clause', () => {
+        expect(builder.limit('ALL')).toMatchSnapshot()
+      })
+
+      it('can create an offset clause with limit', () => {
+        expect(builder.limit([1, 1])).toMatchSnapshot()
+        expect(builder.limit(['ALL', 1])).toMatchSnapshot()
+      })
+
+      it('can accept arbitrary sql', () => {
+        expect(builder.limit(sql`anything, thanks`)).toMatchSnapshot()
+      })
+    })
   })
 
   describe('core query builders', () => {
     describe('select', () => {
       it('selects everything by default', () => {
         expect(builder.select()).toMatchSnapshot()
+      })
+
+      it('supports limits', () => {
+        expect(builder.select({
+          limit: 10
+        })).toMatchSnapshot()
       })
     })
 
@@ -238,6 +269,18 @@ describe(QueryBuilder, () => {
           ])
         ).toMatchSnapshot()
       })
+
+      it('correctly inserts Date objects as ISO8601 strings', () => {
+        expect(
+          builder.insert({
+            id: 1,
+            name: 'name',
+            nullable: null,
+            stringOrNumber: 1,
+            date: new Date('2020-11-30T00:00:00.000-0500'),
+          })
+        ).toMatchSnapshot()
+      })
     })
 
     describe('update', () => {
@@ -256,6 +299,12 @@ describe(QueryBuilder, () => {
 
       it('accepts raw sql values', () => {
         expect(builder.update({ name: sql`anything i want` })).toMatchSnapshot()
+      })
+
+      it('correctly updates date values Date objects as ISO8601 strings', () => {
+        expect(
+          builder.update({ date: new Date('2020-11-30T00:00:00.000-0500') })
+        ).toMatchSnapshot()
       })
     })
 

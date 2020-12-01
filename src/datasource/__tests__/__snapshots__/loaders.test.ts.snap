@@ -168,3 +168,28 @@ Array [
   ],
 ]
 `;
+
+exports[`LoaderFactory with no column type specified can accept options as the second parameter 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "ghi",
+    "id": 3,
+    "name": "Aaa",
+  },
+  Object {
+    "code": "DEF",
+    "id": 5,
+    "name": "AAa",
+  },
+  Object {
+    "code": "abc",
+    "id": 7,
+    "name": "AAA",
+  },
+]
+`;

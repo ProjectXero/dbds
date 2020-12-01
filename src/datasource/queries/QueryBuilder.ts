@@ -8,25 +8,46 @@ import {
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
-import { AllowSql, ColumnList, Conditions, CountQueryRowType, GenericConditions, OrderColumnList, UpdateSet, ValueOrArray } from "./types"
-import { isOrderTuple, isSqlSqlTokenType } from "./utils"
+import {
+  ColumnList,
+  Conditions,
+  CountQueryRowType,
+  GenericConditions,
+  LimitClause,
+  OrderColumnList,
+  PrimitiveValueType,
+  UpdateSet,
+  ValueOrArray,
+} from "./types"
+import { isOrderTuple, isSqlSqlTokenType, isSqlToken } from "./utils"
 
 export interface QueryOptions<TRowType> {
   where?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
   groupBy?: ColumnList
   orderBy?: OrderColumnList
   having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
+  limit?: LimitClause
 }
 
 const EMPTY = sql``
+const noop = (v: string): string => v
 
 export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType> {
-  constructor(public readonly table: string, protected readonly columnTypes: Record<keyof TRowType, string>) { }
+  constructor(
+    public readonly table: string,
+    protected readonly columnTypes: Record<keyof TRowType, string>,
+    protected readonly columnCase: (value: string) => string = noop
+  ) {
+    this.value = this.value.bind(this)
+  }
 
-  public identifier(column?: string): IdentifierSqlTokenType {
-    const params = [this.table]
-    column !== undefined && params.push(column)
-    return sql.identifier(params)
+  public identifier(column?: string, includeTable: boolean = true): IdentifierSqlTokenType {
+    const names = []
+
+    includeTable && names.push(this.table)
+    column !== undefined && names.push(this.columnCase(column))
+
+    return sql.identifier(names)
   }
 
   /* Public core query builders */
@@ -38,10 +59,11 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       ${options?.where ? this.where(options.where) : EMPTY}
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
-  public insert(rows: ValueOrArray<AllowSql<TInsertType>>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+  public insert(rows: ValueOrArray<TInsertType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
     if (!Array.isArray(rows)) {
       rows = [rows]
     }
@@ -56,7 +78,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
 
     const values: ValueExpressionType[][] = rows.map(({ ...row }) => {
       const rowValues = columns.map((column) => {
-        const columnValue = row[column] as ValueExpressionType
+        const columnValue = this.value(row[column] as PrimitiveValueType | Date)
         delete row[column]
         return columnValue
       })
@@ -69,7 +91,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       return rowValues
     })
 
-    const columnExpression = sql.join(columns.map((c) => sql.identifier([c])), sql`, `)
+    const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
     const columnTypes = columns.map((col) => this.columnTypes[col])
 
     const insertQuery = sql<TRowType>`
@@ -119,6 +141,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       ${options?.where ? this.where(options.where) : EMPTY}
       ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -197,6 +220,21 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     return sql`HAVING ${conditions}`
   }
 
+  public limit(limit: LimitClause): SqlSqlTokenType {
+    let offset: SqlSqlTokenType = sql``
+
+    if (Array.isArray(limit)) {
+      offset = sql` OFFSET ${limit[1]}`
+      limit = limit[0]
+    }
+
+    if (limit === 'ALL') {
+      limit = sql`ALL`
+    }
+
+    return sql`LIMIT ${limit}${offset}`
+  }
+
   /* Public query-building utilities */
 
   public and(rawConditions: Conditions<TRowType> | SqlSqlTokenType[]): SqlSqlTokenType {
@@ -219,14 +257,14 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     return sql`(${sql.join(conditions, sql` OR `)})`
   }
 
-  public any(values: (string | null)[] | (number | null)[] | (boolean | null)[], type: string) {
-    return sql`ANY(${sql.array(values, sql`${raw(type)}[]`)})`
+  public any(values: Array<string | number | boolean | Date | null>, type: string) {
+    return sql`ANY(${sql.array(values.map(this.value), sql`${raw(type)}[]`)})`
   }
 
   /* Protected query-building utilities */
 
   protected wrapCte(queryName: string, query: TaggedTemplateLiteralInvocationType<TRowType>, options?: Omit<QueryOptions<TRowType>, 'where'>): TaggedTemplateLiteralInvocationType<TRowType> {
-    const queryId = sql.identifier([queryName + '_rows'])
+    const queryId = this.identifier(queryName + '_rows', false)
     return sql<TRowType>`
       WITH ${queryId} AS (
         ${query}
@@ -235,6 +273,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
         ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
         ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
         ${options?.having ? this.having(options.having) : EMPTY}
+        ${options?.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -250,7 +289,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
         if (Array.isArray(value)) {
           sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
         } else {
-          sqlValue = sql`${value}`
+          sqlValue = this.valueToSql(value!)
         }
 
         return sql`${this.identifier(column)} = ${sqlValue}`
@@ -261,7 +300,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     const pairs = Object.entries(values)
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
-        return sql`${this.identifier(column)} = ${value}`
+        return sql`${this.identifier(column, false)} = ${this.valueToSql(value!)}`
       })
     return sql`SET ${sql.join(pairs, sql`, `)}`
   }
@@ -281,5 +320,20 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     }
 
     return this.identifier(column)
+  }
+
+  private valueToSql(rawValue: string | number | boolean | Date | null | SqlTokenType): SqlSqlTokenType {
+    if (isSqlToken(rawValue)) {
+      return sql`${rawValue}`
+    }
+    return sql`${this.value(rawValue)}`
+  }
+
+  private value(rawValue: string | number | boolean | Date | null): PrimitiveValueType {
+    if (rawValue instanceof Date) {
+      return rawValue.toISOString()
+    }
+
+    return rawValue
   }
 }

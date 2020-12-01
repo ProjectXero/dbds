@@ -4,13 +4,13 @@ import { GetDataFunction, LoaderFactoryOptions, LoaderOptions, SearchableKeys } 
 import { identity, match } from './utils'
 
 export default class LoaderFactory<TRowType> {
-  private defaultOptions: LoaderFactoryOptions = {
+  private defaultOptions = {
     columnToKey: identity,
     keyToColumn: identity,
   }
-  private options: LoaderFactoryOptions
+  private options: Required<LoaderFactoryOptions<TRowType>>
 
-  constructor(private getData: GetDataFunction<TRowType>, options?: Partial<LoaderFactoryOptions>) {
+  constructor(private getData: GetDataFunction<TRowType>, options: LoaderFactoryOptions<TRowType>) {
     this.options = {
       ...this.defaultOptions,
       ...options,
@@ -21,8 +21,10 @@ export default class LoaderFactory<TRowType> {
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
     key: TColumnName,
-    columnType: string,
-    options: LoaderOptions<TRowType, TColumnName> & {
+    columnType: string | LoaderOptions<TRowType, TColumnName> & {
+      multi: true,
+    },
+    options?: LoaderOptions<TRowType, TColumnName> & {
       multi: true,
     }
   ): DataLoader<TRowType[TColumnName], TRowType[]>
@@ -30,7 +32,9 @@ export default class LoaderFactory<TRowType> {
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
     key: TColumnName,
-    columnType: string,
+    columnType?: string | LoaderOptions<TRowType, TColumnName> & {
+      multi?: false,
+    },
     options?: LoaderOptions<TRowType, TColumnName> & {
       multi?: false,
     }
@@ -40,19 +44,31 @@ export default class LoaderFactory<TRowType> {
     TColType extends string | number & TRowType[TColumnName]
   >(
     key: TColumnName,
-    columnType: string,
-    {
+    columnType?: string | LoaderOptions<TRowType, TColumnName>,
+    options?: LoaderOptions<TRowType, TColumnName>
+  ): DataLoader<TColType, TRowType[] | TRowType | undefined> {
+
+    if (typeof columnType === 'object') {
+      options = columnType
+      columnType = undefined
+    } else if (typeof options === 'undefined') {
+      options = {}
+    }
+
+    const type: string = columnType || this.options.columnTypes[key]
+
+    const {
       multi = false,
       ignoreCase = false,
       callbackFn,
-    }: LoaderOptions<TRowType, TColumnName> = {}
-  ): DataLoader<TColType, TRowType[] | TRowType | undefined> {
+    } = options
+
     return new DataLoader<TColType, TRowType[] | (TRowType | undefined)>(
       async (args: readonly TColType[]) => {
         const data = await this.getData<TColType>(
           args,
           this.options.keyToColumn(key),
-          columnType
+          type
         )
         callbackFn && data.forEach(callbackFn)
         return args.map((value) => {
