@@ -248,6 +248,16 @@ Object {
 }
 `;
 
+exports[`QueryBuilder clause generators where correctly handles Date objects 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"date\\" = $1)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "2020-11-30T05:00:00.000Z",
+  ],
+}
+`;
+
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
 Object {
   "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
@@ -459,6 +469,43 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders insert correctly inserts Date objects as ISO8601 strings 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\", \\"date\\")
+      SELECT *
+      FROM  unnest($1::\\"these\\"[], $2::\\"types\\"[], $3::\\"not\\"[], $4::\\"here\\"[], $5::\\"date\\"[])
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    Array [
+      1,
+    ],
+    Array [
+      "name",
+    ],
+    Array [
+      null,
+    ],
+    Array [
+      1,
+    ],
+    Array [
+      "2020-11-30T05:00:00.000Z",
+    ],
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders select selects everything by default 1`] = `
 Object {
   "sql": "
@@ -539,5 +586,29 @@ Object {
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [],
+}
+`;
+
+exports[`QueryBuilder core query builders update correctly updates date values Date objects as ISO8601 strings 1`] = `
+Object {
+  "sql": "
+      WITH \\"update_rows\\" AS (
+        
+      UPDATE \\"any_table\\"
+      SET \\"any_table\\".\\"date\\" = $1
+      
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"update_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "2020-11-30T05:00:00.000Z",
+  ],
 }
 `;

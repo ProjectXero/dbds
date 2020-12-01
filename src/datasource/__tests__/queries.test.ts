@@ -8,6 +8,7 @@ interface DummyRowType {
   nullable: string | null
   optionallyNullable?: string | null
   stringOrNumber: string | number | null // i think this is a nonsense type but i needed to test the type system...
+  date?: Date
 }
 
 const DummyRowColumnTypes = Object.freeze({
@@ -17,6 +18,7 @@ const DummyRowColumnTypes = Object.freeze({
   nullable: 'not',
   optionallyNullable: 'matter',
   stringOrNumber: 'here',
+  date: 'date',
 })
 
 describe(QueryBuilder, () => {
@@ -67,6 +69,10 @@ describe(QueryBuilder, () => {
       it('produces a valid clause with no conditions', () => {
         expect(builder.where({})).toMatchSnapshot()
         expect(builder.where([])).toMatchSnapshot()
+      })
+
+      it('correctly handles Date objects', () => {
+        expect(builder.where({ date: new Date('2020-11-30T00:00:00.000-0500') })).toMatchSnapshot()
       })
     })
 
@@ -263,6 +269,18 @@ describe(QueryBuilder, () => {
           ])
         ).toMatchSnapshot()
       })
+
+      it('correctly inserts Date objects as ISO8601 strings', () => {
+        expect(
+          builder.insert({
+            id: 1,
+            name: 'name',
+            nullable: null,
+            stringOrNumber: 1,
+            date: new Date('2020-11-30T00:00:00.000-0500'),
+          })
+        ).toMatchSnapshot()
+      })
     })
 
     describe('update', () => {
@@ -281,6 +299,12 @@ describe(QueryBuilder, () => {
 
       it('accepts raw sql values', () => {
         expect(builder.update({ name: sql`anything i want` })).toMatchSnapshot()
+      })
+
+      it('correctly updates date values Date objects as ISO8601 strings', () => {
+        expect(
+          builder.update({ date: new Date('2020-11-30T00:00:00.000-0500') })
+        ).toMatchSnapshot()
       })
     })
 

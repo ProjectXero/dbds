@@ -15,7 +15,7 @@ export type { DatabasePoolType } from 'slonik'
 
 import { LoaderFactory } from './loaders'
 import QueryBuilder, { QueryOptions as BuilderOptions } from './queries/QueryBuilder'
-import { AllowSql, CountQueryRowType, UpdateSet, ValueOrArray } from './queries/types'
+import { CountQueryRowType, UpdateSet, ValueOrArray } from './queries/types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType> extends BuilderOptions<TRowType> {
   keyToColumn?: IdentifierNormalizerType;
@@ -120,7 +120,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: AllowSql<TInsertType>,
+    rows: TInsertType,
     options?: QueryOptions<TRowType> & { expected?: undefined }
   ): Promise<TRowType>
 
@@ -130,7 +130,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: Array<AllowSql<TInsertType>>,
+    rows: Array<TInsertType>,
     options?: QueryOptions<TRowType> & { expected?: undefined }
   ): Promise<readonly TRowType[]>
 
@@ -140,7 +140,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
+    rows: ValueOrArray<TInsertType>,
     options?: QueryOptions<TRowType> & { expected: 'one' }
   ): Promise<TRowType>
 
@@ -150,7 +150,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
+    rows: ValueOrArray<TInsertType>,
     options?: QueryOptions<TRowType> & { expected: 'maybeOne' }
   ): Promise<TRowType | null>
 
@@ -160,7 +160,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
+    rows: ValueOrArray<TInsertType>,
     options?: QueryOptions<TRowType> & { expected: 'any' | 'many' }
   ): Promise<readonly TRowType[]>
 
@@ -168,7 +168,7 @@ export default class DBDataSource<
    * Implementation
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
+    rows: ValueOrArray<TInsertType>,
     options?: QueryOptions<TRowType>
   ): Promise<TRowType | readonly TRowType[] | null> {
     const query = this.builder.insert(rows, options)
@@ -503,7 +503,7 @@ export default class DBDataSource<
    * @deprecated Use `insert`
    */
   protected insertOne(
-    data: AllowSql<TInsertType>,
+    data: TInsertType,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType> {
     return this.insert(data, {
@@ -516,7 +516,7 @@ export default class DBDataSource<
    * @deprecated Use `insert`
    */
   protected async insertMany(
-    data: Array<AllowSql<TInsertType>>,
+    data: Array<TInsertType>,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType[]> {
     return [
