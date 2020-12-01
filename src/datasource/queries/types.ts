@@ -61,6 +61,10 @@ export type ColumnList = ValueOrArray<ColumnListEntry>
 export type OrderTuple = [ColumnListEntry] | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlTokenType];
 export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>;
 
+export type AllowSql<T> = {
+  [K in keyof T]?: T[K] | SqlTokenType
+}
+
 export interface CountQueryRowType {
   count: number
 }

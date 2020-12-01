@@ -4,11 +4,11 @@ import {
   SqlSqlTokenType,
   SqlTokenType,
   TaggedTemplateLiteralInvocationType,
-  ValueExpressionType,
 } from "slonik"
 import { raw } from "slonik-sql-tag-raw"
 
 import {
+  AllowSql,
   ColumnList,
   Conditions,
   CountQueryRowType,
@@ -63,7 +63,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     `
   }
 
-  public insert(rows: ValueOrArray<TInsertType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+  public insert(rows: ValueOrArray<AllowSql<TInsertType>>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
     if (!Array.isArray(rows)) {
       rows = [rows]
     }
@@ -72,36 +72,11 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       throw new Error('insert requires at least one row')
     }
 
-    // convince TS that these are actually the keys of our object... dumb, but ugh.
-    const columns: Array<keyof TInsertType & keyof TRowType & string> =
-      Object.keys(rows[0]) as Array<keyof TInsertType & keyof TRowType & string>
+    if (this.isUniformRowset(rows)) {
+      return this.insertUniform(rows, options)
+    }
 
-    const values: ValueExpressionType[][] = rows.map(({ ...row }) => {
-      const rowValues = columns.map((column) => {
-        const columnValue = this.value(row[column] as PrimitiveValueType | Date)
-        delete row[column]
-        return columnValue
-      })
-
-      const remainingKeys = Object.keys(row)
-      if (remainingKeys.length > 0) {
-        throw new Error(`Row has extra keys: ${remainingKeys.join(', ')}`)
-      }
-
-      return rowValues
-    })
-
-    const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
-    const columnTypes = columns.map((col) => this.columnTypes[col])
-
-    const insertQuery = sql<TRowType>`
-      INSERT INTO ${this.identifier()} (${columnExpression})
-      SELECT *
-      FROM  ${sql.unnest(values, columnTypes)}
-      RETURNING *
-    `
-
-    return this.wrapCte('insert', insertQuery, options)
+    return this.insertNonUniform(rows, options)
   }
 
   public update(values: UpdateSet<TRowType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
@@ -278,6 +253,48 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     `
   }
 
+  protected insertUniform(rows: TInsertType[], options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const columns = this.rowsetKeys(rows)
+    const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
+
+    const tableExpression = columns.map<SqlSqlTokenType>((column) => {
+      return sql`${this.identifier(column, false)} ${raw(this.columnTypes[column])}`
+    })
+
+    const insertQuery = sql<TRowType>`
+      INSERT INTO ${this.identifier()} (${columnExpression})
+      SELECT *
+      FROM jsonb_to_recordset(${JSON.stringify(rows)}) AS (${sql.join(tableExpression, sql`, `)})
+      RETURNING *
+    `
+
+    return this.wrapCte('insert', insertQuery, options)
+  }
+
+  protected insertNonUniform(rows: AllowSql<TInsertType>[], options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const columns = this.rowsetKeys(rows)
+    const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
+
+    const rowExpressions = rows.map<SqlSqlTokenType>(({ ...row }) => {
+      const values = columns.map<SqlSqlTokenType>((column) => {
+        if (row[column] === undefined) {
+          return sql`DEFAULT`
+        }
+        return this.valueToSql(row[column] as PrimitiveValueType | SqlTokenType)
+      })
+      return sql`(${sql.join(values, sql`, `)})`
+    })
+
+    const insertQuery = sql<TRowType>`
+      INSERT INTO ${this.identifier()} (${columnExpression})
+      VALUES ${sql.join(rowExpressions, sql`, `)}
+      RETURNING *
+    `
+
+    return this.wrapCte('insert', insertQuery, options)
+  }
+
+
   protected conditions(conditions: Conditions<TRowType> | SqlSqlTokenType[]): SqlSqlTokenType[] {
     if (Array.isArray(conditions)) {
       return conditions
@@ -336,5 +353,59 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     }
 
     return rawValue
+  }
+
+  private isValueArray(rawValues: any[]): rawValues is (PrimitiveValueType | Date)[] {
+    return rawValues.every((value) => {
+      return value instanceof Date ||
+        typeof value === 'string' ||
+        typeof value === 'boolean' ||
+        typeof value === 'number' ||
+        value === null
+    })
+  }
+
+  private rowsetKeys(rows: AllowSql<TInsertType>[]): Array<keyof TInsertType & keyof TRowType & string> {
+    const allKeys = rows.map(Object.keys)
+    const keySet = new Set(...allKeys) as Set<keyof TInsertType & keyof TRowType & string>
+    return Array.from(keySet)
+  }
+
+  /**
+   * Determine if a rowset is 'uniform' -- i.e. the entire rowset can be parameterized
+   *
+   * With a uniform rowset, there will only be one query parameter (`N = 1`).
+   * With a non-uniform rowset, there will be `N = rows * columns` parameters.
+   *
+   * In theory we could partially parameterize a 'partially uniform' rowset. Such
+   * a rowset would have every row with the same keys but *some* rows could have
+   * non-primitive values.
+   *
+   * In such a 'partially uniform' rowset, there would be `N = 1 + (non-uniform rows) * columns`
+   * query parameters. Every uniform row could be included in a single parameter and
+   * only non-uniform rows spread out as normal.
+   */
+  private isUniformRowset(rowset: AllowSql<TInsertType>[]): rowset is TInsertType[] {
+    // we can only parameterize the entire row if every row has only values that
+    // are either primitive values (e.g. string, number) or are convertable
+    // to primitive values (e.g. Date)
+    const everyRowHasOnlyValues = rowset.every((row) => {
+      return this.isValueArray(Object.values(row))
+    })
+
+    // if there is only one row, we don't care about the keys!
+    if (rowset.length === 1) {
+      return everyRowHasOnlyValues
+    }
+
+    // if there is more than one row, we have to determine whether *all* rows
+    // have the same key; otherwise `undefined` values in some rows cause weird
+    // issues
+    const keys = this.rowsetKeys(rowset)
+    const everyRowHasSameKeys = rowset.every((row) => {
+      return keys.every((key) => Object.prototype.hasOwnProperty.call(row, key))
+    })
+
+    return everyRowHasOnlyValues && everyRowHasSameKeys
   }
 }

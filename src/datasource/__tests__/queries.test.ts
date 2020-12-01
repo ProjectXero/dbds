@@ -281,6 +281,43 @@ describe(QueryBuilder, () => {
           })
         ).toMatchSnapshot()
       })
+
+      it('allows a single object with raw SQL values', () => {
+        expect(builder.insert({
+          id: 1,
+          name: sql`DEFAULT`,
+        })).toMatchSnapshot()
+      })
+
+      it('allows multiple objects with raw SQL values', () => {
+        expect(
+          builder.insert([
+            {
+              id: 1,
+              name: sql`DEFAULT`,
+            },
+            {
+              id: 2,
+              name: sql`DEFAULT`,
+            }
+          ])
+        ).toMatchSnapshot()
+      })
+
+      it('allows multiple objects with a mix of primitive and raw SQL values', () => {
+        expect(
+          builder.insert([
+            {
+              id: 1,
+              name: 'anything',
+            },
+            {
+              id: 2,
+              name: sql`DEFAULT`,
+            }
+          ])
+        ).toMatchSnapshot()
+      })
     })
 
     describe('update', () => {
