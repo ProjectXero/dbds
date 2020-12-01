@@ -1,3 +1,11 @@
+### [1.2.2](https://github.com/ProjectXero/dbds/compare/v1.2.1...v1.2.2) (2020-12-01)
+
+
+### Bug Fixes
+
+* allow insertion of non-uniform rows ([a4af9ab](https://github.com/ProjectXero/dbds/commit/a4af9ab77f798c61140410f5e572120d5b8feeb5)), closes [#28](https://github.com/ProjectXero/dbds/issues/28)
+* allow raw sql in inserts ([a8c94ca](https://github.com/ProjectXero/dbds/commit/a8c94ca37c9b754869f5d4c3b73d106f1d7eaba1)), closes [#27](https://github.com/ProjectXero/dbds/issues/27)
+
 ### [1.2.1](https://github.com/ProjectXero/dbds/compare/v1.2.0...v1.2.1) (2020-12-01)
 
 
