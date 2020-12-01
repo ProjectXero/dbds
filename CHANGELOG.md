@@ -1,3 +1,11 @@
+### [1.2.1](https://github.com/ProjectXero/dbds/compare/v1.2.0...v1.2.1) (2020-12-01)
+
+
+### Bug Fixes
+
+* add RETURNING clause to INSERT query ([80a703e](https://github.com/ProjectXero/dbds/commit/80a703e387026d4c4d0f87435df0707aa18b0773)), closes [#24](https://github.com/ProjectXero/dbds/issues/24)
+* pass through options in update ([ec891c0](https://github.com/ProjectXero/dbds/commit/ec891c0d5d7337bb0c2f145a3a2a783412d9bcbe)), closes [#23](https://github.com/ProjectXero/dbds/issues/23)
+
 ## [1.2.0](https://github.com/ProjectXero/dbds/compare/v1.1.0...v1.2.0) (2020-12-01)
 
 
