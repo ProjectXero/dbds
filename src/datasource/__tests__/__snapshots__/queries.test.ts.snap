@@ -445,6 +445,78 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders insert allows a single object with raw SQL values 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      VALUES ($1, DEFAULT)
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders insert allows multiple objects with a mix of primitive and raw SQL values 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      VALUES ($1, $2), ($3, DEFAULT)
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    "anything",
+    2,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders insert allows multiple objects with raw SQL values 1`] = `
+Object {
+  "sql": "
+      WITH \\"insert_rows\\" AS (
+        
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      VALUES ($1, DEFAULT), ($2, DEFAULT)
+      RETURNING *
+    
+      ) SELECT *
+        FROM \\"insert_rows\\"
+        
+        
+        
+        
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+    2,
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders insert correctly inserts Date objects as ISO8601 strings 1`] = `
 Object {
   "sql": "

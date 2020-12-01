@@ -8,6 +8,7 @@ import {
 import { raw } from "slonik-sql-tag-raw"
 
 import {
+  AllowSql,
   ColumnList,
   Conditions,
   CountQueryRowType,
@@ -62,7 +63,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     `
   }
 
-  public insert(rows: ValueOrArray<TInsertType>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+  public insert(rows: ValueOrArray<AllowSql<TInsertType>>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
     if (!Array.isArray(rows)) {
       rows = [rows]
     }
@@ -270,7 +271,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     return this.wrapCte('insert', insertQuery, options)
   }
 
-  protected insertNonUniform(rows: TInsertType[], options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+  protected insertNonUniform(rows: AllowSql<TInsertType>[], options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
 
@@ -364,7 +365,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     })
   }
 
-  private rowsetKeys(rows: TInsertType[]): Array<keyof TInsertType & keyof TRowType & string> {
+  private rowsetKeys(rows: AllowSql<TInsertType>[]): Array<keyof TInsertType & keyof TRowType & string> {
     const allKeys = rows.map(Object.keys)
     const keySet = new Set(...allKeys) as Set<keyof TInsertType & keyof TRowType & string>
     return Array.from(keySet)
@@ -384,7 +385,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
    * query parameters. Every uniform row could be included in a single parameter and
    * only non-uniform rows spread out as normal.
    */
-  private isUniformRowset(rowset: TInsertType[]): boolean {
+  private isUniformRowset(rowset: AllowSql<TInsertType>[]): rowset is TInsertType[] {
     // we can only parameterize the entire row if every row has only values that
     // are either primitive values (e.g. string, number) or are convertable
     // to primitive values (e.g. Date)

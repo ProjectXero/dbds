@@ -7,12 +7,14 @@ interface DummyRowType {
   id: number
   name: string
   code: string
+  with_default?: string
 }
 
 const columnTypes: Record<keyof DummyRowType, string> = {
   id: 'int8',
   name: 'citext',
   code: 'text',
+  with_default: 'text',
 }
 
 let pool: DatabasePoolType
@@ -35,7 +37,8 @@ beforeAll(async () => {
       CREATE TABLE "test_table" (
         "id" INTEGER PRIMARY KEY,
         "name" CITEXT NOT NULL,
-        "code" TEXT NOT NULL
+        "code" TEXT NOT NULL,
+        "with_default" TEXT NOT NULL DEFAULT 'anything'
       )
     `)
   })
@@ -82,9 +85,53 @@ describe(DBDataSource, () => {
         id: 2,
         code: 'CODE',
         name: 'Test Row',
+        with_default: 'asdf',
       }
       const result = await ds.testInsert(row)
       expect(result).toMatchObject(row)
+    })
+  })
+
+  it('can insert rows with raw sql and without', async () => {
+    const rows = [
+      {
+        id: 5,
+        code: 'A',
+        name: 'abc',
+        with_default: sql`DEFAULT`
+      },
+      {
+        id: 6,
+        code: 'B',
+        name: 'def',
+        with_default: 'value'
+      },
+      {
+        id: 7,
+        code: 'C',
+        name: 'ghi',
+      }
+    ]
+
+    const results = await ds.testInsert(rows)
+    expect(results).toHaveLength(3)
+    expect(results).toContainEqual({
+      id: 5,
+      code: 'A',
+      name: 'abc',
+      with_default: 'anything'
+    })
+    expect(results).toContainEqual({
+      id: 6,
+      code: 'B',
+      name: 'def',
+      with_default: 'value'
+    })
+    expect(results).toContainEqual({
+      id: 7,
+      code: 'C',
+      name: 'ghi',
+      with_default: 'anything'
     })
   })
 
@@ -93,6 +140,7 @@ describe(DBDataSource, () => {
       id: 2,
       code: 'CODE',
       name: 'Test Row',
+      with_default: 'asdf',
     }
 
     it('can select rows by various criteria', async () => {
@@ -118,11 +166,13 @@ describe(DBDataSource, () => {
         id: 10,
         code: 'any',
         name: 'any',
+        with_default: 'asdf',
       }
       const newRow2 = {
         id: 11,
         code: 'more',
         name: 'values',
+        with_default: 'asdf',
       }
       const result = await ds.testInsert([newRow1, newRow2])
       expect(result).toContainEqual(newRow1)
@@ -134,11 +184,13 @@ describe(DBDataSource, () => {
         id: 10,
         code: 'any',
         name: 'any',
+        with_default: 'asdf',
       }
       const newRow2 = {
         id: 11,
         code: 'more',
         name: 'values',
+        with_default: 'asdf',
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -163,11 +215,13 @@ describe(DBDataSource, () => {
         id: 10,
         code: 'any',
         name: 'any',
+        with_default: 'asdf',
       }
       const newRow2 = {
         id: 11,
         code: 'more',
         name: 'values',
+        with_default: 'asdf',
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -191,11 +245,13 @@ describe(DBDataSource, () => {
         id: 10,
         code: 'any',
         name: 'any',
+        with_default: 'asdf',
       }
       const newRow2 = {
         id: 11,
         code: 'more',
         name: 'values',
+        with_default: 'asdf',
       }
 
       await ds.testInsert([newRow1, newRow2])
