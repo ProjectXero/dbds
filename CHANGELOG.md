@@ -1,3 +1,20 @@
+## [1.2.0](https://github.com/ProjectXero/dbds/compare/v1.1.0...v1.2.0) (2020-12-01)
+
+
+### Features
+
+* support Date objects ([f671230](https://github.com/ProjectXero/dbds/commit/f6712302b5e9dae55fb5104347a559a79c4e55f1)), closes [#19](https://github.com/ProjectXero/dbds/issues/19)
+* support LIMIT clause ([4684631](https://github.com/ProjectXero/dbds/commit/46846311de2ee37b3c7dd68079955177ca22cce2)), closes [#18](https://github.com/ProjectXero/dbds/issues/18)
+
+
+### Bug Fixes
+
+* allow 'undefined' for values in update/where ([8ec3fec](https://github.com/ProjectXero/dbds/commit/8ec3fecb98f4e22a0c3b9fb464ffe432be0c5770)), closes [#17](https://github.com/ProjectXero/dbds/issues/17)
+* columnType is optional ([09c0362](https://github.com/ProjectXero/dbds/commit/09c0362b2e5aff1cf6af97ba96c5370dbad58102)), closes [#2](https://github.com/ProjectXero/dbds/issues/2)
+* nullable fields are optional when inserting ([fba3e1c](https://github.com/ProjectXero/dbds/commit/fba3e1c6e043b7dcc625a807b6b8a8b059178f5f)), closes [#20](https://github.com/ProjectXero/dbds/issues/20)
+* remove table identifier from UPDATE SET clause ([6dbf930](https://github.com/ProjectXero/dbds/commit/6dbf93086e32ebca0391fe9a2ad34244df9ac5f3))
+* temporarily just snake case columns ([b2c7004](https://github.com/ProjectXero/dbds/commit/b2c7004d9cd0b45b07067a95c0c8f097f4881601)), closes [#21](https://github.com/ProjectXero/dbds/issues/21)
+
 ## [1.1.0](https://github.com/ProjectXero/dbds/compare/v1.0.0...v1.1.0) (2020-11-30)
 
 
