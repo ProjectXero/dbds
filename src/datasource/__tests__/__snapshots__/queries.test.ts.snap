@@ -544,7 +544,7 @@ Object {
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"any_table\\".\\"id\\" = $1, \\"any_table\\".\\"name\\" = $2, \\"any_table\\".\\"nullable\\" = $3, \\"any_table\\".\\"optional\\" = $4, \\"any_table\\".\\"optionallyNullable\\" = $5, \\"any_table\\".\\"stringOrNumber\\" = $6
+      SET \\"id\\" = $1, \\"name\\" = $2, \\"nullable\\" = $3, \\"optional\\" = $4, \\"optionallyNullable\\" = $5, \\"stringOrNumber\\" = $6
       
       RETURNING *
     
@@ -573,7 +573,7 @@ Object {
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"any_table\\".\\"name\\" = anything i want
+      SET \\"name\\" = anything i want
       
       RETURNING *
     
@@ -595,7 +595,7 @@ Object {
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"any_table\\".\\"date\\" = $1
+      SET \\"date\\" = $1
       
       RETURNING *
     

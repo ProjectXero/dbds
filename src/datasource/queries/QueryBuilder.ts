@@ -36,10 +36,13 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     this.value = this.value.bind(this)
   }
 
-  public identifier(column?: string): IdentifierSqlTokenType {
-    const params = [this.table]
-    column !== undefined && params.push(column)
-    return sql.identifier(params)
+  public identifier(column?: string, includeTable: boolean = true): IdentifierSqlTokenType {
+    const names = []
+
+    includeTable && names.push(this.table)
+    column !== undefined && names.push(column)
+
+    return sql.identifier(names)
   }
 
   /* Public core query builders */
@@ -83,7 +86,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
       return rowValues
     })
 
-    const columnExpression = sql.join(columns.map((c) => sql.identifier([c])), sql`, `)
+    const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
     const columnTypes = columns.map((col) => this.columnTypes[col])
 
     const insertQuery = sql<TRowType>`
@@ -256,7 +259,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
   /* Protected query-building utilities */
 
   protected wrapCte(queryName: string, query: TaggedTemplateLiteralInvocationType<TRowType>, options?: Omit<QueryOptions<TRowType>, 'where'>): TaggedTemplateLiteralInvocationType<TRowType> {
-    const queryId = sql.identifier([queryName + '_rows'])
+    const queryId = this.identifier(queryName + '_rows', false)
     return sql<TRowType>`
       WITH ${queryId} AS (
         ${query}
@@ -292,7 +295,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     const pairs = Object.entries(values)
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
-        return sql`${this.identifier(column)} = ${this.valueToSql(value!)}`
+        return sql`${this.identifier(column, false)} = ${this.valueToSql(value!)}`
       })
     return sql`SET ${sql.join(pairs, sql`, `)}`
   }
