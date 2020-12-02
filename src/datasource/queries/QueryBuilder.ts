@@ -64,6 +64,13 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
   }
 
   public insert(rows: ValueOrArray<AllowSql<TInsertType>>, options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    // special case: we're given a single empty row...
+    // unfortunately i don't *think* we can do this if we're given numerous
+    // empty rows.
+    if (typeof rows === 'object' && Object.keys(rows).length === 0) {
+      return this.insertDefaultValues(options)
+    }
+
     if (!Array.isArray(rows)) {
       rows = [rows]
     }
@@ -253,12 +260,22 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     `
   }
 
+  protected insertDefaultValues(options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
+    const insertQuery = sql<TRowType>`
+      INSERT INTO ${this.identifier()}
+      DEFAULT VALUES
+      RETURNING *
+    `
+
+    return this.wrapCte('insert', insertQuery, options)
+  }
+
   protected insertUniform(rows: TInsertType[], options?: QueryOptions<TRowType>): TaggedTemplateLiteralInvocationType<TRowType> {
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
 
     const tableExpression = columns.map<SqlSqlTokenType>((column) => {
-      return sql`${this.identifier(column, false)} ${raw(this.columnTypes[column])}`
+      return sql`${sql.identifier([column])} ${raw(this.columnTypes[column])}`
     })
 
     const insertQuery = sql<TRowType>`

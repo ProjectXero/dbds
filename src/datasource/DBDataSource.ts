@@ -169,18 +169,24 @@ export default class DBDataSource<
    */
   protected async insert(
     rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType>
+    options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
-    const query = this.builder.insert(rows, options)
-
-    const expected = options?.expected ??
-      (!Array.isArray(rows) || rows.length === 1) ? 'one' : 'many'
-
-    options = {
-      ...options,
-      expected,
+    if (!options.expected) {
+      options.expected = (!Array.isArray(rows) || rows.length === 1) ? 'one' : 'many'
     }
 
+    if (Array.isArray(rows) && rows.length === 0) {
+      switch (options.expected) {
+        case 'one': // we should really raise here, strictly speaking
+        case 'maybeOne':
+          return null
+        case 'many': // we should really raise here, strictly speaking
+        case 'any':
+          return []
+      }
+    }
+
+    const query = this.builder.insert(rows, options)
     return await this.query(query, options)
   }
 
@@ -311,13 +317,13 @@ export default class DBDataSource<
   ): Promise<TData | null | readonly TData[]> {
     switch (options?.expected || 'any') {
       case 'one':
-        return this.one(query, options)
+        return await this.one(query, options)
       case 'maybeOne':
-        return this.maybeOne(query, options)
+        return await this.maybeOne(query, options)
       case 'many':
-        return this.many(query, options)
+        return await this.many(query, options)
       case 'any':
-        return this.any(query, options)
+        return await this.any(query, options)
     }
   }
 
@@ -374,13 +380,13 @@ export default class DBDataSource<
       .forEach(eachResult)
   }
 
-  private getDataByColumn<TColType extends string | number = string>(
+  private async getDataByColumn<TColType extends string | number = string>(
     args: readonly TColType[],
     column: keyof TRowType,
     type: string,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<readonly TRowType[]> {
-    return this.get({
+    return await this.get({
       ...options,
       expected: 'any',
       where: {
@@ -502,11 +508,11 @@ export default class DBDataSource<
   /**
    * @deprecated Use `insert`
    */
-  protected insertOne(
+  protected async insertOne(
     data: TInsertType,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType> {
-    return this.insert(data, {
+    return await this.insert(data, {
       ...options,
       expected: 'one',
     })
