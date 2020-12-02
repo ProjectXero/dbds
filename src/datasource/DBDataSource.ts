@@ -169,18 +169,11 @@ export default class DBDataSource<
    */
   protected async insert(
     rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType>
+    options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
+    options.expected ||= (Array.isArray(rows) || rows.length) === 1 ? 'one' : 'many'
+
     const query = this.builder.insert(rows, options)
-
-    const expected = options?.expected ??
-      (!Array.isArray(rows) || rows.length === 1) ? 'one' : 'many'
-
-    options = {
-      ...options,
-      expected,
-    }
-
     return await this.query(query, options)
   }
 
