@@ -173,6 +173,17 @@ export default class DBDataSource<
   ): Promise<TRowType | readonly TRowType[] | null> {
     options.expected ||= (Array.isArray(rows) || rows.length) === 1 ? 'one' : 'many'
 
+    if (Array.isArray(rows) && rows.length === 0) {
+      switch (options.expected) {
+        case 'one': // we should really raise here, strictly speaking
+        case 'maybeOne':
+          return null
+        case 'many': // we should really raise here, strictly speaking
+        case 'any':
+          return []
+      }
+    }
+
     const query = this.builder.insert(rows, options)
     return await this.query(query, options)
   }
