@@ -1,3 +1,16 @@
+### [1.2.3](https://github.com/ProjectXero/dbds/compare/v1.2.2...v1.2.3) (2020-12-02)
+
+
+### Bug Fixes
+
+* (more or less) return expected type when given zero rows to insert ([f81ee80](https://github.com/ProjectXero/dbds/commit/f81ee80cc5bc361bb07bed16036d6809eef780ae)), closes [#33](https://github.com/ProjectXero/dbds/issues/33)
+* always return await for async functions ([57b7c4a](https://github.com/ProjectXero/dbds/commit/57b7c4aa1cee95082f4c1748a52068055e3e4b46))
+* apparently CI can't handle ||= wat ([0aa6b80](https://github.com/ProjectXero/dbds/commit/0aa6b80f4ee3c4346999160dc0874b4f80f98248))
+* handle the case of a single empty row ([6d6afcb](https://github.com/ProjectXero/dbds/commit/6d6afcb06fc36a5b49af672d9853edbec3e12b27)), closes [#34](https://github.com/ProjectXero/dbds/issues/34)
+* make camel-cased column names work on insert ([6b2886c](https://github.com/ProjectXero/dbds/commit/6b2886c43b21bcd5961f108d35d2a3da72ab2186)), closes [#30](https://github.com/ProjectXero/dbds/issues/30)
+* only override expected if it's not set ([e9ef675](https://github.com/ProjectXero/dbds/commit/e9ef675b424a26ca9e9a340f08922ce2a10ed74e)), closes [#32](https://github.com/ProjectXero/dbds/issues/32)
+* parenthesis fail... and also logic fail ([1a03238](https://github.com/ProjectXero/dbds/commit/1a03238465d310368678564b4c34c3022860be29))
+
 ### [1.2.2](https://github.com/ProjectXero/dbds/compare/v1.2.1...v1.2.2) (2020-12-01)
 
 
