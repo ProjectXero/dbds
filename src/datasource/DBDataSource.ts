@@ -171,7 +171,9 @@ export default class DBDataSource<
     rows: ValueOrArray<AllowSql<TInsertType>>,
     options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
-    options.expected ||= (Array.isArray(rows) || rows.length) === 1 ? 'one' : 'many'
+    if (!options.expected) {
+      options.expected = (Array.isArray(rows) || rows.length) === 1 ? 'one' : 'many'
+    }
 
     if (Array.isArray(rows) && rows.length === 0) {
       switch (options.expected) {
