@@ -1,3 +1,11 @@
+### [1.2.4](https://github.com/ProjectXero/dbds/compare/v1.2.3...v1.2.4) (2020-12-02)
+
+
+### Bug Fixes
+
+* insertOne/insertMany AllowSql ([8490f1c](https://github.com/ProjectXero/dbds/commit/8490f1c160de8e082c6fc697848c9338d04b38d7))
+* insertOne/insertMany AllowSql ([#37](https://github.com/ProjectXero/dbds/issues/37)) ([4a52e86](https://github.com/ProjectXero/dbds/commit/4a52e86c6cacdde969e6805cf0763edad9931ee3))
+
 ### [1.2.3](https://github.com/ProjectXero/dbds/compare/v1.2.2...v1.2.3) (2020-12-02)
 
 
