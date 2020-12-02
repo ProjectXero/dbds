@@ -509,7 +509,7 @@ export default class DBDataSource<
    * @deprecated Use `insert`
    */
   protected async insertOne(
-    data: TInsertType,
+    data: AllowSql<TInsertType>,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType> {
     return await this.insert(data, {
@@ -522,7 +522,7 @@ export default class DBDataSource<
    * @deprecated Use `insert`
    */
   protected async insertMany(
-    data: Array<TInsertType>,
+    data: Array<AllowSql<TInsertType>>,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType[]> {
     return [
