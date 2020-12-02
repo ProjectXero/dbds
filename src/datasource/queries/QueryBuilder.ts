@@ -258,7 +258,7 @@ export default class QueryBuilder<TRowType, TInsertType extends { [K in keyof TR
     const columnExpression = sql.join(columns.map((c) => this.identifier(c, false)), sql`, `)
 
     const tableExpression = columns.map<SqlSqlTokenType>((column) => {
-      return sql`${this.identifier(column, false)} ${raw(this.columnTypes[column])}`
+      return sql`${sql.identifier([column])} ${raw(this.columnTypes[column])}`
     })
 
     const insertQuery = sql<TRowType>`
