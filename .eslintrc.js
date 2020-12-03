@@ -19,6 +19,16 @@ module.exports = {
   plugins: ['@typescript-eslint', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
+    'max-len': ['error', { code: 80, ignoreUrls: true }],
+    'no-tabs': ['error', { allowIndentationTabs: true }],
+    'no-restricted-syntax': [
+      'error',
+      {
+        selector: 'SequenceExpression',
+        message:
+          'The comma operator is confusing and a common mistake. Don’t use it!',
+      },
+    ],
   },
   overrides: [
     {
