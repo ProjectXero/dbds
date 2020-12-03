@@ -1,17 +1,27 @@
 import type { IConfig } from 'config'
 import yargs from 'yargs'
 
+interface CodedError extends Error {
+  code: string
+}
+
+const isModuleNotFound = (error: unknown): boolean =>
+  (error as CodedError)?.code === 'MODULE_NOT_FOUND'
+
 const getConfig = (key: string): string | undefined => {
   const originalEnv = process.env.SUPPRESS_NO_CONFIG_WARNING
   process.env.SUPPRESS_NO_CONFIG_WARNING = '1'
 
   try {
+    // We need this require to occur synchronously; inline imports are
+    // asynchronous
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const config: IConfig = require('config')
     if (config.has(key)) {
       return config.get(key)
     }
-  } catch (error: any) {
-    if (error?.code !== 'MODULE_NOT_FOUND') {
+  } catch (error: unknown) {
+    if (!isModuleNotFound(error)) {
       throw error
     }
   } finally {
