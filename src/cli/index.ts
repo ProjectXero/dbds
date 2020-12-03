@@ -52,13 +52,15 @@ const program = yargs(process.argv.slice(2))
       requiresArg: true,
       type: 'string',
       description:
-        'Name of the config key containing the schema name (requires node-config)',
+        'Name of the config key containing the schema name ' +
+        '(requires node-config)',
     },
     'config-database': {
       requiresArg: true,
       type: 'string',
       description:
-        'Name of the config key containing the database url (requires node-config)',
+        'Name of the config key containing the database url ' +
+        '(requires node-config)',
     },
   })
   .coerce(['config-schema', 'config-database'], getConfig)

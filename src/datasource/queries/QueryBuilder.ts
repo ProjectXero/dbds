@@ -115,7 +115,8 @@ export default class QueryBuilder<
   ): TaggedTemplateLiteralInvocationType<TRowType> {
     if (options !== true && !options?.where) {
       throw new Error(
-        'Implicit deletion of everything is not allowed. To delete everything, please pass `true` or include options.'
+        'Implicit deletion of everything is not allowed. ' +
+          'To delete everything, please pass `true` or include options.'
       )
     }
 
@@ -470,18 +471,19 @@ export default class QueryBuilder<
   }
 
   /**
-   * Determine if a rowset is 'uniform' -- i.e. the entire rowset can be parameterized
+   * Determine if a rowset is 'uniform' -- i.e. the entire rowset can be
+   * parameterized
    *
    * With a uniform rowset, there will only be one query parameter (`N = 1`).
    * With a non-uniform rowset, there will be `N = rows * columns` parameters.
    *
-   * In theory we could partially parameterize a 'partially uniform' rowset. Such
-   * a rowset would have every row with the same keys but *some* rows could have
-   * non-primitive values.
+   * In theory we could partially parameterize a 'partially uniform' rowset.
+   * Such a rowset would have every row with the same keys but *some* rows could
+   * have non-primitive values.
    *
-   * In such a 'partially uniform' rowset, there would be `N = 1 + (non-uniform rows) * columns`
-   * query parameters. Every uniform row could be included in a single parameter and
-   * only non-uniform rows spread out as normal.
+   * In such a 'partially uniform' rowset, there would be `N = 1 + (non-uniform
+   * rows) * columns` query parameters. Every uniform row could be included in a
+   * single parameter and only non-uniform rows spread out as normal.
    */
   private isUniformRowset(
     rowset: AllowSql<TInsertType>[]

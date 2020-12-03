@@ -48,7 +48,8 @@ export default class TypeRegistry {
     }
 
     console.warn(
-      `Unknown type detected: '${typename}'. You have either disabled generation of the type or this is a bug.`
+      `Unknown type detected: '${typename}'. ` +
+        'You have either disabled generation of the type or this is a bug.'
     )
     this.add(typename, 'unknown')
 
@@ -58,7 +59,8 @@ export default class TypeRegistry {
   public add(typename: string, target: string): void {
     if (this.has(typename)) {
       console.warn(
-        `Re-registering known type '${typename}': ${this.typeMap[typename]} => ${target}`
+        `Re-registering known type '${typename}': ` +
+          `${this.typeMap[typename]} => ${target}`
       )
     }
 

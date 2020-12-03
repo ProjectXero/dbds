@@ -53,7 +53,7 @@ export default class LoaderFactory<TRowType> {
   ): DataLoader<TRowType[TColumnName], TRowType | undefined>
   public create<
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string,
-    TColType extends string | (number & TRowType[TColumnName])
+    TColType extends TRowType[TColumnName] & (string | number)
   >(
     key: TColumnName,
     columnType?: string | LoaderOptions<TRowType, TColumnName>,
@@ -72,11 +72,7 @@ export default class LoaderFactory<TRowType> {
 
     return new DataLoader<TColType, TRowType[] | (TRowType | undefined)>(
       async (args: readonly TColType[]) => {
-        const data = await this.getData<TColType>(
-          args,
-          this.options.keyToColumn(key),
-          type
-        )
+        const data = await this.getData<TColumnName>(args, key, type)
         callbackFn && data.forEach(callbackFn)
         return args.map((value) => {
           if (multi) {

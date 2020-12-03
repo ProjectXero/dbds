@@ -7,7 +7,8 @@ interface DummyRowType {
   optional?: string
   nullable: string | null
   optionallyNullable?: string | null
-  stringOrNumber: string | number | null // i think this is a nonsense type but i needed to test the type system...
+  // i think this is a nonsense type but i needed to test the type system...
+  stringOrNumber: string | number | null
   date?: Date
 }
 
@@ -308,7 +309,7 @@ describe(QueryBuilder, () => {
         ).toMatchSnapshot()
       })
 
-      it('allows multiple objects with a mix of primitive and raw SQL values', () => {
+      it('allows multiple objects with a mix of value types', () => {
         expect(
           builder.insert([
             {
@@ -342,7 +343,7 @@ describe(QueryBuilder, () => {
         expect(builder.update({ name: sql`anything i want` })).toMatchSnapshot()
       })
 
-      it('correctly updates date values Date objects as ISO8601 strings', () => {
+      it('correctly updates Date objects as ISO8601 strings', () => {
         expect(
           builder.update({ date: new Date('2020-11-30T00:00:00.000-0500') })
         ).toMatchSnapshot()
@@ -350,11 +351,9 @@ describe(QueryBuilder, () => {
     })
 
     describe('delete', () => {
-      it("doesn't let you delete everything without explicitly okaying it", () => {
+      it("doesn't let you delete everything without being explicit", () => {
         // @ts-expect-error testing bad caller
-        expect(() => builder.delete()).toThrowErrorMatchingInlineSnapshot(
-          `"Implicit deletion of everything is not allowed. To delete everything, please pass \`true\` or include options."`
-        )
+        expect(() => builder.delete()).toThrowErrorMatchingSnapshot()
       })
 
       it('can be forced to delete everything', () => {

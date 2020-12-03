@@ -111,7 +111,8 @@ export const handler = async (
 
     if (!dbUrl) {
       throw new TypeError(
-        'Database URL not provided. Did you set the DATABASE_URL environment variable?'
+        'Database URL not provided. ' +
+          'Did you set the DATABASE_URL environment variable?'
       )
     }
 
