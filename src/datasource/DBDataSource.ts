@@ -23,6 +23,8 @@ import {
   UpdateSet,
   ValueOrArray,
 } from './queries/types'
+import { KeyValueCache } from 'apollo-server-caching'
+import { SearchableKeys } from './loaders/types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
@@ -41,12 +43,12 @@ export type LoaderCallback<TResultType> = (
 ) => void
 
 export default class DBDataSource<
-  TRowType extends Record<string, unknown>,
+  TRowType,
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
 > implements DataSource<TContext> {
-  protected context?: TContext
-  protected cache: any
+  protected context!: TContext
+  protected cache!: KeyValueCache
   protected loaders: LoaderFactory<TRowType>
   protected builder: QueryBuilder<TRowType, TInsertType>
 
@@ -407,43 +409,52 @@ export default class DBDataSource<
   /**
    * @deprecated Use the loader factory instead
    */
-  protected createColumnLoader<TColType extends string | number = string>(
-    column: string,
+  protected createColumnLoader<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType | undefined> {
+  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { callbackFn })
+    return this.loaders.create(column, type, { callbackFn })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
-  protected createColumnMultiLoader<TColType extends string | number = string>(
-    column: string,
+  protected createColumnMultiLoader<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType[]> {
+  ): DataLoader<TRowType[TColumnName], TRowType[]> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { multi: true, callbackFn })
+    return this.loaders.create(column, type, { multi: true, callbackFn })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
-  protected createColumnLoaderCI<TColType extends string | number = string>(
-    column: string,
+  protected createColumnLoaderCI<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType | undefined> {
+  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, {
+    return this.loaders.create(column, type, {
+      // We don't really know the type of the column, but to maintain backwards
+      // compatibility we're just going to force this through
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ignoreCase: true as any,
       callbackFn,
     })
@@ -453,17 +464,20 @@ export default class DBDataSource<
    * @deprecated Use the loader factory instead
    */
   protected createColumnMultiLoaderCI<
-    TColType extends string | number = string
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
-    column: string,
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType[]> {
+  ): DataLoader<TRowType[TColumnName], TRowType[]> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, {
+    return this.loaders.create(column, type, {
       multi: true,
+      // We don't really know the type of the column, but to maintain backwards
+      // compatibility we're just going to force this through
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ignoreCase: true as any,
       callbackFn,
     })

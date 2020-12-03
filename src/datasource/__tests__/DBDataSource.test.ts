@@ -51,7 +51,7 @@ describe(DBDataSource, () => {
 
   describe('createColumnLoader', () => {
     class TestDataSource extends DummyDBDataSource {
-      public testLoader = this.createColumnLoader<number>('id', 'any')
+      public testLoader = this.createColumnLoader('id', 'any')
     }
 
     const dataSource = new TestDataSource()
