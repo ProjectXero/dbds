@@ -1,3 +1,10 @@
+### [1.2.5](https://github.com/ProjectXero/dbds/compare/v1.2.4...v1.2.5) (2020-12-03)
+
+
+### Bug Fixes
+
+* **loaders:** types ([5f7601b](https://github.com/ProjectXero/dbds/commit/5f7601b7d2b6f4e15b4764bb39104167e4858563))
+
 ### [1.2.4](https://github.com/ProjectXero/dbds/compare/v1.2.3...v1.2.4) (2020-12-02)
 
 
