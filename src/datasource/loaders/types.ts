@@ -18,6 +18,12 @@ export interface LoaderFactoryOptions<TRowType> {
 
 export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
   multi?: boolean
-  ignoreCase?: TRowType extends Record<TColumnName, string> ? boolean : false | undefined
-  callbackFn?: (row: TRowType, index: number, array: readonly TRowType[]) => void
+  ignoreCase?: TRowType extends Record<TColumnName, string>
+    ? boolean
+    : false | undefined
+  callbackFn?: (
+    row: TRowType,
+    index: number,
+    array: readonly TRowType[]
+  ) => void
 }

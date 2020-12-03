@@ -8,7 +8,11 @@ import NodeBuilder from './NodeBuilder'
 export default class ColumnBuilder extends NodeBuilder<PropertyAssignment> {
   public readonly type: string
 
-  constructor(options: ColumnInfo, types: TypeRegistry, transform: Transformations) {
+  constructor(
+    options: ColumnInfo,
+    types: TypeRegistry,
+    transform: Transformations
+  ) {
     super(options.name, types, transform)
     this.type = options.type
   }
@@ -19,5 +23,4 @@ export default class ColumnBuilder extends NodeBuilder<PropertyAssignment> {
 
     return factory.createPropertyAssignment(name, value)
   }
-
 }

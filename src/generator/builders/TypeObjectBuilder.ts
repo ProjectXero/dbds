@@ -1,4 +1,13 @@
-import { factory, VariableStatement, PropertyAssignment, SyntaxKind, ObjectLiteralExpression, TypeNode, NodeFlags, Identifier } from 'typescript'
+import {
+  factory,
+  VariableStatement,
+  PropertyAssignment,
+  SyntaxKind,
+  ObjectLiteralExpression,
+  TypeNode,
+  NodeFlags,
+  Identifier,
+} from 'typescript'
 
 import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -11,7 +20,11 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  constructor(options: TableInfo, types: TypeRegistry, transform: Transformations) {
+  constructor(
+    options: TableInfo,
+    types: TypeRegistry,
+    transform: Transformations
+  ) {
     super(options.name, types, transform)
     this.canInsert = options.canInsert
     this.columns = options.columns
@@ -19,7 +32,11 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
 
   protected buildProperties(): PropertyAssignment[] {
     return this.columns.map<PropertyAssignment>((columnInfo) => {
-      const builder = new ColumnTypeBuilder(columnInfo, this.types, this.transform)
+      const builder = new ColumnTypeBuilder(
+        columnInfo,
+        this.types,
+        this.transform
+      )
       return builder.buildNode()
     })
   }
@@ -31,13 +48,10 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
 
   protected buildType(): TypeNode {
     const parentType = factory.createTypeReferenceNode(super.typename())
-    return factory.createTypeReferenceNode(
-      'Record',
-      [
-        factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, parentType),
-        factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-      ]
-    )
+    return factory.createTypeReferenceNode('Record', [
+      factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, parentType),
+      factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+    ])
   }
 
   public typename(name: string = this.name): Identifier {
@@ -52,7 +66,10 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
       this.buildObjectLiteral()
     )
 
-    const declarationList = factory.createVariableDeclarationList([declaration], NodeFlags.Const)
+    const declarationList = factory.createVariableDeclarationList(
+      [declaration],
+      NodeFlags.Const
+    )
 
     return factory.createVariableStatement([ExportKeyword], declarationList)
   }

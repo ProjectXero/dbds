@@ -1,7 +1,7 @@
-import { DBDataSource } from ".."
-import { createMockPool } from "../../testing"
-import { LoaderFactory } from "../loaders"
-import { GetDataFunction } from "../loaders/types"
+import { DBDataSource } from '..'
+import { createMockPool } from '../../testing'
+import { LoaderFactory } from '../loaders'
+import { GetDataFunction } from '../loaders/types'
 
 interface DummyRowType {
   id: number
@@ -16,7 +16,11 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(DBDataSource, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (_args, _column, _type): Promise<DummyRowType[]> => {
+  const dummyBatchFn: GetDataFunction<DummyRowType> = async (
+    _args,
+    _column,
+    _type
+  ): Promise<DummyRowType[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -38,7 +42,11 @@ describe(DBDataSource, () => {
 
   class DummyDBDataSource extends DBDataSource<DummyRowType> {
     constructor() {
-      super(createMockPool(), 'any_table', { id: 'any', name: 'any', code: 'any' })
+      super(createMockPool(), 'any_table', {
+        id: 'any',
+        name: 'any',
+        code: 'any',
+      })
       this.loaders = factory
     }
   }
@@ -75,11 +83,15 @@ describe(DBDataSource, () => {
     })
 
     it('is able to load many sets of items', async () => {
-      expect(await dataSource.testLoader.loadMany(['abc', 'def'])).toMatchSnapshot()
+      expect(
+        await dataSource.testLoader.loadMany(['abc', 'def'])
+      ).toMatchSnapshot()
     })
 
     it('returns an empty array with no matching results', async () => {
-      expect(await dataSource.testLoader.load('any value with no match')).toHaveLength(0)
+      expect(
+        await dataSource.testLoader.load('any value with no match')
+      ).toHaveLength(0)
     })
   })
 
@@ -95,11 +107,15 @@ describe(DBDataSource, () => {
     })
 
     it('is able to load many items', async () => {
-      expect(await dataSource.testLoader.loadMany(['AAA', 'BBB'])).toMatchSnapshot()
+      expect(
+        await dataSource.testLoader.loadMany(['AAA', 'BBB'])
+      ).toMatchSnapshot()
     })
 
     it('returns undefined with no matching results', async () => {
-      expect(await dataSource.testLoader.load('any value with no match')).toBeUndefined()
+      expect(
+        await dataSource.testLoader.load('any value with no match')
+      ).toBeUndefined()
     })
   })
 
@@ -115,11 +131,15 @@ describe(DBDataSource, () => {
     })
 
     it('is able to load many sets of items', async () => {
-      expect(await dataSource.testLoader.loadMany(['aaa', 'bbb'])).toMatchSnapshot()
+      expect(
+        await dataSource.testLoader.loadMany(['aaa', 'bbb'])
+      ).toMatchSnapshot()
     })
 
     it('returns an empty array with no matching results', async () => {
-      expect(await dataSource.testLoader.load('any value with no match')).toHaveLength(0)
+      expect(
+        await dataSource.testLoader.load('any value with no match')
+      ).toHaveLength(0)
     })
   })
 })

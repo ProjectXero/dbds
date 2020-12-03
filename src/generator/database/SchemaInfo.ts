@@ -1,4 +1,8 @@
-import { DatabasePoolType, sql, TaggedTemplateLiteralInvocationType } from 'slonik'
+import {
+  DatabasePoolType,
+  sql,
+  TaggedTemplateLiteralInvocationType,
+} from 'slonik'
 
 export interface EnumInfo {
   name: string
@@ -24,9 +28,11 @@ export default class SchemaInfo {
   constructor(
     private readonly pool: DatabasePoolType,
     public readonly name: string
-  ) { }
+  ) {}
 
-  public tableQuery(): TaggedTemplateLiteralInvocationType<Omit<TableInfo, 'columns'>> {
+  public tableQuery(): TaggedTemplateLiteralInvocationType<
+    Omit<TableInfo, 'columns'>
+  > {
     return sql<Omit<TableInfo, 'columns'>>`
       SELECT table_name AS "name"
           , (is_insertable_into = 'YES') AS "canInsert"
@@ -37,7 +43,9 @@ export default class SchemaInfo {
     `
   }
 
-  public columnQuery(table: string): TaggedTemplateLiteralInvocationType<ColumnInfo> {
+  public columnQuery(
+    table: string
+  ): TaggedTemplateLiteralInvocationType<ColumnInfo> {
     return sql<ColumnInfo>`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
@@ -106,7 +114,7 @@ export default class SchemaInfo {
       tables.map<Promise<TableInfo>>(async (table) => {
         return {
           ...table,
-          columns: await this.getTableColumns(table.name)
+          columns: await this.getTableColumns(table.name),
         }
       })
     )
@@ -119,5 +127,4 @@ export default class SchemaInfo {
   public async getEnums(): Promise<readonly EnumInfo[]> {
     return await this.pool.any(this.enumQuery())
   }
-
 }

@@ -47,7 +47,9 @@ export default class TypeRegistry {
       return factory.createTypeReferenceNode(this.typeMap[typename])
     }
 
-    console.warn(`Unknown type detected: '${typename}'. You have either disabled generation of the type or this is a bug.`)
+    console.warn(
+      `Unknown type detected: '${typename}'. You have either disabled generation of the type or this is a bug.`
+    )
     this.add(typename, 'unknown')
 
     return UNKNOWN
@@ -55,7 +57,9 @@ export default class TypeRegistry {
 
   public add(typename: string, target: string): void {
     if (this.has(typename)) {
-      console.warn(`Re-registering known type '${typename}': ${this.typeMap[typename]} => ${target}`)
+      console.warn(
+        `Re-registering known type '${typename}': ${this.typeMap[typename]} => ${target}`
+      )
     }
 
     this.typeMap[typename] = target

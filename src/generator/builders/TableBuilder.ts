@@ -11,7 +11,11 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
 
-  constructor(options: TableInfo, types: TypeRegistry, transform: Transformations) {
+  constructor(
+    options: TableInfo,
+    types: TypeRegistry,
+    transform: Transformations
+  ) {
     super(options.name, types, transform)
     this.canInsert = options.canInsert
     this.columns = options.columns
@@ -26,6 +30,13 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
 
   public buildNode(): InterfaceDeclaration {
     const members = this.buildMemberNodes()
-    return factory.createInterfaceDeclaration(undefined, [ExportKeyword], this.typename(), undefined, undefined, members)
+    return factory.createInterfaceDeclaration(
+      undefined,
+      [ExportKeyword],
+      this.typename(),
+      undefined,
+      undefined,
+      members
+    )
   }
 }

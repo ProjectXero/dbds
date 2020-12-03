@@ -72,7 +72,9 @@ describe(QueryBuilder, () => {
       })
 
       it('correctly handles Date objects', () => {
-        expect(builder.where({ date: new Date('2020-11-30T00:00:00.000-0500') })).toMatchSnapshot()
+        expect(
+          builder.where({ date: new Date('2020-11-30T00:00:00.000-0500') })
+        ).toMatchSnapshot()
       })
     })
 
@@ -107,11 +109,9 @@ describe(QueryBuilder, () => {
       })
 
       it('can use order tuples', () => {
-        expect(builder.orderBy([
-          ['a', 'DESC'],
-          'b',
-          [sql`c`, 'ASC']
-        ])).toMatchSnapshot()
+        expect(
+          builder.orderBy([['a', 'DESC'], 'b', [sql`c`, 'ASC']])
+        ).toMatchSnapshot()
       })
     })
 
@@ -215,9 +215,11 @@ describe(QueryBuilder, () => {
       })
 
       it('supports limits', () => {
-        expect(builder.select({
-          limit: 10
-        })).toMatchSnapshot()
+        expect(
+          builder.select({
+            limit: 10,
+          })
+        ).toMatchSnapshot()
       })
     })
 
@@ -283,10 +285,12 @@ describe(QueryBuilder, () => {
       })
 
       it('allows a single object with raw SQL values', () => {
-        expect(builder.insert({
-          id: 1,
-          name: sql`DEFAULT`,
-        })).toMatchSnapshot()
+        expect(
+          builder.insert({
+            id: 1,
+            name: sql`DEFAULT`,
+          })
+        ).toMatchSnapshot()
       })
 
       it('allows multiple objects with raw SQL values', () => {
@@ -299,7 +303,7 @@ describe(QueryBuilder, () => {
             {
               id: 2,
               name: sql`DEFAULT`,
-            }
+            },
           ])
         ).toMatchSnapshot()
       })
@@ -314,7 +318,7 @@ describe(QueryBuilder, () => {
             {
               id: 2,
               name: sql`DEFAULT`,
-            }
+            },
           ])
         ).toMatchSnapshot()
       })

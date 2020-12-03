@@ -103,19 +103,19 @@ describe(DBDataSource, () => {
         id: 5,
         code: 'A',
         name: 'abc',
-        withDefault: sql`DEFAULT`
+        withDefault: sql`DEFAULT`,
       },
       {
         id: 6,
         code: 'B',
         name: 'def',
-        withDefault: 'value'
+        withDefault: 'value',
       },
       {
         id: 7,
         code: 'C',
         name: 'ghi',
-      }
+      },
     ]
 
     const results = await ds.testInsert(rows)
@@ -124,19 +124,19 @@ describe(DBDataSource, () => {
       id: 5,
       code: 'A',
       name: 'abc',
-      with_default: 'anything'
+      with_default: 'anything',
     })
     expect(results).toContainEqual({
       id: 6,
       code: 'B',
       name: 'def',
-      with_default: 'value'
+      with_default: 'value',
     })
     expect(results).toContainEqual({
       id: 7,
       code: 'C',
       name: 'ghi',
-      with_default: 'anything'
+      with_default: 'anything',
     })
   })
 
@@ -174,15 +174,21 @@ describe(DBDataSource, () => {
       await ds.testInsert(row)
 
       const resultAll = await ds.get()
-      expect(resultAll).toContainEqual(expected);
+      expect(resultAll).toContainEqual(expected)
 
       const result1 = await ds.get({ where: { id: 2 }, expected: 'maybeOne' })
       expect(result1).toMatchObject(expected)
 
-      const result2 = await ds.get({ where: { code: 'CODE' }, expected: 'maybeOne' })
+      const result2 = await ds.get({
+        where: { code: 'CODE' },
+        expected: 'maybeOne',
+      })
       expect(result2).toMatchObject(expected)
 
-      const result3 = await ds.get({ where: { name: 'TEST ROW' }, expected: 'maybeOne' })
+      const result3 = await ds.get({
+        where: { name: 'TEST ROW' },
+        expected: 'maybeOne',
+      })
       expect(result3).toMatchObject(expected)
     })
 
@@ -232,13 +238,16 @@ describe(DBDataSource, () => {
 
       await ds.testInsert([newRow1, newRow2])
 
-      const result = await ds.testUpdate({
-        code: 'NEW CODE',
-      }, {
-        where: {
-          id: newRow1.id,
+      const result = await ds.testUpdate(
+        {
+          code: 'NEW CODE',
+        },
+        {
+          where: {
+            id: newRow1.id,
+          },
         }
-      })
+      )
 
       expect(result).toHaveLength(1)
       expect(result).toContainEqual({
@@ -269,7 +278,7 @@ describe(DBDataSource, () => {
         where: {
           id: newRow1.id,
         },
-        expected: 'one'
+        expected: 'one',
       })
 
       expect(result).toMatchObject({

@@ -1,4 +1,4 @@
-import { TableInfo } from "../../database"
+import { TableInfo } from '../../database'
 
 const mockTables: TableInfo[] = [
   {
@@ -16,9 +16,9 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: false,
         order: 1,
-        type: 'int8'
-      }
-    ]
+        type: 'int8',
+      },
+    ],
   },
   {
     name: 'table_with_custom_types',
@@ -30,7 +30,7 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: false,
         order: 1,
-        type: 'test_enum'
+        type: 'test_enum',
       },
       {
         name: 'enum_array_type',
@@ -38,7 +38,7 @@ const mockTables: TableInfo[] = [
         isArray: true,
         nullable: false,
         order: 2,
-        type: 'test_enum'
+        type: 'test_enum',
       },
       {
         name: 'table_type',
@@ -46,7 +46,7 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: false,
         order: 3,
-        type: 'table_with_uuid_id'
+        type: 'table_with_uuid_id',
       },
       {
         name: 'table_array_type',
@@ -54,9 +54,9 @@ const mockTables: TableInfo[] = [
         isArray: true,
         nullable: false,
         order: 4,
-        type: 'table_with_uuid_id'
-      }
-    ]
+        type: 'table_with_uuid_id',
+      },
+    ],
   },
   {
     name: 'table_with_uuid_id',
@@ -68,9 +68,9 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: false,
         order: 1,
-        type: 'uuid'
-      }
-    ]
+        type: 'uuid',
+      },
+    ],
   },
   {
     name: 'table_with_nullable_fields',
@@ -82,7 +82,7 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: true,
         order: 1,
-        type: 'text'
+        type: 'text',
       },
       {
         name: 'nullable_with_default',
@@ -90,7 +90,7 @@ const mockTables: TableInfo[] = [
         isArray: false,
         nullable: true,
         order: 2,
-        type: 'text'
+        type: 'text',
       },
       {
         name: 'nullable_array',
@@ -98,7 +98,7 @@ const mockTables: TableInfo[] = [
         isArray: true,
         nullable: true,
         order: 3,
-        type: 'text'
+        type: 'text',
       },
       {
         name: 'nullable_array_with_default',
@@ -106,10 +106,10 @@ const mockTables: TableInfo[] = [
         isArray: true,
         nullable: true,
         order: 4,
-        type: 'text'
-      }
-    ]
-  }
+        type: 'text',
+      },
+    ],
+  },
 ]
 
 export default mockTables

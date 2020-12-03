@@ -5,14 +5,20 @@ import { Transformations } from '../types'
 
 import NodeBuilder from './NodeBuilder'
 
-export default class ColumnBuilder extends NodeBuilder<PropertySignature> implements ColumnInfo {
+export default class ColumnBuilder
+  extends NodeBuilder<PropertySignature>
+  implements ColumnInfo {
   public readonly nullable: boolean
   public readonly hasDefault: boolean
   public readonly isArray: boolean
   public readonly order: number
   public readonly type: string
 
-  constructor(options: ColumnInfo, types: TypeRegistry, transform: Transformations) {
+  constructor(
+    options: ColumnInfo,
+    types: TypeRegistry,
+    transform: Transformations
+  ) {
     super(options.name, types, transform)
     this.hasDefault = options.hasDefault
     this.isArray = options.isArray
@@ -31,7 +37,9 @@ export default class ColumnBuilder extends NodeBuilder<PropertySignature> implem
     if (this.nullable) {
       typename = factory.createUnionTypeNode([
         typename,
-        factory.createLiteralTypeNode(factory.createToken(SyntaxKind.NullKeyword))
+        factory.createLiteralTypeNode(
+          factory.createToken(SyntaxKind.NullKeyword)
+        ),
       ])
     }
 
@@ -45,5 +53,4 @@ export default class ColumnBuilder extends NodeBuilder<PropertySignature> implem
 
     return factory.createPropertySignature(undefined, name, undefined, type)
   }
-
 }
