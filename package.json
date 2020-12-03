@@ -34,7 +34,9 @@
   "scripts": {
     "build": "tsc",
     "typecheck": "tsc --noEmit --project .",
-    "test": "yarn jest --passWithNoTests",
+    "lint": "eslint '**/*.{j,t}s{,on{,c,5}}'",
+    "lint:fix": "yarn -s lint --fix",
+    "test": "jest --passWithNoTests",
     "prepack": "yarn build"
   },
   "dependencies": {
