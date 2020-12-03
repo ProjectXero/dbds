@@ -1,3 +1,44 @@
 {
-    "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": true,
+  "eslint.format.enable": true,
+  "eslint.codeActionsOnSave.mode": "all",
+  "eslint.packageManager": "yarn",
+  "eslint.probe": [
+    "javascript",
+    "typescript",
+    "json",
+    "jsonc",
+    "json5"
+  ],
+  "eslint.validate": [
+    "javascript",
+    "typescript",
+    "json",
+    "jsonc",
+    "json5",
+  ],
+  "[javascript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[typescript]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[json]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.suggest.insertMode": "replace"
+  },
+  "[json5]": {
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint"
+  },
+  "[jsonc]": {
+    "editor.quickSuggestions": {
+      "strings": true
+    },
+    "editor.defaultFormatter": "dbaeumer.vscode-eslint",
+    "editor.suggest.insertMode": "replace"
+  }
 }
