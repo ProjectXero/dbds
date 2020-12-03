@@ -9,4 +9,4 @@ export const match = <T extends string | number>(
   return left === right
 }
 
-export const identity = <T>(value: T) => value
+export const identity = <T>(value: T): T => value

@@ -16,7 +16,7 @@ export default abstract class TypeBuilder<
     return this.createIdentifier(this.transform.typeNames(name))
   }
 
-  protected createIdentifier(text: string) {
+  protected createIdentifier(text: string): Identifier {
     return factory.createIdentifier(text)
   }
 }

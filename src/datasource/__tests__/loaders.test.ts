@@ -15,11 +15,9 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (
-    _args,
-    _column,
-    _type
-  ): Promise<DummyRowType[]> => {
+  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
+    DummyRowType[]
+  > => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -149,17 +147,17 @@ describe(match, () => {
   })
 
   it('is resilient to non-matching types', () => {
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(0, false)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(null, 0)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match('', null)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(false, '')).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(0, '')).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(false, '', true)).toBe(false)
   })
 })

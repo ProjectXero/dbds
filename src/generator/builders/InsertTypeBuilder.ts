@@ -1,4 +1,10 @@
-import { factory, Identifier, SyntaxKind, TypeElement } from 'typescript'
+import {
+  factory,
+  Identifier,
+  InterfaceDeclaration,
+  SyntaxKind,
+  TypeElement,
+} from 'typescript'
 
 import ColumnBuilder from './ColumnBuilder'
 import TableBuilder from './TableBuilder'
@@ -27,7 +33,7 @@ export default class InsertTypeBuilder extends TableBuilder {
     return this.createIdentifier(super.typename(name).text + '$Insert')
   }
 
-  public buildNode() {
+  public buildNode(): InterfaceDeclaration {
     let declaration = super.buildNode()
     declaration = factory.updateInterfaceDeclaration(
       declaration,

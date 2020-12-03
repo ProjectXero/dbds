@@ -51,7 +51,9 @@ describe(Generator, () => {
 
     it('generates tables', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {})
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -82,7 +84,9 @@ describe(Generator, () => {
 
     it('generates insert types', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {})
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -99,7 +103,9 @@ describe(Generator, () => {
 
     it('generates type objects', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {})
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })

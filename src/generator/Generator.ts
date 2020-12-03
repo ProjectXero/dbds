@@ -75,7 +75,7 @@ export default class Generator {
     })
   }
 
-  public async destroy() {
+  public async destroy(): Promise<void> {
     await this.schema.disconnect()
   }
 

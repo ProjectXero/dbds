@@ -351,7 +351,7 @@ describe(QueryBuilder, () => {
 
     describe('delete', () => {
       it("doesn't let you delete everything without explicitly okaying it", () => {
-        // @ts-expect-error
+        // @ts-expect-error testing bad caller
         expect(() => builder.delete()).toThrowErrorMatchingInlineSnapshot(
           `"Implicit deletion of everything is not allowed. To delete everything, please pass \`true\` or include options."`
         )

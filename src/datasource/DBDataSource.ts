@@ -41,7 +41,7 @@ export type LoaderCallback<TResultType> = (
 ) => void
 
 export default class DBDataSource<
-  TRowType extends Record<string, any>,
+  TRowType extends Record<string, unknown>,
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
 > implements DataSource<TContext> {
@@ -385,9 +385,9 @@ export default class DBDataSource<
     results.filter((val): val is TData => val !== null).forEach(eachResult)
   }
 
-  private async getDataByColumn<TColType extends string | number = string>(
-    args: readonly TColType[],
-    column: keyof TRowType,
+  private async getDataByColumn<TColumnName extends keyof TRowType & string>(
+    args: ReadonlyArray<TRowType[TColumnName]>,
+    column: TColumnName,
     type: string,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<readonly TRowType[]> {
@@ -395,7 +395,10 @@ export default class DBDataSource<
       ...options,
       expected: 'any',
       where: {
-        [column]: this.builder.any([...args] as string[] | number[], type),
+        [column]: this.builder.any(
+          ([...args] as unknown) as (string | number | boolean | Date | null)[],
+          type
+        ),
         ...options?.where,
       },
     })

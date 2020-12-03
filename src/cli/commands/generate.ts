@@ -98,7 +98,9 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
     })
     .version(false)
 
-export const handler = async (argv: Arguments<GenerateParams>) => {
+export const handler = async (
+  argv: Arguments<GenerateParams>
+): Promise<void> => {
   try {
     const file: number =
       argv.output === '-'

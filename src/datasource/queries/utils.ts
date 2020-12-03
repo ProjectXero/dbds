@@ -1,16 +1,16 @@
 import {
   IdentifierSqlTokenType,
   SqlSqlTokenType,
-  isSqlToken as a,
+  isSqlToken as isSlonikToken,
   SqlTokenType,
 } from 'slonik'
 import { OrderTuple } from './types'
 
-export const isSqlToken = (subject: any): subject is SqlTokenType => {
-  return a(subject)
+export const isSqlToken = (subject: unknown): subject is SqlTokenType => {
+  return isSlonikToken(subject)
 }
 
-export const isSqlSqlTokenType = (v: any): v is SqlSqlTokenType => {
+export const isSqlSqlTokenType = (v: unknown): v is SqlSqlTokenType => {
   return (
     typeof v === 'object' &&
     Object.prototype.hasOwnProperty.call(v, 'sql') &&
@@ -20,7 +20,7 @@ export const isSqlSqlTokenType = (v: any): v is SqlSqlTokenType => {
 }
 
 export const isIdentifierSqlTokenType = (
-  v: any
+  v: unknown
 ): v is IdentifierSqlTokenType => {
   return (
     typeof v === 'object' &&
@@ -29,7 +29,7 @@ export const isIdentifierSqlTokenType = (
   )
 }
 
-export const isOrderTuple = (v: any): v is OrderTuple => {
+export const isOrderTuple = (v: unknown): v is OrderTuple => {
   return (
     Array.isArray(v) &&
     v.length >= 1 &&

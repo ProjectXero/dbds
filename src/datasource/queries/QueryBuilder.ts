@@ -279,7 +279,7 @@ export default class QueryBuilder<
   public any(
     values: Array<string | number | boolean | Date | null>,
     type: string
-  ) {
+  ): SqlSqlTokenType {
     return sql`ANY(${sql.array(values.map(this.value), sql`${raw(type)}[]`)})`
   }
 
@@ -385,6 +385,8 @@ export default class QueryBuilder<
         if (Array.isArray(value)) {
           sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
         } else {
+          // We've already filtered out value === undefined above
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           sqlValue = this.valueToSql(value!)
         }
 
@@ -397,6 +399,8 @@ export default class QueryBuilder<
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
         return sql`${this.identifier(column, false)} = ${this.valueToSql(
+          // We've already filtered out value === undefined above
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           value!
         )}`
       })
@@ -442,7 +446,7 @@ export default class QueryBuilder<
   }
 
   private isValueArray(
-    rawValues: any[]
+    rawValues: unknown[]
   ): rawValues is (PrimitiveValueType | Date)[] {
     return rawValues.every((value) => {
       return (

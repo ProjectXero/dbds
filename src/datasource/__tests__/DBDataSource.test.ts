@@ -16,11 +16,9 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(DBDataSource, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (
-    _args,
-    _column,
-    _type
-  ): Promise<DummyRowType[]> => {
+  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
+    DummyRowType[]
+  > => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },

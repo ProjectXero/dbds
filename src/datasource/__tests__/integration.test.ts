@@ -146,7 +146,7 @@ describe(DBDataSource, () => {
       code: 'D',
       name: 'jkl',
       withDefault: 'aaaa',
-    } as any)
+    })
 
     expect(result).toMatchObject({
       id: 8,
