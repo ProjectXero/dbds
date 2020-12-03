@@ -1,6 +1,11 @@
-import { createMockPool as slonikCreateMockPool } from "slonik"
-import { ClientConfigurationInputType, DatabasePoolType, PrimitiveValueExpressionType, QueryResultType } from "slonik/dist/types"
-import { createMockQueryResult } from "./createMockQueryResult"
+import { createMockPool as slonikCreateMockPool } from 'slonik'
+import {
+  ClientConfigurationInputType,
+  DatabasePoolType,
+  PrimitiveValueExpressionType,
+  QueryResultType,
+} from 'slonik/dist/types'
+import { createMockQueryResult } from './createMockQueryResult'
 
 export interface MockedDatabasePoolType extends DatabasePoolType {
   mock: (
@@ -10,7 +15,9 @@ export interface MockedDatabasePoolType extends DatabasePoolType {
   resetMocks: () => void
 }
 
-export const createMockPool = (config?: ClientConfigurationInputType): MockedDatabasePoolType => {
+export const createMockPool = (
+  config?: ClientConfigurationInputType
+): MockedDatabasePoolType => {
   const mockedQueries: Record<
     string,
     Array<QueryResultType<Record<string, PrimitiveValueExpressionType>>>
@@ -62,6 +69,6 @@ export const createMockPool = (config?: ClientConfigurationInputType): MockedDat
       Object.keys(mockedQueries).forEach((key) => {
         delete mockedQueries[key]
       })
-    }
+    },
   })
 }

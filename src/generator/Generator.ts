@@ -1,4 +1,12 @@
-import { createPrinter, factory, NewLineKind, NodeFlags, Printer, Statement, SyntaxKind } from 'typescript'
+import {
+  createPrinter,
+  factory,
+  NewLineKind,
+  NodeFlags,
+  Printer,
+  Statement,
+  SyntaxKind,
+} from 'typescript'
 import * as Case from 'case'
 
 import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
@@ -61,12 +69,13 @@ export default class Generator {
 
     this.transform = Object.freeze({
       columns: transformColumns === 'none' ? noop : Case[transformColumns],
-      enumMembers: transformEnumMembers === 'none' ? noop : Case[transformEnumMembers],
-      typeNames: Case[transformTypeNames]
+      enumMembers:
+        transformEnumMembers === 'none' ? noop : Case[transformEnumMembers],
+      typeNames: Case[transformTypeNames],
     })
   }
 
-  public async destroy() {
+  public async destroy(): Promise<void> {
     await this.schema.disconnect()
   }
 
@@ -81,9 +90,15 @@ export default class Generator {
       process.exit(1)
     }
 
-    const statements = statementBuilders.map<Statement>((builder) => builder.buildNode())
+    const statements = statementBuilders.map<Statement>((builder) =>
+      builder.buildNode()
+    )
 
-    const sourceFile = factory.createSourceFile(statements, factory.createToken(SyntaxKind.EndOfFileToken), NodeFlags.None)
+    const sourceFile = factory.createSourceFile(
+      statements,
+      factory.createToken(SyntaxKind.EndOfFileToken),
+      NodeFlags.None
+    )
 
     return this.printer.printFile(sourceFile)
   }
@@ -111,12 +126,20 @@ export default class Generator {
       }
 
       if (this.generate.insertTypes) {
-        const builder = new InsertTypeBuilder(tableInfo, this.types, this.transform)
+        const builder = new InsertTypeBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
         builders.push(builder)
       }
 
       if (this.generate.typeObjects) {
-        const builder = new TypeObjectBuilder(tableInfo, this.types, this.transform)
+        const builder = new TypeObjectBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
         builders.push(builder)
       }
     })

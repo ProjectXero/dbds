@@ -397,6 +397,8 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders delete doesn't let you delete everything without being explicit 1`] = `"Implicit deletion of everything is not allowed. To delete everything, please pass \`true\` or include options."`;
+
 exports[`QueryBuilder core query builders insert accepts a basic object 1`] = `
 Object {
   "sql": "
@@ -468,7 +470,7 @@ Object {
 }
 `;
 
-exports[`QueryBuilder core query builders insert allows multiple objects with a mix of primitive and raw SQL values 1`] = `
+exports[`QueryBuilder core query builders insert allows multiple objects with a mix of value types 1`] = `
 Object {
   "sql": "
       WITH \\"insert_rows\\" AS (
@@ -624,7 +626,7 @@ Object {
 }
 `;
 
-exports[`QueryBuilder core query builders update correctly updates date values Date objects as ISO8601 strings 1`] = `
+exports[`QueryBuilder core query builders update correctly updates Date objects as ISO8601 strings 1`] = `
 Object {
   "sql": "
       WITH \\"update_rows\\" AS (

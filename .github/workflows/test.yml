@@ -19,9 +19,8 @@ jobs:
       - name: Validate types
         run: yarn -s typecheck
 
-      # TODO: set up the linter already, jeez
-      # - name: Lint
-      #   run: yarn -s lint
+      - name: Lint code
+        run: yarn -s lint
 
       - name: Run tests
         run: yarn -s test --ci

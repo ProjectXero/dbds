@@ -5,7 +5,9 @@ import { Transformations } from '../types'
 
 import NodeBuilder from './NodeBuilder'
 
-export default abstract class TypeBuilder<T extends Node> extends NodeBuilder<T> {
+export default abstract class TypeBuilder<
+  T extends Node
+> extends NodeBuilder<T> {
   constructor(name: string, types: TypeRegistry, transform: Transformations) {
     super(name, types, transform)
   }
@@ -14,7 +16,7 @@ export default abstract class TypeBuilder<T extends Node> extends NodeBuilder<T>
     return this.createIdentifier(this.transform.typeNames(name))
   }
 
-  protected createIdentifier(text: string) {
+  protected createIdentifier(text: string): Identifier {
     return factory.createIdentifier(text)
   }
 }

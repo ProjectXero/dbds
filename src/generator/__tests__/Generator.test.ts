@@ -1,11 +1,10 @@
+import { createMockPool } from '../../testing'
 
-import { createMockPool } from "../../testing"
+import { SchemaInfo } from '../database'
+import { Generator } from '..'
 
-import { SchemaInfo } from "../database"
-import { Generator } from ".."
-
-import mockEnums from "./__fixtures__/enums"
-import mockTables from "./__fixtures__/tables"
+import mockEnums from './__fixtures__/enums'
+import mockTables from './__fixtures__/tables'
 
 describe(Generator, () => {
   const dummySchema = new SchemaInfo(createMockPool(), 'any')
@@ -19,11 +18,10 @@ describe(Generator, () => {
 
   describe('with default options', () => {
     const instance = new Generator({
-      schema: dummySchema
+      schema: dummySchema,
     })
 
     it('generates everything', async () => {
-
       expect(await instance.build()).toMatchSnapshot()
     })
   })
@@ -53,7 +51,9 @@ describe(Generator, () => {
 
     it('generates tables', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => { })
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -84,7 +84,9 @@ describe(Generator, () => {
 
     it('generates insert types', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => { })
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -101,7 +103,9 @@ describe(Generator, () => {
 
     it('generates type objects', async () => {
       const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => { })
+      warnSpy.mockImplementation(() => {
+        /* do nothing */
+      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })

@@ -3,9 +3,9 @@ export type SearchableKeys<T, SearchableType = string | number | null> = {
 }[keyof T]
 
 export interface GetDataFunction<TRowType> {
-  <TColType extends string | number>(
-    args: TColType[] | readonly TColType[],
-    column: string,
+  <TColumnName extends keyof TRowType & string>(
+    args: Array<TRowType[TColumnName]> | ReadonlyArray<TRowType[TColumnName]>,
+    column: TColumnName,
     type: string
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
@@ -18,6 +18,12 @@ export interface LoaderFactoryOptions<TRowType> {
 
 export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
   multi?: boolean
-  ignoreCase?: TRowType extends Record<TColumnName, string> ? boolean : false | undefined
-  callbackFn?: (row: TRowType, index: number, array: readonly TRowType[]) => void
+  ignoreCase?: TRowType extends Record<TColumnName, string>
+    ? boolean
+    : false | undefined
+  callbackFn?: (
+    row: TRowType,
+    index: number,
+    array: readonly TRowType[]
+  ) => void
 }

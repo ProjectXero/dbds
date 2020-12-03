@@ -1,4 +1,8 @@
-import { DatabasePoolType, sql, TaggedTemplateLiteralInvocationType } from 'slonik'
+import {
+  DatabasePoolType,
+  sql,
+  TaggedTemplateLiteralInvocationType,
+} from 'slonik'
 
 export interface EnumInfo {
   name: string
@@ -24,28 +28,44 @@ export default class SchemaInfo {
   constructor(
     private readonly pool: DatabasePoolType,
     public readonly name: string
-  ) { }
+  ) {}
 
-  public tableQuery(): TaggedTemplateLiteralInvocationType<Omit<TableInfo, 'columns'>> {
+  public tableQuery(): TaggedTemplateLiteralInvocationType<
+    Omit<TableInfo, 'columns'>
+  > {
     return sql<Omit<TableInfo, 'columns'>>`
       SELECT table_name AS "name"
-          , (is_insertable_into = 'YES') AS "canInsert"
-          , pg_catalog.obj_description(('"' || table_name || '"')::regclass::oid) AS "comment"
+           , (is_insertable_into = 'YES') AS "canInsert"
+           , pg_catalog.obj_description(
+              ('"' || table_name || '"')::regclass::oid
+            ) AS "comment"
       FROM information_schema.tables
       WHERE table_schema = ${this.name}
       ORDER BY table_name ASC
     `
   }
 
-  public columnQuery(table: string): TaggedTemplateLiteralInvocationType<ColumnInfo> {
+  public columnQuery(
+    table: string
+  ): TaggedTemplateLiteralInvocationType<ColumnInfo> {
     return sql<ColumnInfo>`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
            , (c.column_default IS NOT NULL) AS "hasDefault"
            , c.ordinal_position AS "order"
-           , COALESCE(de.udt_name, dc.udt_name, e.udt_name, e.data_type, c.udt_name, c.data_type) AS "type"
+           , COALESCE(
+              de.udt_name,
+              dc.udt_name,
+              e.udt_name,
+              e.data_type,
+              c.udt_name,
+              c.data_type
+            ) AS "type"
            , (c.data_type = 'ARRAY') AS "isArray"
-           , pg_catalog.col_description(('"' || c.table_name || '"')::regclass::oid, c.ordinal_position::int) AS "comment"
+           , pg_catalog.col_description(
+              ('"' || c.table_name || '"')::regclass::oid,
+              c.ordinal_position::int
+            ) AS "comment"
       FROM
         information_schema.columns c LEFT JOIN
         information_schema.element_types e ON (
@@ -106,7 +126,7 @@ export default class SchemaInfo {
       tables.map<Promise<TableInfo>>(async (table) => {
         return {
           ...table,
-          columns: await this.getTableColumns(table.name)
+          columns: await this.getTableColumns(table.name),
         }
       })
     )
@@ -119,5 +139,4 @@ export default class SchemaInfo {
   public async getEnums(): Promise<readonly EnumInfo[]> {
     return await this.pool.any(this.enumQuery())
   }
-
 }

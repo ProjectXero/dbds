@@ -14,13 +14,23 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource'
 export type { DatabasePoolType } from 'slonik'
 
 import { LoaderFactory } from './loaders'
-import QueryBuilder, { QueryOptions as BuilderOptions } from './queries/QueryBuilder'
-import { AllowSql, CountQueryRowType, UpdateSet, ValueOrArray } from './queries/types'
+import QueryBuilder, {
+  QueryOptions as BuilderOptions,
+} from './queries/QueryBuilder'
+import {
+  AllowSql,
+  CountQueryRowType,
+  UpdateSet,
+  ValueOrArray,
+} from './queries/types'
+import { KeyValueCache } from 'apollo-server-caching'
+import { SearchableKeys } from './loaders/types'
 
-export interface QueryOptions<TRowType, TResultType = TRowType> extends BuilderOptions<TRowType> {
-  keyToColumn?: IdentifierNormalizerType;
-  columnToKey?: IdentifierNormalizerType;
-  eachResult?: LoaderCallback<TResultType>;
+export interface QueryOptions<TRowType, TResultType = TRowType>
+  extends BuilderOptions<TRowType> {
+  keyToColumn?: IdentifierNormalizerType
+  columnToKey?: IdentifierNormalizerType
+  eachResult?: LoaderCallback<TResultType>
   expected?: 'one' | 'many' | 'maybeOne' | 'any'
 }
 
@@ -33,12 +43,12 @@ export type LoaderCallback<TResultType> = (
 ) => void
 
 export default class DBDataSource<
-  TRowType extends Record<string, any>,
+  TRowType,
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
-  > implements DataSource<TContext> {
-  protected context?: TContext
-  protected cache: any
+> implements DataSource<TContext> {
+  protected context!: TContext
+  protected cache!: KeyValueCache
   protected loaders: LoaderFactory<TRowType>
   protected builder: QueryBuilder<TRowType, TInsertType>
 
@@ -48,11 +58,11 @@ export default class DBDataSource<
     protected readonly pool: DatabasePoolType,
     protected readonly table: string,
     /**
-    * Types of the columns in the database.
-    * Used to map values for insert and lookups on multiple values.
-    *
-    * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
-    */
+     * Types of the columns in the database.
+     * Used to map values for insert and lookups on multiple values.
+     *
+     * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
+     */
     protected readonly columnTypes: Record<keyof TRowType, string>
   ) {
     this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
@@ -172,7 +182,8 @@ export default class DBDataSource<
     options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
     if (!options.expected) {
-      options.expected = (!Array.isArray(rows) || rows.length === 1) ? 'one' : 'many'
+      options.expected =
+        !Array.isArray(rows) || rows.length === 1 ? 'one' : 'many'
     }
 
     if (Array.isArray(rows) && rows.length === 0) {
@@ -270,9 +281,7 @@ export default class DBDataSource<
    * @param data Update expression
    * @param options Query options
    */
-  protected async delete(
-    options: true
-  ): Promise<readonly TRowType[]>
+  protected async delete(options: true): Promise<readonly TRowType[]>
 
   /**
    * Implementation
@@ -375,14 +384,12 @@ export default class DBDataSource<
       results = [results]
     }
 
-    results
-      .filter((val): val is TData => val !== null)
-      .forEach(eachResult)
+    results.filter((val): val is TData => val !== null).forEach(eachResult)
   }
 
-  private async getDataByColumn<TColType extends string | number = string>(
-    args: readonly TColType[],
-    column: keyof TRowType,
+  private async getDataByColumn<TColumnName extends keyof TRowType & string>(
+    args: ReadonlyArray<TRowType[TColumnName]>,
+    column: TColumnName,
     type: string,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<readonly TRowType[]> {
@@ -390,79 +397,95 @@ export default class DBDataSource<
       ...options,
       expected: 'any',
       where: {
-        [column]: this.builder.any([...args] as string[] | number[], type),
+        [column]: this.builder.any(
+          ([...args] as unknown) as (string | number | boolean | Date | null)[],
+          type
+        ),
         ...options?.where,
       },
-    });
+    })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
   protected createColumnLoader<
-    TColType extends string | number = string
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
-    column: string,
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType | undefined> {
+  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { callbackFn })
+    return this.loaders.create(column, type, { callbackFn })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
   protected createColumnMultiLoader<
-    TColType extends string | number = string
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
-    column: string,
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType[]> {
+  ): DataLoader<TRowType[TColumnName], TRowType[]> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { multi: true, callbackFn })
+    return this.loaders.create(column, type, { multi: true, callbackFn })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
   protected createColumnLoaderCI<
-    TColType extends string | number = string
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
-    column: string,
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType | undefined> {
+  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { ignoreCase: true as any, callbackFn })
+    return this.loaders.create(column, type, {
+      // We don't really know the type of the column, but to maintain backwards
+      // compatibility we're just going to force this through
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ignoreCase: true as any,
+      callbackFn,
+    })
   }
 
   /**
    * @deprecated Use the loader factory instead
    */
   protected createColumnMultiLoaderCI<
-    TColType extends string | number = string
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
-    column: string,
+    column: TColumnName,
     type: string,
     callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TColType, TRowType[]> {
+  ): DataLoader<TRowType[TColumnName], TRowType[]> {
     if (typeof callbackFn === 'object') {
       callbackFn = callbackFn.eachResult
     }
-    return this.loaders.create(column as any, type, { multi: true, ignoreCase: true as any, callbackFn })
+    return this.loaders.create(column, type, {
+      multi: true,
+      // We don't really know the type of the column, but to maintain backwards
+      // compatibility we're just going to force this through
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ignoreCase: true as any,
+      callbackFn,
+    })
   }
 
   /**
    * @deprecated Use the query builder instead
-  */
+   */
   protected buildWhere(options?: QueryOptions<TRowType>): SqlSqlTokenType {
     return this.builder.where(options?.where || {})
   }
@@ -473,7 +496,6 @@ export default class DBDataSource<
   public column(columnName: string): IdentifierSqlTokenType {
     return this.builder.identifier(columnName)
   }
-
 
   /**
    * @deprecated TBD
@@ -526,10 +548,10 @@ export default class DBDataSource<
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType[]> {
     return [
-      ...await this.insert(data, {
+      ...(await this.insert(data, {
         ...options,
         expected: 'any',
-      })
+      })),
     ]
   }
 
@@ -554,10 +576,10 @@ export default class DBDataSource<
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<TRowType[]> {
     return [
-      ...await this.update(data, {
+      ...(await this.update(data, {
         ...options,
         expected: 'any',
-      })
+      })),
     ]
   }
 
@@ -569,7 +591,7 @@ export default class DBDataSource<
   ): Promise<TRowType | null> {
     return this.delete({
       ...options,
-      expected: 'maybeOne'
+      expected: 'maybeOne',
     })
   }
 
@@ -580,10 +602,10 @@ export default class DBDataSource<
     options: Pick<QueryOptions<TRowType>, 'where' | 'eachResult'>
   ): Promise<TRowType[]> {
     return [
-      ...await this.delete({
+      ...(await this.delete({
         ...options,
-        expected: 'any'
-      })
+        expected: 'any',
+      })),
     ]
   }
 
@@ -606,10 +628,10 @@ export default class DBDataSource<
     where: Required<QueryOptions<TRowType>>['where']
   ): Promise<TRowType[]> {
     return [
-      ...await this.get({
+      ...(await this.get({
         where,
         expected: 'any',
-      })
+      })),
     ]
   }
 

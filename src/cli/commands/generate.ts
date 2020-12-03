@@ -13,9 +13,9 @@ const openAsync = promisify(open)
 const closeAsync = promisify(close)
 const writeAsync = promisify(write)
 
-export const command: string = 'generate'
+export const command = 'generate'
 export const aliases: string[] = ['g', 'gen']
-export const desc: string = 'Generate types for the database'
+export const desc = 'Generate types for the database'
 
 export interface GenerateParams extends Params {
   output: string
@@ -76,7 +76,13 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
       'transform-enum-members': {
         alias: 'E',
         requiresArg: true,
-        choices: ['constant', 'pascal', 'snake', 'camel', 'none'] as Transformations.EnumMember[],
+        choices: [
+          'constant',
+          'pascal',
+          'snake',
+          'camel',
+          'none',
+        ] as Transformations.EnumMember[],
         description: 'Case conversion for enum type members',
         default: 'pascal' as Transformations.EnumMember,
         group: 'Code style options',
@@ -88,23 +94,32 @@ export const builder: BuilderCallback<Params, GenerateParams> = (yargs: Argv) =>
         description: 'Case conversion for type names',
         default: 'pascal' as Transformations.TypeName,
         group: 'Code style options',
-      }
+      },
     })
     .version(false)
 
-export const handler = async (argv: Arguments<GenerateParams>) => {
+export const handler = async (
+  argv: Arguments<GenerateParams>
+): Promise<void> => {
   try {
-    const file: number = argv.output === '-'
-      ? 1 // STDOUT
-      : await openAsync(argv.output, 'w')
+    const file: number =
+      argv.output === '-'
+        ? 1 // STDOUT
+        : await openAsync(argv.output, 'w')
 
     const dbUrl = argv['config-database'] || argv.database
 
     if (!dbUrl) {
-      throw new TypeError('Database URL not provided. Did you set the DATABASE_URL environment variable?')
+      throw new TypeError(
+        'Database URL not provided. ' +
+          'Did you set the DATABASE_URL environment variable?'
+      )
     }
 
-    const schemaInfo = new SchemaInfo(createPool(dbUrl), argv['config-schema'] || argv.schema)
+    const schemaInfo = new SchemaInfo(
+      createPool(dbUrl),
+      argv['config-schema'] || argv.schema
+    )
 
     const generator = new Generator({
       schema: schemaInfo,

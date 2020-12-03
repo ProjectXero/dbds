@@ -1,6 +1,6 @@
-import { LoaderFactory } from "../loaders"
-import { GetDataFunction } from "../loaders/types"
-import { match } from "../loaders/utils"
+import { LoaderFactory } from '../loaders'
+import { GetDataFunction } from '../loaders/types'
+import { match } from '../loaders/utils'
 
 interface DummyRowType {
   id: number
@@ -15,7 +15,9 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (_args, _column, _type): Promise<DummyRowType[]> => {
+  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
+    DummyRowType[]
+  > => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -36,7 +38,10 @@ describe(LoaderFactory, () => {
   const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
 
   describe('multi: false, ignoreCase: false', () => {
-    const loader = factory.create('id', 'any', { multi: false, ignoreCase: false })
+    const loader = factory.create('id', 'any', {
+      multi: false,
+      ignoreCase: false,
+    })
 
     it('returns the first matching result', async () => {
       expect(await loader.load(1)).toMatchSnapshot()
@@ -52,7 +57,10 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: false', () => {
-    const loader = factory.create('code', 'any', { multi: true, ignoreCase: false })
+    const loader = factory.create('code', 'any', {
+      multi: true,
+      ignoreCase: false,
+    })
 
     it('gets all matching results', async () => {
       expect(await loader.load('abc')).toMatchSnapshot()
@@ -68,7 +76,10 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: false, ignoreCase: true', () => {
-    const loader = factory.create('name', 'any', { multi: false, ignoreCase: true })
+    const loader = factory.create('name', 'any', {
+      multi: false,
+      ignoreCase: true,
+    })
 
     it('returns the first matching result', async () => {
       expect(await loader.load('AAA')).toMatchSnapshot()
@@ -84,7 +95,10 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: true', () => {
-    const loader = factory.create('name', 'any', { multi: true, ignoreCase: true })
+    const loader = factory.create('name', 'any', {
+      multi: true,
+      ignoreCase: true,
+    })
 
     it('gets all matching results', async () => {
       expect(await loader.load('aaa')).toMatchSnapshot()
@@ -111,7 +125,7 @@ describe(match, () => {
   it('exactly matches numbers', () => {
     expect(match(1, 1)).toBe(true)
     expect(match(1, 2)).toBe(false)
-    expect(match(1.000, 1)).toBe(true)
+    expect(match(1.0, 1)).toBe(true)
     expect(match(1.001, 1)).toBe(false)
     expect(match(Infinity, 0)).toBe(false)
   })
@@ -133,17 +147,17 @@ describe(match, () => {
   })
 
   it('is resilient to non-matching types', () => {
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(0, false)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(null, 0)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match('', null)).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(false, '')).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(0, '')).toBe(false)
-    // @ts-expect-error
+    // @ts-expect-error testing bad caller
     expect(match(false, '', true)).toBe(false)
   })
 })
