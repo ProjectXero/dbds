@@ -14,6 +14,7 @@ import NodeBuilder from './builders/NodeBuilder'
 import TypeObjectBuilder from './builders/TypeObjectBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 import { CaseFunction, Transformations } from './types'
+import UtilityTypesBuilder from './builders/UtilityTypesBuilder'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
@@ -95,7 +96,7 @@ export default class Generator {
     )
 
     const sourceFile = factory.createSourceFile(
-      statements,
+      [...new UtilityTypesBuilder().buildNodes(), ...statements],
       factory.createToken(SyntaxKind.EndOfFileToken),
       NodeFlags.None
     )

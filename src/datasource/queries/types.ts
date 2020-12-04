@@ -3,10 +3,14 @@ import { IdentifierSqlTokenType, SqlSqlTokenType, SqlTokenType } from 'slonik'
 export type { ValueExpressionType } from 'slonik'
 
 export type PrimitiveValueType = string | number | boolean | null
-export type ValueType =
-  | PrimitiveValueType
-  | Array<PrimitiveValueType>
-  | ReadonlyArray<PrimitiveValueType>
+export type SimpleValueType = PrimitiveValueType | Date
+export type SerializableValueType =
+  | SimpleValueType
+  | {
+      [key in string]: SerializableValueType | undefined
+    }
+  | Array<SerializableValueType>
+  | ReadonlyArray<SerializableValueType>
 
 export type ValueOrArray<T> = T | T[]
 
@@ -23,27 +27,23 @@ export type GenericConditions = Record<
   | SqlTokenType
 >
 
-export type Arrayify<T> = T extends string | number | boolean | Date | null
-  ? T extends string | number | boolean | Date
-    ? ValueOrArray<T | null>
-    : never
-  : T extends string | number | boolean | Date
-  ? ValueOrArray<T>
-  : never
-
 export type Conditions<TRowType> = {
-  [K in keyof TRowType]?: Arrayify<TRowType[K]> | SqlTokenType | undefined
+  [K in keyof TRowType]?:
+    | TRowType[K]
+    | Array<TRowType[K]>
+    | SqlTokenType
+    | undefined
 } &
   GenericConditions
 
 export type GenericSet = Record<
   string,
-  string | number | boolean | Date | null | undefined | SqlTokenType
+  SerializableValueType | SqlTokenType | undefined
 >
 
 export type UpdateSet<TRowType> = {
   [K in keyof TRowType]?:
-    | (TRowType[K] extends string | number | boolean | Date | null | undefined
+    | (TRowType[K] extends SerializableValueType | undefined
         ? TRowType[K]
         : never)
     | SqlTokenType

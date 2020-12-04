@@ -16,6 +16,7 @@ import {
   LimitClause,
   OrderColumnList,
   PrimitiveValueType,
+  SerializableValueType,
   UpdateSet,
   ValueOrArray,
 } from './types'
@@ -428,7 +429,7 @@ export default class QueryBuilder<
   }
 
   private valueToSql(
-    rawValue: string | number | boolean | Date | null | SqlTokenType
+    rawValue: SerializableValueType | SqlTokenType
   ): SqlSqlTokenType {
     if (isSqlToken(rawValue)) {
       return sql`${rawValue}`
@@ -436,11 +437,13 @@ export default class QueryBuilder<
     return sql`${this.value(rawValue)}`
   }
 
-  private value(
-    rawValue: string | number | boolean | Date | null
-  ): PrimitiveValueType {
+  private value(rawValue: SerializableValueType): PrimitiveValueType {
     if (rawValue instanceof Date) {
       return rawValue.toISOString()
+    }
+
+    if (rawValue && typeof rawValue === 'object') {
+      return JSON.stringify(rawValue)
     }
 
     return rawValue

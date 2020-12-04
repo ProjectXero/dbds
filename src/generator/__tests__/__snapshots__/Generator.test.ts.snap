@@ -1,7 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator with default options generates everything 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CamelCaseRules = \\"camel_case_rules\\"
@@ -65,11 +70,28 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
 };
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
+};
 "
 `;
 
 exports[`Generator with different case conversions properly cases members 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CAMEL_CASE_RULES = \\"camel_case_rules\\"
@@ -133,11 +155,28 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullableArray: \\"text\\",
     nullableArrayWithDefault: \\"text\\"
 };
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
+};
 "
 `;
 
 exports[`Generator with enums enabled generates enums 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CamelCaseRules = \\"camel_case_rules\\"
@@ -145,8 +184,22 @@ exports[`Generator with enums enabled generates enums 1`] = `
 "
 `;
 
+exports[`Generator with everything disabled generates nothing 1`] = `
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+"
+`;
+
 exports[`Generator with insert types enabled generates insert types 1`] = `
-"export interface TableWithNoColumns$Insert {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export interface TableWithNoColumns$Insert {
 }
 export interface TableWithNumericId$Insert {
     id?: number;
@@ -166,6 +219,10 @@ export interface TableWithNullableFields$Insert {
     nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
 "
 `;
 
@@ -184,7 +241,12 @@ Array [
 `;
 
 exports[`Generator with tables enabled generates tables 1`] = `
-"export interface TableWithNoColumns {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export interface TableWithNoColumns {
 }
 export interface TableWithNumericId {
     id: number;
@@ -204,6 +266,10 @@ export interface TableWithNullableFields {
     nullable_array: string[] | null;
     nullable_array_with_default: string[] | null;
 }
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
 "
 `;
 
@@ -216,7 +282,12 @@ Array [
 `;
 
 exports[`Generator with type objects enabled generates type objects 1`] = `
-"export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
 export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
     id: \\"int8\\"
 };
@@ -234,6 +305,10 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullable_with_default: \\"text\\",
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
+};
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
 };
 "
 `;

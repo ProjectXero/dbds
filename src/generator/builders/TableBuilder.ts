@@ -1,4 +1,9 @@
-import { factory, InterfaceDeclaration, TypeElement } from 'typescript'
+import {
+  factory,
+  InterfaceDeclaration,
+  PropertySignature,
+  TypeParameterDeclaration,
+} from 'typescript'
 
 import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -6,10 +11,15 @@ import { Transformations } from '../types'
 import { ExportKeyword } from './NodeBuilder'
 import ColumnBuilder from './ColumnBuilder'
 import TypeBuilder from './TypeBuilder'
+import { SerializableValueType } from './UtilityTypesBuilder'
+
+const parameterTypes = ['json', 'jsonb']
 
 export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
   public readonly canInsert: boolean
   public readonly columns: readonly ColumnInfo[]
+
+  private typeParameters: Set<string> = new Set()
 
   constructor(
     options: TableInfo,
@@ -21,20 +31,44 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
     this.columns = options.columns
   }
 
-  protected buildMemberNodes(): TypeElement[] {
-    return this.columns.map<TypeElement>((columnInfo) => {
+  protected buildMemberNodes(): PropertySignature[] {
+    return this.columns.map<PropertySignature>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
+      if (parameterTypes.includes(builder.type)) {
+        const paramName = this.transform.typeNames(`t_${builder.name}`)
+        builder.overrideType = factory.createTypeReferenceNode(paramName)
+        this.typeParameters.add(paramName)
+      }
       return builder.buildNode()
     })
   }
 
+  protected buildTypeParams(): TypeParameterDeclaration[] | undefined {
+    if (this.typeParameters.size === 0) {
+      return
+    }
+
+    const serializable = factory.createTypeReferenceNode(SerializableValueType)
+
+    return Array.from(this.typeParameters).map<TypeParameterDeclaration>(
+      (name) => {
+        return factory.createTypeParameterDeclaration(
+          name,
+          serializable,
+          serializable
+        )
+      }
+    )
+  }
+
   public buildNode(): InterfaceDeclaration {
     const members = this.buildMemberNodes()
+    const typeParameters = this.buildTypeParams()
     return factory.createInterfaceDeclaration(
       undefined,
       [ExportKeyword],
       this.typename(),
-      undefined,
+      typeParameters,
       undefined,
       members
     )

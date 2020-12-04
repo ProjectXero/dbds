@@ -36,7 +36,7 @@ describe(Generator, () => {
     })
 
     it('generates nothing', async () => {
-      expect(await instance.build()).toStrictEqual('')
+      expect(await instance.build()).toMatchSnapshot()
     })
   })
 

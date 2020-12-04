@@ -2,19 +2,16 @@ import {
   factory,
   Identifier,
   InterfaceDeclaration,
+  PropertySignature,
   SyntaxKind,
-  TypeElement,
 } from 'typescript'
 
-import ColumnBuilder from './ColumnBuilder'
 import TableBuilder from './TableBuilder'
 
 export default class InsertTypeBuilder extends TableBuilder {
-  protected buildMemberNodes(): TypeElement[] {
-    return this.columns.map<TypeElement>((columnInfo) => {
-      const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
-      let signature = builder.buildNode()
-
+  protected buildMemberNodes(): PropertySignature[] {
+    return super.buildMemberNodes().map<PropertySignature>((signature, idx) => {
+      const columnInfo = this.columns[idx]
       if (columnInfo.hasDefault || columnInfo.nullable) {
         signature = factory.updatePropertySignature(
           signature,
@@ -24,7 +21,6 @@ export default class InsertTypeBuilder extends TableBuilder {
           signature.type
         )
       }
-
       return signature
     })
   }
