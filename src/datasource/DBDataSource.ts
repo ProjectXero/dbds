@@ -28,10 +28,13 @@ import { SearchableKeys } from './loaders/types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
-  keyToColumn?: IdentifierNormalizerType
-  columnToKey?: IdentifierNormalizerType
   eachResult?: LoaderCallback<TResultType>
   expected?: 'one' | 'many' | 'maybeOne' | 'any'
+}
+
+export interface KeyNormalizers {
+  keyToColumn: IdentifierNormalizerType
+  columnToKey: IdentifierNormalizerType
 }
 
 export { DataLoader, sql }
@@ -47,6 +50,11 @@ export default class DBDataSource<
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
 > implements DataSource<TContext> {
+  public static normalizers: KeyNormalizers = {
+    columnToKey: camel,
+    keyToColumn: snake,
+  }
+
   protected context!: TContext
   protected cache!: KeyValueCache
   protected loaders: LoaderFactory<TRowType>
@@ -66,11 +74,14 @@ export default class DBDataSource<
     protected readonly columnTypes: Record<keyof TRowType, string>
   ) {
     this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-      columnToKey: camel,
-      keyToColumn: snake,
+      ...DBDataSource.normalizers,
       columnTypes,
     })
-    this.builder = new QueryBuilder(table, this.columnTypes, snake)
+    this.builder = new QueryBuilder(
+      table,
+      this.columnTypes,
+      DBDataSource.normalizers.keyToColumn
+    )
   }
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
@@ -340,7 +351,9 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocationType<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
-    const results = await this.pool.any(query)
+    const results = (await this.pool.any(query)).map((row) =>
+      this.transformResult<TData, TData>(row)
+    )
     this.eachResult(results, options)
     return results
   }
@@ -349,7 +362,9 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocationType<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
-    const results = await this.pool.many(query)
+    const results = (await this.pool.many(query)).map((row) =>
+      this.transformResult<TData, TData>(row)
+    )
     this.eachResult(results, options)
     return results
   }
@@ -358,18 +373,23 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocationType<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData> {
-    const results = await this.pool.one(query)
-    this.eachResult(results, options)
-    return results
+    const result = this.transformResult<TData, TData>(
+      await this.pool.one(query)
+    )
+    this.eachResult(result, options)
+    return result
   }
 
   private async maybeOne<TData>(
     query: TaggedTemplateLiteralInvocationType<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData | null> {
-    const results = await this.pool.maybeOne(query)
-    this.eachResult(results, options)
-    return results
+    let result = await this.pool.maybeOne(query)
+    if (result) {
+      result = this.transformResult<TData, TData>(result)
+    }
+    this.eachResult(result, options)
+    return result
   }
 
   private eachResult<TData>(
@@ -404,6 +424,19 @@ export default class DBDataSource<
         ...options?.where,
       },
     })
+  }
+
+  private transformResult<TInput, TOutput>(input: TInput): TOutput {
+    const transform = DBDataSource.normalizers.columnToKey
+
+    const output = Object.keys(input).reduce<TOutput>((obj, key) => {
+      return {
+        ...obj,
+        [transform(key)]: (input as Record<string, unknown>)[key],
+      }
+    }, {} as TOutput)
+
+    return output
   }
 
   /**
