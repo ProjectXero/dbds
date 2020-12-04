@@ -14,6 +14,8 @@ export default class ColumnBuilder
   public readonly order: number
   public readonly type: string
 
+  public overrideType?: TypeNode
+
   constructor(
     options: ColumnInfo,
     types: TypeRegistry,
@@ -28,7 +30,7 @@ export default class ColumnBuilder
   }
 
   protected buildType(): TypeNode {
-    let typename = this.types.get(this.type)
+    let typename = this.overrideType || this.types.get(this.type)
 
     if (this.isArray) {
       typename = factory.createArrayTypeNode(typename)
