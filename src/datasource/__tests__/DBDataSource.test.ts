@@ -45,7 +45,10 @@ describe(DBDataSource, () => {
         name: 'any',
         code: 'any',
       })
-      this.loaders = factory
+    }
+
+    protected get loaders() {
+      return factory
     }
   }
 
