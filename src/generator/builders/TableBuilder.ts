@@ -1,4 +1,4 @@
-import { factory, InterfaceDeclaration, TypeElement } from 'typescript'
+import { factory, InterfaceDeclaration, PropertySignature } from 'typescript'
 
 import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -21,8 +21,8 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
     this.columns = options.columns
   }
 
-  protected buildMemberNodes(): TypeElement[] {
-    return this.columns.map<TypeElement>((columnInfo) => {
+  protected buildMemberNodes(): PropertySignature[] {
+    return this.columns.map<PropertySignature>((columnInfo) => {
       const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
       return builder.buildNode()
     })
