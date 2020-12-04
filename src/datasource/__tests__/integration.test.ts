@@ -93,35 +93,33 @@ describe(DBDataSource, () => {
   })
 
   it('can insert rows with raw sql and without', async () => {
-    const rows = [
-      {
-        id: 5,
-        code: 'A',
-        name: 'abc',
-        withDefault: sql`DEFAULT`,
-      },
-      {
-        id: 6,
-        code: 'B',
-        name: 'def',
-        withDefault: 'value',
-      },
-      {
-        id: 7,
-        code: 'C',
-        name: 'ghi',
-      },
-    ]
+    const row1 = {
+      id: 5,
+      code: 'A',
+      name: 'abc',
+      withDefault: sql`DEFAULT`,
+    }
+    const row2 = {
+      id: 6,
+      code: 'B',
+      name: 'def',
+      withDefault: 'value',
+    }
+    const row3 = {
+      id: 7,
+      code: 'C',
+      name: 'ghi',
+    }
 
-    const results = await ds.testInsert(rows)
+    const results = await ds.testInsert([row1, row2, row3])
     expect(results).toHaveLength(3)
     expect(results).toContainEqual({
-      ...rows[0],
+      ...row1,
       withDefault: 'anything',
     })
-    expect(results).toContainEqual(rows[1])
+    expect(results).toContainEqual(row2)
     expect(results).toContainEqual({
-      ...rows[2],
+      ...row3,
       withDefault: 'anything',
     })
   })
