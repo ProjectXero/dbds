@@ -55,6 +55,8 @@ export default class DBDataSource<
     keyToColumn: snake,
   }
 
+  protected defaultOptions: QueryOptions<TRowType> = {}
+
   protected context!: TContext
   protected cache!: KeyValueCache
 
@@ -76,7 +78,8 @@ export default class DBDataSource<
       this._builder = new QueryBuilder(
         this.table,
         this.columnTypes,
-        DBDataSource.normalizers.keyToColumn
+        DBDataSource.normalizers.keyToColumn,
+        this.defaultOptions
       )
     }
 

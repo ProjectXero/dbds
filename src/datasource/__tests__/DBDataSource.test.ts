@@ -52,6 +52,25 @@ describe(DBDataSource, () => {
     }
   }
 
+  describe('defaultOptions', () => {
+    class TestDataSource extends DummyDBDataSource {
+      constructor() {
+        super()
+        this.defaultOptions = { orderBy: 'id' }
+      }
+
+      public get testBuilder(): DummyDBDataSource['builder'] {
+        return this.builder
+      }
+    }
+
+    const dataSource = new TestDataSource()
+
+    it('uses the default options', () => {
+      expect(dataSource.testBuilder.select()).toMatchSnapshot()
+    })
+  })
+
   describe('createColumnLoader', () => {
     class TestDataSource extends DummyDBDataSource {
       public testLoader = this.createColumnLoader('id', 'any')

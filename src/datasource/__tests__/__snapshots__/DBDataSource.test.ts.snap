@@ -168,3 +168,18 @@ Array [
   ],
 ]
 `;
+
+exports[`DBDataSource defaultOptions uses the default options 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      ORDER BY \\"any_table\\".\\"id\\"
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
