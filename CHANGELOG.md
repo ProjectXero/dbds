@@ -1,3 +1,14 @@
+## [1.3.0](https://github.com/ProjectXero/dbds/compare/v1.2.5...v1.3.0) (2020-12-04)
+
+
+### Features
+
+* allow column type to be overridden ([9f82a6c](https://github.com/ProjectXero/dbds/commit/9f82a6cc9ea164b4481c20f3045ba3927f0b9f26))
+* generate several utility types in prep for json/b support ([7df7056](https://github.com/ProjectXero/dbds/commit/7df70564615c30bc3118679a25375462309444af))
+* improved key/column transformation ([975e6e9](https://github.com/ProjectXero/dbds/commit/975e6e981f225e03a90067ec9bb7fed5ec1e4ebe))
+* stringify JSON objects ([abb6a5b](https://github.com/ProjectXero/dbds/commit/abb6a5b458e799cf7329384d4a517d8c6946bfe3))
+* type parameters for json/b ([c47e13b](https://github.com/ProjectXero/dbds/commit/c47e13be378b4fdebb210afce686c3c4879d2ff4))
+
 ### [1.2.5](https://github.com/ProjectXero/dbds/compare/v1.2.4...v1.2.5) (2020-12-03)
 
 
