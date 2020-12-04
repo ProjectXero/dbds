@@ -11,6 +11,10 @@ import { ExportKeyword } from './NodeBuilder'
 //   | Array<SerializableValueType>
 //   | ReadonlyArray<SerializableValueType>
 
+export const PrimitiveValueType = 'PrimitiveValueType'
+export const SimpleValueType = 'SimpleValueType'
+export const SerializableValueType = 'SerializableValueType'
+
 export default class UtilityTypesBuilder {
   private buildPrimitiveValueType(): TypeAliasDeclaration {
     const type: TypeNode = factory.createUnionTypeNode([
@@ -23,7 +27,7 @@ export default class UtilityTypesBuilder {
     return factory.createTypeAliasDeclaration(
       undefined,
       [ExportKeyword],
-      'PrimitiveValueType',
+      PrimitiveValueType,
       undefined,
       type
     )
@@ -40,7 +44,7 @@ export default class UtilityTypesBuilder {
     return factory.createTypeAliasDeclaration(
       undefined,
       [ExportKeyword],
-      'SimpleValueType',
+      SimpleValueType,
       undefined,
       type
     )
@@ -50,7 +54,7 @@ export default class UtilityTypesBuilder {
     simpleType: Identifier
   ): TypeAliasDeclaration {
     const types: TypeNode[] = [factory.createTypeReferenceNode(simpleType)]
-    const typename = factory.createTypeReferenceNode('SerializableValueType')
+    const typename = factory.createTypeReferenceNode(SerializableValueType)
 
     const mappedKey = factory.createTypeParameterDeclaration(
       'key',
