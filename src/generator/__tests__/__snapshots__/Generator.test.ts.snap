@@ -70,6 +70,18 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
 };
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
+};
 "
 `;
 
@@ -143,6 +155,18 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullableArray: \\"text\\",
     nullableArrayWithDefault: \\"text\\"
 };
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
+};
 "
 `;
 
@@ -195,6 +219,10 @@ export interface TableWithNullableFields$Insert {
     nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
+export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb?: TJsonb | null;
+}
 "
 `;
 
@@ -238,6 +266,10 @@ export interface TableWithNullableFields {
     nullable_array: string[] | null;
     nullable_array_with_default: string[] | null;
 }
+export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
+    json: TJson;
+    jsonb: TJsonb | null;
+}
 "
 `;
 
@@ -273,6 +305,10 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullable_with_default: \\"text\\",
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
+};
+export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+    json: \\"json\\",
+    jsonb: \\"jsonb\\"
 };
 "
 `;

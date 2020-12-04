@@ -110,6 +110,28 @@ const mockTables: TableInfo[] = [
       },
     ],
   },
+  {
+    name: 'table_with_json_jsonb',
+    canInsert: true,
+    columns: [
+      {
+        name: 'json',
+        hasDefault: false,
+        isArray: false,
+        nullable: false,
+        order: 1,
+        type: 'json',
+      },
+      {
+        name: 'jsonb',
+        hasDefault: true,
+        isArray: false,
+        nullable: true,
+        order: 2,
+        type: 'jsonb',
+      },
+    ],
+  },
 ]
 
 export default mockTables
