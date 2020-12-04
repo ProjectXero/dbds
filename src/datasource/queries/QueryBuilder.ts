@@ -40,9 +40,19 @@ export default class QueryBuilder<
   constructor(
     public readonly table: string,
     protected readonly columnTypes: Record<keyof TRowType, string>,
-    protected readonly columnCase: (value: string) => string = noop
+    protected readonly columnCase: (value: string) => string = noop,
+    protected readonly defaultOptions: QueryOptions<TRowType>
   ) {
     this.value = this.value.bind(this)
+  }
+
+  protected getOptions(
+    options?: QueryOptions<TRowType>
+  ): QueryOptions<TRowType> {
+    return {
+      ...this.defaultOptions,
+      ...options,
+    }
   }
 
   public identifier(
@@ -62,13 +72,15 @@ export default class QueryBuilder<
   public select(
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     return sql<TRowType>`
       SELECT *
       FROM ${this.identifier()}
-      ${options?.where ? this.where(options.where) : EMPTY}
-      ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
-      ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
-      ${options?.limit ? this.limit(options.limit) : EMPTY}
+      ${options.where ? this.where(options.where) : EMPTY}
+      ${options.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+      ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -76,6 +88,8 @@ export default class QueryBuilder<
     rows: ValueOrArray<AllowSql<TInsertType>>,
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     // special case: we're given a single empty row...
     // unfortunately i don't *think* we can do this if we're given numerous
     // empty rows.
@@ -102,10 +116,12 @@ export default class QueryBuilder<
     values: UpdateSet<TRowType>,
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     const updateQuery = sql<TRowType>`
       UPDATE ${this.identifier()}
       ${this.set(values)}
-      ${options?.where ? this.where(options.where) : EMPTY}
+      ${options.where ? this.where(options.where) : EMPTY}
       RETURNING *
     `
     return this.wrapCte('update', updateQuery, options)
@@ -114,20 +130,19 @@ export default class QueryBuilder<
   public delete(
     options: QueryOptions<TRowType> | true
   ): TaggedTemplateLiteralInvocationType<TRowType> {
-    if (options !== true && !options?.where) {
+    const force = options === true
+    options = this.getOptions(options === true ? {} : options)
+
+    if (!force && !options.where) {
       throw new Error(
         'Implicit deletion of everything is not allowed. ' +
           'To delete everything, please pass `true` or include options.'
       )
     }
 
-    if (options === true) {
-      options = {}
-    }
-
     const deleteQuery = sql<TRowType>`
       DELETE FROM ${this.identifier()}
-      ${options?.where ? this.where(options.where) : EMPTY}
+      ${options.where ? this.where(options.where) : EMPTY}
       RETURNING *
     `
     return this.wrapCte('delete', deleteQuery, options)
@@ -136,17 +151,18 @@ export default class QueryBuilder<
   public count(
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<CountQueryRowType> {
-    if (options?.groupBy) {
+    options = this.getOptions(options)
+
+    if (options.groupBy) {
       throw new Error('count does not currently support GROUP BY clauses')
     }
 
     return sql<CountQueryRowType>`
       SELECT COUNT(*)
       FROM ${this.identifier()}
-      ${options?.where ? this.where(options.where) : EMPTY}
-      ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
-      ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
-      ${options?.limit ? this.limit(options.limit) : EMPTY}
+      ${options.where ? this.where(options.where) : EMPTY}
+      ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
@@ -290,24 +306,27 @@ export default class QueryBuilder<
   protected wrapCte(
     queryName: string,
     query: TaggedTemplateLiteralInvocationType<TRowType>,
-    options?: Omit<QueryOptions<TRowType>, 'where'>
+    options: Omit<QueryOptions<TRowType>, 'where'>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
     const queryId = this.identifier(queryName + '_rows', false)
+
     return sql<TRowType>`
       WITH ${queryId} AS (
         ${query}
       ) SELECT *
         FROM ${queryId}
-        ${options?.groupBy ? this.groupBy(options.groupBy) : EMPTY}
-        ${options?.orderBy ? this.orderBy(options.orderBy) : EMPTY}
-        ${options?.having ? this.having(options.having) : EMPTY}
-        ${options?.limit ? this.limit(options.limit) : EMPTY}
+        ${options.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+        ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+        ${options.having ? this.having(options.having) : EMPTY}
+        ${options.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
   protected insertDefaultValues(
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     const insertQuery = sql<TRowType>`
       INSERT INTO ${this.identifier()}
       DEFAULT VALUES
@@ -321,6 +340,8 @@ export default class QueryBuilder<
     rows: TInsertType[],
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(
       columns.map((c) => this.identifier(c, false)),
@@ -348,6 +369,8 @@ export default class QueryBuilder<
     rows: AllowSql<TInsertType>[],
     options?: QueryOptions<TRowType>
   ): TaggedTemplateLiteralInvocationType<TRowType> {
+    options = this.getOptions(options)
+
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(
       columns.map((c) => this.identifier(c, false)),

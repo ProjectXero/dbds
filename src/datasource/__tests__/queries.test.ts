@@ -25,7 +25,9 @@ const DummyRowColumnTypes = Object.freeze({
 describe(QueryBuilder, () => {
   const builder = new QueryBuilder<DummyRowType>(
     'any_table',
-    DummyRowColumnTypes
+    DummyRowColumnTypes,
+    (v) => v,
+    {}
   )
 
   describe('clause generators', () => {

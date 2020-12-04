@@ -328,7 +328,6 @@ Object {
       WHERE (\\"any_table\\".\\"id\\" = $1)
       
       
-      
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
@@ -342,7 +341,6 @@ Object {
   "sql": "
       SELECT COUNT(*)
       FROM \\"any_table\\"
-      
       
       
       

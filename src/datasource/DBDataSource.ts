@@ -55,12 +55,36 @@ export default class DBDataSource<
     keyToColumn: snake,
   }
 
+  protected defaultOptions: QueryOptions<TRowType> = {}
+
   protected context!: TContext
   protected cache!: KeyValueCache
-  protected loaders: LoaderFactory<TRowType>
-  protected builder: QueryBuilder<TRowType, TInsertType>
 
-  protected defaultOrder: SqlSqlTokenType = sql``
+  private _loaders?: LoaderFactory<TRowType>
+  protected get loaders(): LoaderFactory<TRowType> {
+    if (!this._loaders) {
+      this._loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
+        ...DBDataSource.normalizers,
+        columnTypes: this.columnTypes,
+      })
+    }
+
+    return this._loaders
+  }
+
+  private _builder?: QueryBuilder<TRowType, TInsertType>
+  protected get builder(): QueryBuilder<TRowType, TInsertType> {
+    if (!this._builder) {
+      this._builder = new QueryBuilder(
+        this.table,
+        this.columnTypes,
+        DBDataSource.normalizers.keyToColumn,
+        this.defaultOptions
+      )
+    }
+
+    return this._builder
+  }
 
   constructor(
     protected readonly pool: DatabasePoolType,
@@ -72,17 +96,7 @@ export default class DBDataSource<
      * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
      */
     protected readonly columnTypes: Record<keyof TRowType, string>
-  ) {
-    this.loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-      ...DBDataSource.normalizers,
-      columnTypes,
-    })
-    this.builder = new QueryBuilder(
-      table,
-      this.columnTypes,
-      DBDataSource.normalizers.keyToColumn
-    )
-  }
+  ) {}
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
     this.context = config.context
