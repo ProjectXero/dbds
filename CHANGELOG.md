@@ -1,3 +1,11 @@
+## [1.4.0](https://github.com/ProjectXero/dbds/compare/v1.3.0...v1.4.0) (2020-12-04)
+
+
+### Features
+
+* ability to set default options ([52a327a](https://github.com/ProjectXero/dbds/commit/52a327ae9142a4be2cb2e256dfd2caca2dcb5b4f))
+* default options ([#46](https://github.com/ProjectXero/dbds/issues/46)) ([a19e12c](https://github.com/ProjectXero/dbds/commit/a19e12c6968af44cbaf9d0c6ec5c64984fe34457))
+
 ## [1.3.0](https://github.com/ProjectXero/dbds/compare/v1.2.5...v1.3.0) (2020-12-04)
 
 
