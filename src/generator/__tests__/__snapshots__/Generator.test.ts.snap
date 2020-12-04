@@ -1,7 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator with default options generates everything 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CamelCaseRules = \\"camel_case_rules\\"
@@ -69,7 +74,12 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
 `;
 
 exports[`Generator with different case conversions properly cases members 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CAMEL_CASE_RULES = \\"camel_case_rules\\"
@@ -137,7 +147,12 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
 `;
 
 exports[`Generator with enums enabled generates enums 1`] = `
-"export enum TestEnum {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
     CamelCaseRules = \\"camel_case_rules\\"
@@ -145,8 +160,22 @@ exports[`Generator with enums enabled generates enums 1`] = `
 "
 `;
 
+exports[`Generator with everything disabled generates nothing 1`] = `
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+"
+`;
+
 exports[`Generator with insert types enabled generates insert types 1`] = `
-"export interface TableWithNoColumns$Insert {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export interface TableWithNoColumns$Insert {
 }
 export interface TableWithNumericId$Insert {
     id?: number;
@@ -184,7 +213,12 @@ Array [
 `;
 
 exports[`Generator with tables enabled generates tables 1`] = `
-"export interface TableWithNoColumns {
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export interface TableWithNoColumns {
 }
 export interface TableWithNumericId {
     id: number;
@@ -216,7 +250,12 @@ Array [
 `;
 
 exports[`Generator with type objects enabled generates type objects 1`] = `
-"export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
 export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
     id: \\"int8\\"
 };
