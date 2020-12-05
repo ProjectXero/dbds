@@ -1,3 +1,12 @@
+### [1.4.1](https://github.com/ProjectXero/dbds/compare/v1.4.0...v1.4.1) (2020-12-05)
+
+
+### Bug Fixes
+
+* improve json/jsonb generics for functionality and readability ([523850a](https://github.com/ProjectXero/dbds/commit/523850ae5705dac2c09107563204300047e5cfe6)), closes [#48](https://github.com/ProjectXero/dbds/issues/48)
+* parse timestamps in house ([1238371](https://github.com/ProjectXero/dbds/commit/123837105960abba9f045a541a616a5546ad2c0f)), closes [#45](https://github.com/ProjectXero/dbds/issues/45)
+* remove extra options from count query ([0fc3e72](https://github.com/ProjectXero/dbds/commit/0fc3e7298ebea1c0d2a27da79915ac47a52c83cd)), closes [#47](https://github.com/ProjectXero/dbds/issues/47)
+
 ## [1.4.0](https://github.com/ProjectXero/dbds/compare/v1.3.0...v1.4.0) (2020-12-04)
 
 
