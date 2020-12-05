@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { createPool, DatabasePoolType, sql } from 'slonik'
+import { createPool, DatabasePoolType, sql, SqlSqlTokenType } from 'slonik'
 
 import { DBDataSource } from '..'
 
@@ -7,7 +7,9 @@ interface DummyRowType {
   id: number
   name: string
   code: string
-  withDefault?: string
+  withDefault?: string | SqlSqlTokenType
+  tsTest: Date
+  jsonbTest: { a: number }
 }
 
 const columnTypes: Record<keyof DummyRowType, string> = {
@@ -15,6 +17,8 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   name: 'citext',
   code: 'text',
   withDefault: 'text',
+  tsTest: 'timestamptz',
+  jsonbTest: 'jsonb',
 }
 
 let pool: DatabasePoolType
@@ -38,7 +42,9 @@ beforeAll(async () => {
         "id" INTEGER PRIMARY KEY,
         "name" CITEXT NOT NULL,
         "code" TEXT NOT NULL,
-        "with_default" TEXT NOT NULL DEFAULT 'anything'
+        "with_default" TEXT NOT NULL DEFAULT 'anything',
+        "ts_test" TIMESTAMPTZ NOT NULL,
+        "jsonb_test" JSONB NOT NULL
       )
     `)
   })
@@ -81,34 +87,43 @@ describe(DBDataSource, () => {
     })
 
     it('can insert new rows', async () => {
-      const row = {
+      const row: DummyRowType = {
         id: 2,
         code: 'CODE',
         name: 'Test Row',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.000Z'),
+        jsonbTest: { a: 1 },
       }
       const result = await ds.testInsert(row)
+      console.log(result)
       expect(result).toMatchObject(row)
     })
   })
 
   it('can insert rows with raw sql and without', async () => {
-    const row1 = {
+    const row1: DummyRowType = {
       id: 5,
       code: 'A',
       name: 'abc',
       withDefault: sql`DEFAULT`,
+      tsTest: new Date('2020-12-05T00:00:00.001Z'),
+      jsonbTest: { a: 1 },
     }
-    const row2 = {
+    const row2: DummyRowType = {
       id: 6,
       code: 'B',
       name: 'def',
       withDefault: 'value',
+      tsTest: new Date('2020-12-05T00:00:00.002Z'),
+      jsonbTest: { a: 2 },
     }
-    const row3 = {
+    const row3: DummyRowType = {
       id: 7,
       code: 'C',
       name: 'ghi',
+      tsTest: new Date('2020-12-05T00:00:00.003Z'),
+      jsonbTest: { a: 3 },
     }
 
     const results = await ds.testInsert([row1, row2, row3])
@@ -125,11 +140,13 @@ describe(DBDataSource, () => {
   })
 
   it('can insert rows with columns of arbitrary case', async () => {
-    const row = {
+    const row: DummyRowType = {
       id: 8,
       code: 'D',
       name: 'jkl',
       withDefault: 'aaaa',
+      tsTest: new Date('2020-12-05T00:00:00.000Z'),
+      jsonbTest: { a: 1 },
     }
     const result = await ds.testInsert(row)
 
@@ -137,11 +154,13 @@ describe(DBDataSource, () => {
   })
 
   describe('when there is data in the table', () => {
-    const row = {
+    const row: DummyRowType = {
       id: 2,
       code: 'CODE',
       name: 'Test Row',
       withDefault: 'asdf',
+      tsTest: new Date('2020-12-05T00:00:00.000Z'),
+      jsonbTest: { a: 0 },
     }
 
     it('can select rows by various criteria', async () => {
@@ -169,17 +188,21 @@ describe(DBDataSource, () => {
     it('can insert more rows', async () => {
       await ds.testInsert(row)
 
-      const newRow1 = {
+      const newRow1: DummyRowType = {
         id: 10,
         code: 'any',
         name: 'any',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
       }
-      const newRow2 = {
+      const newRow2: DummyRowType = {
         id: 11,
         code: 'more',
         name: 'values',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 2 },
       }
       const result = await ds.testInsert([newRow1, newRow2])
       expect(result).toContainEqual(newRow1)
@@ -187,17 +210,21 @@ describe(DBDataSource, () => {
     })
 
     it('can update rows', async () => {
-      const newRow1 = {
+      const newRow1: DummyRowType = {
         id: 10,
         code: 'any',
         name: 'any',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
       }
-      const newRow2 = {
+      const newRow2: DummyRowType = {
         id: 11,
         code: 'more',
         name: 'values',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 2 },
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -221,17 +248,21 @@ describe(DBDataSource, () => {
     })
 
     it('can delete rows', async () => {
-      const newRow1 = {
+      const newRow1: DummyRowType = {
         id: 10,
         code: 'any',
         name: 'any',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
       }
-      const newRow2 = {
+      const newRow2: DummyRowType = {
         id: 11,
         code: 'more',
         name: 'values',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 2 },
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -251,17 +282,21 @@ describe(DBDataSource, () => {
     })
 
     it('can use loaders to lookup rows', async () => {
-      const newRow1 = {
+      const newRow1: DummyRowType = {
         id: 10,
         code: 'any',
         name: 'any',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
       }
-      const newRow2 = {
+      const newRow2: DummyRowType = {
         id: 11,
         code: 'more',
         name: 'values',
         withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 2 },
       }
 
       await ds.testInsert([newRow1, newRow2])

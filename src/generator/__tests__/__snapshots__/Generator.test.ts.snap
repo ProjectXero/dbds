@@ -6,6 +6,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
@@ -70,13 +73,13 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
 };
-export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb: TJsonb | null;
+export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb: MapToSerializable<TJsonb> | null;
 }
-export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb?: TJsonb | null;
+export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb?: MapToSerializable<TJsonb> | null;
 }
 export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
     json: \\"json\\",
@@ -91,6 +94,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
@@ -155,13 +161,13 @@ export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields
     nullableArray: \\"text\\",
     nullableArrayWithDefault: \\"text\\"
 };
-export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb: TJsonb | null;
+export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb: MapToSerializable<TJsonb> | null;
 }
-export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb?: TJsonb | null;
+export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb?: MapToSerializable<TJsonb> | null;
 }
 export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
     json: \\"json\\",
@@ -176,6 +182,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export enum TestEnum {
     A = \\"A\\",
     B = \\"b\\",
@@ -190,6 +199,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 "
 `;
 
@@ -199,6 +211,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export interface TableWithNoColumns$Insert {
 }
 export interface TableWithNumericId$Insert {
@@ -219,9 +234,9 @@ export interface TableWithNullableFields$Insert {
     nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
-export interface TableWithJsonJsonb$Insert<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb?: TJsonb | null;
+export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb?: MapToSerializable<TJsonb> | null;
 }
 "
 `;
@@ -246,6 +261,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export interface TableWithNoColumns {
 }
 export interface TableWithNumericId {
@@ -266,9 +284,9 @@ export interface TableWithNullableFields {
     nullable_array: string[] | null;
     nullable_array_with_default: string[] | null;
 }
-export interface TableWithJsonJsonb<TJson extends SerializableValueType = SerializableValueType, TJsonb extends SerializableValueType = SerializableValueType> {
-    json: TJson;
-    jsonb: TJsonb | null;
+export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
+    json: MapToSerializable<TJson>;
+    jsonb: MapToSerializable<TJsonb> | null;
 }
 "
 `;
@@ -287,6 +305,9 @@ export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
 } | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
 export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
 export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
     id: \\"int8\\"

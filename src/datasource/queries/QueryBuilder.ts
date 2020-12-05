@@ -149,20 +149,17 @@ export default class QueryBuilder<
   }
 
   public count(
-    options?: QueryOptions<TRowType>
+    options?: Omit<
+      QueryOptions<TRowType>,
+      'orderBy' | 'groupBy' | 'limit' | 'having'
+    >
   ): TaggedTemplateLiteralInvocationType<CountQueryRowType> {
     options = this.getOptions(options)
-
-    if (options.groupBy) {
-      throw new Error('count does not currently support GROUP BY clauses')
-    }
 
     return sql<CountQueryRowType>`
       SELECT COUNT(*)
       FROM ${this.identifier()}
       ${options.where ? this.where(options.where) : EMPTY}
-      ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
-      ${options.limit ? this.limit(options.limit) : EMPTY}
     `
   }
 
