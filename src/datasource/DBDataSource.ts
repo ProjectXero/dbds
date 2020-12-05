@@ -45,6 +45,9 @@ export type LoaderCallback<TResultType> = (
   array: readonly TResultType[]
 ) => void
 
+const parseTS = (value: number): Date | null =>
+  value === null ? null : new Date(value)
+
 export default class DBDataSource<
   TRowType,
   TContext = unknown,
@@ -444,13 +447,40 @@ export default class DBDataSource<
     const transform = DBDataSource.normalizers.columnToKey
 
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
+      const column = transform(key)
+      const type: string | undefined = this.columnTypes[
+        column as keyof TRowType
+      ]
+      const value = this.mapTypeValue(
+        column,
+        type,
+        (input as Record<string, unknown>)[key]
+      )
+
       return {
         ...obj,
-        [transform(key)]: (input as Record<string, unknown>)[key],
+        [column]: value,
       }
     }, {} as TOutput)
 
     return output
+  }
+
+  protected mapTypeValue(
+    _columnName: string,
+    columnType: string | undefined,
+    value: unknown
+  ): unknown {
+    switch (columnType) {
+      case 'timestamp':
+      case 'timestamptz':
+        if (typeof value === 'number') {
+          return parseTS(value)
+        }
+        break
+      default:
+    }
+    return value
   }
 
   /**
