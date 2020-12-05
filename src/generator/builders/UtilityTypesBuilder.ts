@@ -1,19 +1,16 @@
-import { factory, Identifier, TypeAliasDeclaration, TypeNode } from 'typescript'
+import {
+  factory,
+  Identifier,
+  SyntaxKind,
+  TypeAliasDeclaration,
+  TypeNode,
+} from 'typescript'
 import { ExportKeyword } from './NodeBuilder'
-
-// export type PrimitiveValueType = string | number | boolean | null
-// export type SimpleValueType = PrimitiveValueType | Date
-// export type SerializableValueType =
-//   | SimpleValueType
-//   | {
-//       [key in string]: SerializableValueType | undefined
-//     }
-//   | Array<SerializableValueType>
-//   | ReadonlyArray<SerializableValueType>
 
 export const PrimitiveValueType = 'PrimitiveValueType'
 export const SimpleValueType = 'SimpleValueType'
 export const SerializableValueType = 'SerializableValueType'
+export const MapToSerializable = 'MapToSerializable'
 
 export default class UtilityTypesBuilder {
   private buildPrimitiveValueType(): TypeAliasDeclaration {
@@ -84,8 +81,103 @@ export default class UtilityTypesBuilder {
     return factory.createTypeAliasDeclaration(
       undefined,
       [ExportKeyword],
-      'SerializableValueType',
+      SerializableValueType,
       undefined,
+      type
+    )
+  }
+
+  private buildMapToSerializable(): TypeAliasDeclaration {
+    const tParam = 'T'
+    const uParam = 'U'
+    const kParam = 'K'
+
+    const T = factory.createTypeReferenceNode(tParam)
+    const U = factory.createTypeReferenceNode(uParam)
+    const K = factory.createTypeReferenceNode(kParam)
+    const TK = factory.createIndexedAccessTypeNode(T, K)
+    const never = factory.createKeywordTypeNode(SyntaxKind.NeverKeyword)
+
+    const inferU = factory.createInferTypeNode(
+      factory.createTypeParameterDeclaration(uParam)
+    )
+
+    const simple = factory.createTypeReferenceNode(SimpleValueType)
+    const serializable = factory.createTypeReferenceNode(SerializableValueType)
+
+    const functionCheck = factory.createConditionalTypeNode(
+      TK,
+      factory.createTypeReferenceNode('Function'),
+      never,
+      factory.createTypeReferenceNode(MapToSerializable, [TK])
+    )
+
+    const serializableObjectCheck = factory.createConditionalTypeNode(
+      TK,
+      simple,
+      TK,
+      functionCheck
+    )
+
+    const stringKeyCheck = factory.createConditionalTypeNode(
+      K,
+      factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
+      serializableObjectCheck,
+      never
+    )
+
+    const mappedObjectType = factory.createMappedTypeNode(
+      undefined,
+      factory.createTypeParameterDeclaration(
+        kParam,
+        factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, T),
+        undefined
+      ),
+      undefined,
+      undefined,
+      stringKeyCheck
+    )
+
+    const objectCheck = factory.createConditionalTypeNode(
+      T,
+      mappedObjectType,
+      T,
+      never
+    )
+
+    const readonlyArrayCheck = factory.createConditionalTypeNode(
+      T,
+      factory.createTypeReferenceNode('ReadonlyArray', [inferU]),
+      factory.createTypeReferenceNode('ReadonlyArray', [
+        factory.createTypeReferenceNode(MapToSerializable, [U]),
+      ]),
+      objectCheck
+    )
+
+    const arrayCheck = factory.createConditionalTypeNode(
+      T,
+      factory.createTypeReferenceNode('Array', [inferU]),
+      factory.createTypeReferenceNode('Array', [
+        factory.createTypeReferenceNode(MapToSerializable, [U]),
+      ]),
+      readonlyArrayCheck
+    )
+
+    const type = factory.createConditionalTypeNode(
+      T,
+      serializable,
+      T,
+      arrayCheck
+    )
+
+    const typeParameters = [
+      factory.createTypeParameterDeclaration(tParam, undefined, undefined),
+    ]
+    return factory.createTypeAliasDeclaration(
+      undefined,
+      [ExportKeyword],
+      MapToSerializable,
+      typeParameters,
       type
     )
   }
@@ -94,6 +186,7 @@ export default class UtilityTypesBuilder {
     const primitiveType = this.buildPrimitiveValueType()
     const simpleType = this.buildSimpleValueType(primitiveType.name)
     const serialzableType = this.buildSerializableValueType(simpleType.name)
-    return [primitiveType, simpleType, serialzableType]
+    const mapToSerialize = this.buildMapToSerializable()
+    return [primitiveType, simpleType, serialzableType, mapToSerialize]
   }
 }

@@ -36,7 +36,10 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
       const builder = new ColumnBuilder(columnInfo, this.types, this.transform)
       if (parameterTypes.includes(builder.type)) {
         const paramName = this.transform.typeNames(`t_${builder.name}`)
-        builder.overrideType = factory.createTypeReferenceNode(paramName)
+        builder.overrideType = factory.createTypeReferenceNode(
+          'MapToSerializable',
+          [factory.createTypeReferenceNode(paramName)]
+        )
         this.typeParameters.add(paramName)
       }
       return builder.buildNode()
@@ -54,7 +57,7 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
       (name) => {
         return factory.createTypeParameterDeclaration(
           name,
-          serializable,
+          undefined,
           serializable
         )
       }
