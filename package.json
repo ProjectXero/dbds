@@ -63,7 +63,7 @@
     "@typescript-eslint/parser": "^4.9.1",
     "config": "^3.3.3",
     "eslint": "^7.15.0",
-    "eslint-config-prettier": "^6.15.0",
+    "eslint-config-prettier": "^7.0.0",
     "eslint-plugin-jsonc": "^0.7.1",
     "eslint-plugin-prettier": "^3.2.0",
     "husky": "^5.0.0",
