@@ -1,0 +1,26 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`DBDataSource when there is data in the table can set query options on a loader 1`] = `
+Array [
+  Object {
+    "code": "any",
+    "id": 20,
+    "jsonbTest": Object {
+      "a": 1,
+    },
+    "name": "any",
+    "tsTest": 2020-12-05T00:00:00.002Z,
+    "withDefault": "asdf",
+  },
+  Object {
+    "code": "any",
+    "id": 19,
+    "jsonbTest": Object {
+      "a": 1,
+    },
+    "name": "any",
+    "tsTest": 2020-12-05T00:00:00.001Z,
+    "withDefault": "asdf",
+  },
+]
+`;

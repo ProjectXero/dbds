@@ -1,3 +1,5 @@
+import { QueryOptions } from '../queries/QueryBuilder'
+
 export type SearchableKeys<T, SearchableType = string | number | null> = {
   [K in keyof T]?: T extends { [_ in K]?: SearchableType } ? K : never
 }[keyof T]
@@ -6,7 +8,8 @@ export interface GetDataFunction<TRowType> {
   <TColumnName extends keyof TRowType & string>(
     args: Array<TRowType[TColumnName]> | ReadonlyArray<TRowType[TColumnName]>,
     column: TColumnName,
-    type: string
+    type: string,
+    options?: QueryOptions<TRowType>
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
 
@@ -26,4 +29,4 @@ export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
     index: number,
     array: readonly TRowType[]
   ) => void
-}
+} & QueryOptions<TRowType>
