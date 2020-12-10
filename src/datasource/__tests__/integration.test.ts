@@ -56,6 +56,10 @@ class TestDataSource extends DBDataSource<DummyRowType> {
   }
 
   public idLoader = this.loaders.create('id')
+  public codeLoader = this.loaders.create('code', {
+    multi: true,
+    orderBy: ['id', 'DESC'],
+  })
 
   // these functions are protected, so we're not normally able to access them
   public testInsert: TestDataSource['insert'] = this.insert
@@ -96,7 +100,6 @@ describe(DBDataSource, () => {
         jsonbTest: { a: 1 },
       }
       const result = await ds.testInsert(row)
-      console.log(result)
       expect(result).toMatchObject(row)
     })
   })
@@ -303,6 +306,30 @@ describe(DBDataSource, () => {
 
       const result = await ds.idLoader.load(newRow1.id)
       expect(result).toMatchObject(newRow1)
+    })
+
+    it('can set query options on a loader', async () => {
+      const row1: DummyRowType = {
+        id: 19,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
+      }
+      const row2: DummyRowType = {
+        id: 20,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 1 },
+      }
+
+      await ds.testInsert([row1, row2])
+
+      const result = await ds.codeLoader.load('any')
+      expect(result).toMatchSnapshot()
     })
   })
 })
