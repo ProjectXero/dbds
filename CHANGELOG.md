@@ -1,3 +1,10 @@
+### [1.4.2](https://github.com/ProjectXero/dbds/compare/v1.4.1...v1.4.2) (2020-12-10)
+
+
+### Bug Fixes
+
+* pass options through to loaders ([0514a3c](https://github.com/ProjectXero/dbds/commit/0514a3ca8ccd96f5686f90de574b624d7d79d523))
+
 ### [1.4.1](https://github.com/ProjectXero/dbds/compare/v1.4.0...v1.4.1) (2020-12-05)
 
 
