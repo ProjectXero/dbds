@@ -1022,11 +1022,6 @@
   resolved "https://registry.yarnpkg.com/@types/retry/-/retry-0.12.0.tgz#2b35eccfcee7d38cd72ad99232fbd58bffb3c84d"
   integrity sha512-wWKOClTTiizcZhXnPY4wikVAwmdYHp8q6DmC+EJUzAMsycb7HB32Kh9RN4+0gExjmPmZSAQjgURXIGATPegAvA==
 
-"@types/roarr@^2.14.2":
-  version "2.14.2"
-  resolved "https://registry.yarnpkg.com/@types/roarr/-/roarr-2.14.2.tgz#5e6636a88a5592e4602a175ed348f20e643a1915"
-  integrity sha512-rY5HIihpTElJJImqMOodetry1GVkOwaXn4QRmk7cAVFh+w5pc8mz5ChktH0d+i9ChPZrq5zydSv5vaRpJ3YGsg==
-
 "@types/stack-utils@^2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@types/stack-utils/-/stack-utils-2.0.0.tgz#7036640b4e21cc2f259ae826ce843d277dad8cff"
@@ -1196,7 +1191,7 @@ aggregate-error@^3.0.0:
     clean-stack "^2.0.0"
     indent-string "^4.0.0"
 
-ajv@^6.10.0, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.7.0:
+ajv@^6.10.0, ajv@^6.11.0, ajv@^6.12.3, ajv@^6.12.4, ajv@^6.7.0:
   version "6.12.6"
   resolved "https://registry.yarnpkg.com/ajv/-/ajv-6.12.6.tgz#baf5a62e802b07d977034586f8c3baf5adf26df4"
   integrity sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==
@@ -1557,7 +1552,7 @@ bluebird@^3.5.1, bluebird@^3.5.3, bluebird@^3.5.5, bluebird@^3.7.1:
   resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
   integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
-boolean@^3.0.1:
+boolean@^3.0.1, boolean@^3.0.2:
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/boolean/-/boolean-3.0.2.tgz#df1baa18b6a2b0e70840475e1d93ec8fe75b2570"
   integrity sha512-RwywHlpCRc3/Wh81MiCKun4ydaIFyW5Ea6JbL6sRCVx5q5irDw7pMXBUFYF/jArQ6YrG36q0kpovc9P/Kd3I4g==
@@ -3006,6 +3001,15 @@ fast-json-stable-stringify@2.x, fast-json-stable-stringify@^2.0.0:
   resolved "https://registry.yarnpkg.com/fast-json-stable-stringify/-/fast-json-stable-stringify-2.1.0.tgz#874bf69c6f404c2b5d99c481341399fd55892633"
   integrity sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==
 
+fast-json-stringify@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/fast-json-stringify/-/fast-json-stringify-2.3.0.tgz#1f6faf89e71cd17603aeeee7a0e23258b8d7130f"
+  integrity sha512-dZoqs1Wto6ktiIrvDC2buWAVSTGtwKTLHH3pTGzP+KHL1J3owFEQDVVJrYoGxD2CeiWB5N07WL/AUHX0WiFv4w==
+  dependencies:
+    ajv "^6.11.0"
+    deepmerge "^4.2.2"
+    string-similarity "^4.0.1"
+
 fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   version "2.0.6"
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
@@ -3832,6 +3836,11 @@ is-cidr@^3.0.0:
   integrity sha512-Gx+oErgq1j2jAKCR2Kbq0b3wbH0vQKqZ0wOlHxm0o56nq51Cs/DZA8oz9dMDhbHyHEGgJ86eTeVudtgMMOx3Mw==
   dependencies:
     cidr-regex "^2.0.10"
+
+is-circular@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/is-circular/-/is-circular-1.0.2.tgz#2e0ab4e9835f4c6b0ea2b9855a84acd501b8366c"
+  integrity sha512-YttjnrswnUYRVJvxCvu8z+PGMUSzC2JttP0OEXezlAEdp3EXzhf7IZ3j0gRAybJBQupedIZFhY61Tga6E0qASA==
 
 is-core-module@^2.1.0:
   version "2.2.0"
@@ -6891,7 +6900,7 @@ rimraf@^3.0.0, rimraf@^3.0.2:
   dependencies:
     glob "^7.1.3"
 
-roarr@^2.15.2, roarr@^2.15.4:
+roarr@^2.15.2:
   version "2.15.4"
   resolved "https://registry.yarnpkg.com/roarr/-/roarr-2.15.4.tgz#f5fe795b7b838ccfe35dc608e0282b9eba2e7afd"
   integrity sha512-CHhPh+UNHD2GTXNYhPWLnU8ONHdI+5DI+4EYIAOaiD63rHeYlZvyh8P+in5999TTSFgUYuKUAjzRI4mdh/p+2A==
@@ -6902,6 +6911,20 @@ roarr@^2.15.2, roarr@^2.15.4:
     json-stringify-safe "^5.0.1"
     semver-compare "^1.0.0"
     sprintf-js "^1.1.2"
+
+roarr@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/roarr/-/roarr-3.1.2.tgz#297212a7f9e4f7b57a92c4e1a819f884f248f46c"
+  integrity sha512-tYc/a2JjOQxvhuhBZA3ZHRMQqg8AlDj0cZq08Kv60lb3KEry12H8p33BQLMPw5oV0i/je+TL/QT8tbm+P/jFkw==
+  dependencies:
+    boolean "^3.0.2"
+    detect-node "^2.0.4"
+    fast-json-stringify "^2.3.0"
+    globalthis "^1.0.1"
+    is-circular "^1.0.2"
+    json-stringify-safe "^5.0.1"
+    semver-compare "^1.0.0"
+    sprintfit "^1.0.1"
 
 rsvp@^4.8.4:
   version "4.8.5"
@@ -7158,11 +7181,10 @@ slonik-sql-tag-raw@^1.0.2:
     slonik "^22.4.4"
 
 slonik@^22.4.4, slonik@^23.0.0, slonik@^23.1.0:
-  version "23.3.1"
-  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.3.1.tgz#7a873e69230c4af81ff0d0f972bf623df10f771c"
-  integrity sha512-yJ2arF0ju5ZIbSU5RthksYLP+z6OfuSoBd+45TsaOncTCC6/F9buitXEYk9wrdDTdxE+RCVELroXQUyYFv3JNw==
+  version "23.4.1"
+  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.4.1.tgz#25839ae12da32dc35257b3b0cf8670e13d4ea70d"
+  integrity sha512-LvXSQN1jwYod+jRboHJwNnd49ya68rhdGfpn5fK8XmsCqE//ag3WevNKMZ1KJ6BiP3kbgM2Ms3+4Zb6W+WPz+g==
   dependencies:
-    "@types/roarr" "^2.14.2"
     concat-stream "^2.0.0"
     delay "^4.4.0"
     es6-error "^4.1.1"
@@ -7177,7 +7199,7 @@ slonik@^22.4.4, slonik@^23.0.0, slonik@^23.1.0:
     pg-types "^3.0.1"
     postgres-array "^3.0.1"
     postgres-interval "^3.0.0"
-    roarr "^2.15.4"
+    roarr "^3.1.2"
     serialize-error "^7.0.1"
     through2 "^4.0.2"
     ulid "^2.3.0"
@@ -7380,6 +7402,11 @@ sprintf-js@~1.0.2:
   resolved "https://registry.yarnpkg.com/sprintf-js/-/sprintf-js-1.0.3.tgz#04e6926f662895354f3dd015203633b857297e2c"
   integrity sha1-BOaSb2YolTVPPdAVIDYzuFcpfiw=
 
+sprintfit@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/sprintfit/-/sprintfit-1.0.1.tgz#f3f1770a48df6cfae64dd54f9443dd173d4ed4d1"
+  integrity sha512-oY7kiInw+HvkFMxBpgP5uGB9qCWTzHnW8++aSsTx6LhwAUU8D0Tph+RcmDYjoQLUmLzftQaGnju2ygVFnxmGHQ==
+
 sshpk@^1.7.0:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/sshpk/-/sshpk-1.16.1.tgz#fb661c0bef29b39db40769ee39fa70093d6f6877"
@@ -7463,6 +7490,11 @@ string-length@^4.0.1:
   dependencies:
     char-regex "^1.0.2"
     strip-ansi "^6.0.0"
+
+string-similarity@^4.0.1:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/string-similarity/-/string-similarity-4.0.3.tgz#ef52d6fc59c8a0fc93b6307fbbc08cc6e18cde21"
+  integrity sha512-QEwJzNFCqq+5AGImk5z4vbsEPTN/+gtyKfXBVLBcbPBRPNganZGfQnIuf9yJ+GiwSnD65sT8xrw/uwU1Q1WmfQ==
 
 string-width@^1.0.1:
   version "1.0.2"
