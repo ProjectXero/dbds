@@ -188,6 +188,13 @@ describe(DBDataSource, () => {
       expect(result3).toMatchObject(row)
     })
 
+    it('can select rows for update', async () => {
+      await ds.testInsert(row)
+
+      const result = await ds.get({ forUpdate: true, expected: 'one' })
+      expect(result).toMatchObject(row)
+    })
+
     it('can insert more rows', async () => {
       await ds.testInsert(row)
 

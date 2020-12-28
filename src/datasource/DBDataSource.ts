@@ -16,6 +16,7 @@ export type { DatabasePoolType } from 'slonik'
 import { LoaderFactory } from './loaders'
 import QueryBuilder, {
   QueryOptions as BuilderOptions,
+  SelectOptions,
 } from './queries/QueryBuilder'
 import {
   AllowSql,
@@ -112,7 +113,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   public async get(
-    options: QueryOptions<TRowType> & { expected: 'one' }
+    options: QueryOptions<TRowType> & SelectOptions & { expected: 'one' }
   ): Promise<TRowType>
 
   /**
@@ -121,7 +122,7 @@ export default class DBDataSource<
    * @param options Query options
    */
   public async get(
-    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
+    options: QueryOptions<TRowType> & SelectOptions & { expected: 'maybeOne' }
   ): Promise<TRowType | null>
 
   /**
@@ -130,11 +131,12 @@ export default class DBDataSource<
    * @param options Query options
    */
   public async get(
-    options?: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
+    options?: QueryOptions<TRowType> &
+      SelectOptions & { expected?: 'any' | 'many' }
   ): Promise<readonly TRowType[]>
 
   public async get(
-    options?: QueryOptions<TRowType>
+    options?: QueryOptions<TRowType> & SelectOptions
   ): Promise<TRowType | readonly TRowType[] | null> {
     const query = this.builder.select(options)
 
