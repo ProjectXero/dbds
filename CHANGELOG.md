@@ -1,3 +1,10 @@
+### [1.5.1](https://github.com/ProjectXero/dbds/compare/v1.5.0...v1.5.1) (2020-12-28)
+
+
+### Bug Fixes
+
+* correct get types to allow forUpdate ([d526d07](https://github.com/ProjectXero/dbds/commit/d526d07ec490c48a6cb23a8a0155316af705594e))
+
 ## [1.5.0](https://github.com/ProjectXero/dbds/compare/v1.4.2...v1.5.0) (2020-12-28)
 
 
