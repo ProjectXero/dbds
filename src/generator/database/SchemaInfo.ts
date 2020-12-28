@@ -95,7 +95,7 @@ export default class SchemaInfo {
   public enumQuery(): TaggedTemplateLiteralInvocationType<EnumInfo> {
     return sql<EnumInfo>`
       SELECT t.typname AS "name"
-           , array_agg(e.enumlabel)::TEXT[] AS "values"
+           , array_agg(e.enumlabel ORDER BY e.enumlabel)::TEXT[] AS "values"
            , pg_catalog.obj_description(e.enumtypid) AS "comment"
       FROM
         pg_type t JOIN

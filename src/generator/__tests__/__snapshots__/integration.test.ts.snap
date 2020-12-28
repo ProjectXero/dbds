@@ -12,8 +12,8 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 export enum TestTypeEnum {
     Aa = \\"aa\\",
     Bb = \\"bb\\",
-    Zzzz = \\"zzzz\\",
-    Cc = \\"cc\\"
+    Cc = \\"cc\\",
+    Zzzz = \\"zzzz\\"
 }
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
