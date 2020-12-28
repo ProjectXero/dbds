@@ -1,3 +1,16 @@
+## [1.5.0](https://github.com/ProjectXero/dbds/compare/v1.4.2...v1.5.0) (2020-12-28)
+
+
+### Features
+
+* support FOR UPDATE in select queries ([30a59ce](https://github.com/ProjectXero/dbds/commit/30a59ceffd0d30fed130d1150b8db6c885579801))
+
+
+### Bug Fixes
+
+* re-throw error after printing the message ([4879697](https://github.com/ProjectXero/dbds/commit/4879697949f7014f8d429762838baed53518d093))
+* sort enum members alphabetically ([5c2cd88](https://github.com/ProjectXero/dbds/commit/5c2cd88e5d131d398584af49601cf9963b60118d)), closes [#63](https://github.com/ProjectXero/dbds/issues/63)
+
 ### [1.4.2](https://github.com/ProjectXero/dbds/compare/v1.4.1...v1.4.2) (2020-12-10)
 
 
