@@ -537,11 +537,60 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders select can select for update 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      
+      
+      FOR UPDATE
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder core query builders select can select for update of another table 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      
+      
+      FOR UPDATE OF \\"another_table\\"
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
+exports[`QueryBuilder core query builders select can select for update of multiple other tables 1`] = `
+Object {
+  "sql": "
+      SELECT *
+      FROM \\"any_table\\"
+      
+      
+      
+      
+      FOR UPDATE OF \\"table\\", \\"another_table\\", \\"more_tables\\"
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
 exports[`QueryBuilder core query builders select selects everything by default 1`] = `
 Object {
   "sql": "
       SELECT *
       FROM \\"any_table\\"
+      
       
       
       
@@ -561,6 +610,7 @@ Object {
       
       
       LIMIT $1
+      
     ",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [

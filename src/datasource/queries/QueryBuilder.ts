@@ -30,6 +30,10 @@ export interface QueryOptions<TRowType> {
   limit?: LimitClause
 }
 
+export interface SelectOptions {
+  forUpdate?: boolean | string | string[]
+}
+
 const EMPTY = sql``
 const noop = (v: string): string => v
 
@@ -70,7 +74,7 @@ export default class QueryBuilder<
   /* Public core query builders */
 
   public select(
-    options?: QueryOptions<TRowType>
+    options?: QueryOptions<TRowType> & SelectOptions
   ): TaggedTemplateLiteralInvocationType<TRowType> {
     options = this.getOptions(options)
 
@@ -81,6 +85,7 @@ export default class QueryBuilder<
       ${options.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
       ${options.limit ? this.limit(options.limit) : EMPTY}
+      ${options.forUpdate ? this.forUpdate(options.forUpdate) : EMPTY}
     `
   }
 
@@ -263,6 +268,22 @@ export default class QueryBuilder<
     }
 
     return sql`LIMIT ${limit}${offset}`
+  }
+
+  public forUpdate(forUpdate: true | string | string[]): SqlSqlTokenType {
+    const FOR_UPDATE = sql`FOR UPDATE`
+
+    if (forUpdate === true) {
+      return FOR_UPDATE
+    }
+
+    if (!Array.isArray(forUpdate)) {
+      forUpdate = [forUpdate]
+    }
+
+    const updateOf = forUpdate.map((table) => sql.identifier([table]))
+
+    return sql`${FOR_UPDATE} OF ${sql.join(updateOf, sql`, `)}`
   }
 
   /* Public query-building utilities */
