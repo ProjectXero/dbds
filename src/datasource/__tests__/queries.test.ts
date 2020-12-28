@@ -224,6 +224,30 @@ describe(QueryBuilder, () => {
           })
         ).toMatchSnapshot()
       })
+
+      it('can select for update', () => {
+        expect(
+          builder.select({
+            forUpdate: true,
+          })
+        ).toMatchSnapshot()
+      })
+
+      it('can select for update of another table', () => {
+        expect(
+          builder.select({
+            forUpdate: 'another_table',
+          })
+        ).toMatchSnapshot()
+      })
+
+      it('can select for update of multiple other tables', () => {
+        expect(
+          builder.select({
+            forUpdate: ['table', 'another_table', 'more_tables'],
+          })
+        ).toMatchSnapshot()
+      })
     })
 
     describe('count', () => {

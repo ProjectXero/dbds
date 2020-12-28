@@ -88,7 +88,7 @@ export default class Generator {
       await this.buildTables(statementBuilders)
     } catch (error) {
       console.error(error?.message)
-      process.exit(1)
+      throw error
     }
 
     const statements = statementBuilders.map<Statement>((builder) =>
