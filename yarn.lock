@@ -3630,6 +3630,14 @@ husky@^5.0.0:
   resolved "https://registry.yarnpkg.com/husky/-/husky-5.0.6.tgz#27dbefe8603c6c0912fd89a3a67edfed9fac8bb9"
   integrity sha512-SM+evfvcHT3rAYJKvPlatz3L5RqzgeM6xIvDjhs8VuhKj6iKqFDOt/Ov8sPjvWuE4FDB385gJBwWXRj7G3c1hg==
 
+hyperid@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/hyperid/-/hyperid-2.1.0.tgz#2f5ed7537e87e8fddd344710a610be501b3d2da6"
+  integrity sha512-cSakhxbUsaIuqjfvvcUuvl/Fl342J65xgLLYrYxSSr9qmJ/EJK+S8crS6mIlQd/a7i+Pe4D0MgSrtZPLze+aCw==
+  dependencies:
+    uuid "^3.4.0"
+    uuid-parse "^1.1.0"
+
 iconv-lite@0.4.24:
   version "0.4.24"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.24.tgz#2022b4b25fbddc21d2f524974a474aafe733908b"
@@ -5868,7 +5876,7 @@ object.pick@^1.3.0:
   dependencies:
     isobject "^3.0.1"
 
-obuf@^1.1.2, obuf@~1.1.2:
+obuf@^1.1.2:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/obuf/-/obuf-1.1.2.tgz#09bea3343d41859ebd446292d11c9d4db619084e"
   integrity sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==
@@ -6242,11 +6250,6 @@ pg-int8@1.0.1:
   resolved "https://registry.yarnpkg.com/pg-int8/-/pg-int8-1.0.1.tgz#943bd463bf5b71b4170115f80f8efc9a0c0eb78c"
   integrity sha512-WCtabS6t3c8SkpDBUlb1kjOs7l66xsGdKpIPZsg4wR+B3+u9UAum2odSsF9tnvxg80h4ZxLWMy4pRjOsFIqQpw==
 
-pg-numeric@1.0.2:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/pg-numeric/-/pg-numeric-1.0.2.tgz#816d9a44026086ae8ae74839acd6a09b0636aa3a"
-  integrity sha512-BM/Thnrw5jm2kKLE5uJkXqqExRUY/toLHda65XgFTBTFYZyopbKjBe29Ii3RbkvlsMoFwD+tHeGaCjjv0gHlyw==
-
 pg-pool@^3.2.2:
   version "3.2.2"
   resolved "https://registry.yarnpkg.com/pg-pool/-/pg-pool-3.2.2.tgz#a560e433443ed4ad946b84d774b3f22452694dff"
@@ -6265,18 +6268,6 @@ pg-types@^2.1.0:
     pg-int8 "1.0.1"
     postgres-array "~2.0.0"
     postgres-bytea "~1.0.0"
-    postgres-date "~1.0.4"
-    postgres-interval "^1.1.0"
-
-pg-types@^3.0.1:
-  version "3.0.1"
-  resolved "https://registry.yarnpkg.com/pg-types/-/pg-types-3.0.1.tgz#90c15b1034365ff0fd9007f6ea794ec85318968d"
-  integrity sha512-Q3zN2GyDEOrc9m6lxCru9JakbdVQY5/ylKxSXI/PcIQPVRDNBR7BxdeCtxa9WI+UIoE3JNcyAffGThOxd+V/4g==
-  dependencies:
-    pg-int8 "1.0.1"
-    pg-numeric "1.0.2"
-    postgres-array "~2.0.0"
-    postgres-bytea "~3.0.0"
     postgres-date "~1.0.4"
     postgres-interval "^1.1.0"
 
@@ -6366,13 +6357,6 @@ postgres-bytea@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/postgres-bytea/-/postgres-bytea-1.0.0.tgz#027b533c0aa890e26d172d47cf9ccecc521acd35"
   integrity sha1-AntTPAqokOJtFy1Hz5zOzFIazTU=
-
-postgres-bytea@~3.0.0:
-  version "3.0.0"
-  resolved "https://registry.yarnpkg.com/postgres-bytea/-/postgres-bytea-3.0.0.tgz#9048dc461ac7ba70a6a42d109221619ecd1cb089"
-  integrity sha512-CNd4jim9RFPkObHSjVHlVrxoVQXz7quwNFpz7RY1okNNme49+sVyiTvTRobiLV548Hx/hb1BG+iE7h9493WzFw==
-  dependencies:
-    obuf "~1.1.2"
 
 postgres-date@~1.0.4:
   version "1.0.7"
@@ -7181,14 +7165,15 @@ slonik-sql-tag-raw@^1.0.2:
     slonik "^22.4.4"
 
 slonik@^22.4.4, slonik@^23.0.0, slonik@^23.1.0:
-  version "23.4.1"
-  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.4.1.tgz#25839ae12da32dc35257b3b0cf8670e13d4ea70d"
-  integrity sha512-LvXSQN1jwYod+jRboHJwNnd49ya68rhdGfpn5fK8XmsCqE//ag3WevNKMZ1KJ6BiP3kbgM2Ms3+4Zb6W+WPz+g==
+  version "23.5.4"
+  resolved "https://registry.yarnpkg.com/slonik/-/slonik-23.5.4.tgz#7e2a28ca12b03a760b51e6aa3d2a98efa3edc314"
+  integrity sha512-PSFti+SEXfbmkj/w3N3Apg09u/RJJ3MQTUu4gKVTgf9P91kryWFeQWQwkOaSP2TatmZeL8nucGa8/kIYIF/VtA==
   dependencies:
     concat-stream "^2.0.0"
     delay "^4.4.0"
     es6-error "^4.1.1"
     get-stack-trace "^2.0.3"
+    hyperid "^2.1.0"
     is-plain-object "^5.0.0"
     iso8601-duration "^1.3.0"
     pg "^8.5.1"
@@ -7196,13 +7181,11 @@ slonik@^22.4.4, slonik@^23.0.0, slonik@^23.1.0:
     pg-copy-streams "^5.1.1"
     pg-copy-streams-binary "^2.0.1"
     pg-cursor "^2.5.2"
-    pg-types "^3.0.1"
     postgres-array "^3.0.1"
     postgres-interval "^3.0.0"
     roarr "^3.1.2"
     serialize-error "^7.0.1"
     through2 "^4.0.2"
-    ulid "^2.3.0"
 
 smart-buffer@^4.1.0:
   version "4.1.0"
@@ -8006,11 +7989,6 @@ uid-number@0.0.6:
   resolved "https://registry.yarnpkg.com/uid-number/-/uid-number-0.0.6.tgz#0ea10e8035e8eb5b8e4449f06da1c730663baa81"
   integrity sha1-DqEOgDXo61uOREnwbaHHMGY7qoE=
 
-ulid@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/ulid/-/ulid-2.3.0.tgz#93063522771a9774121a84d126ecd3eb9804071f"
-  integrity sha512-keqHubrlpvT6G2wH0OEfSW4mquYRcbe/J8NMmveoQOjUqmo+hXtO+ORCpWhdbZ7k72UtY61BL7haGxW6enBnjw==
-
 umask@^1.1.0, umask@~1.1.0:
   version "1.1.0"
   resolved "https://registry.yarnpkg.com/umask/-/umask-1.1.0.tgz#f29cebf01df517912bb58ff9c4e50fde8e33320d"
@@ -8159,7 +8137,12 @@ util.promisify@^1.0.0:
     has-symbols "^1.0.1"
     object.getownpropertydescriptors "^2.1.0"
 
-uuid@^3.3.2, uuid@^3.3.3:
+uuid-parse@^1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/uuid-parse/-/uuid-parse-1.1.0.tgz#7061c5a1384ae0e1f943c538094597e1b5f3a65b"
+  integrity sha512-OdmXxA8rDsQ7YpNVbKSJkNzTw2I+S5WsbMDnCtIWSQaosNAcWtFuI/YK1TjzUI6nbkgiqEyh8gWngfcv8Asd9A==
+
+uuid@^3.3.2, uuid@^3.3.3, uuid@^3.4.0:
   version "3.4.0"
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-3.4.0.tgz#b23e4358afa8a202fe7a100af1f5f883f02007ee"
   integrity sha512-HjSDRw6gZE5JMggctHBcjVak08+KEVhSIiDzFnT9S9aegmp85S/bReBVTb4QTFaRNptJ9kuYaNhnbNEOkbKb/A==
