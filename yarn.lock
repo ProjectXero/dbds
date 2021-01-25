@@ -2727,10 +2727,10 @@ eslint-config-prettier@^7.0.0:
   resolved "https://registry.yarnpkg.com/eslint-config-prettier/-/eslint-config-prettier-7.1.0.tgz#5402eb559aa94b894effd6bddfa0b1ca051c858f"
   integrity sha512-9sm5/PxaFG7qNJvJzTROMM1Bk1ozXVTKI0buKOyb0Bsr1hrwi0H/TzxF/COtf1uxikIK8SwhX7K6zg78jAzbeA==
 
-eslint-plugin-jsonc@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-0.8.0.tgz#8ebd15c8b4cf9609e826681f16b577bf989582d5"
-  integrity sha512-IRwiANvqrFMK+ccAkLeToBg3gkgVTMHjKZnU8LE9KIbAeVhdvkNfsVf1ioXiUPQrZuNOdK6CXEQar6G82z8o7A==
+eslint-plugin-jsonc@^0.9.0:
+  version "0.9.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-0.9.0.tgz#a411a3d06d13f19dd116f09e3670f2d2ab6049b6"
+  integrity sha512-b5pyvUZ7j2uN6q8rqpQtvwnxp2+7QaCTjqlBgz5SWxbbd3tWT6RamxC53YOiEQbiLRtBsaka8WJjP2tplfmbEQ==
   dependencies:
     eslint-utils "^2.1.0"
     jsonc-eslint-parser "^0.6.0"
