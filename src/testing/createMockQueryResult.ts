@@ -1,8 +1,4 @@
-import {
-  FieldType,
-  QueryResultRowType,
-  QueryResultType,
-} from 'slonik/dist/types'
+import { FieldType, QueryResultRowType, QueryResultType } from 'slonik'
 
 export const createMockQueryResult = (
   rows: ReadonlyArray<QueryResultRowType>

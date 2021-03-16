@@ -424,16 +424,44 @@ export default class QueryBuilder<
     return Object.entries(conditions as GenericConditions)
       .filter(([column, value]) => column !== undefined && value !== undefined)
       .map<SqlSqlTokenType>(([column, value]) => {
-        let sqlValue: SqlSqlTokenType
-        if (Array.isArray(value)) {
-          sqlValue = this.any(value, this.columnTypes[column as keyof TRowType])
-        } else {
-          // We've already filtered out value === undefined above
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          sqlValue = this.valueToSql(value!)
+        const isNull = sql`${this.identifier(column)} IS NULL`
+
+        if (value === null) {
+          return isNull
+        } else if (Array.isArray(value)) {
+          // if it has exactly ONE non-null value, then it should be treated
+          // like a normal value and ORed with `IS NULL`
+          // we only need to use `any` if there are >= 2 actual, non-null values
+
+          let sqlValue: SqlSqlTokenType
+          const nullable = this.isNullable(value)
+          const nonNullValues = [...value].filter(
+            <V>(v: V | null): v is V => v !== null
+          )
+
+          if (nonNullValues.length === 1) {
+            // We've already filtered out value === undefined above
+            // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+            sqlValue = this.valueToSql(nonNullValues[0])
+          } else {
+            sqlValue = this.any(
+              nonNullValues,
+              this.columnTypes[column as keyof TRowType]
+            )
+          }
+
+          const condition = sql`${this.identifier(column)} = ${sqlValue}`
+
+          if (nullable) {
+            return this.or([condition, isNull])
+          } else {
+            return condition
+          }
         }
 
-        return sql`${this.identifier(column)} = ${sqlValue}`
+        // We've already filtered out value === undefined above
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        return sql`${this.identifier(column)} = ${this.valueToSql(value!)}`
       })
   }
 
@@ -467,6 +495,10 @@ export default class QueryBuilder<
     }
 
     return this.identifier(column)
+  }
+
+  private isNullable(array: unknown[]): boolean {
+    return array.some((v): v is null => v === null)
   }
 
   private valueToSql(

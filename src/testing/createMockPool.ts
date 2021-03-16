@@ -2,9 +2,9 @@ import { createMockPool as slonikCreateMockPool } from 'slonik'
 import {
   ClientConfigurationInputType,
   DatabasePoolType,
-  PrimitiveValueExpressionType,
   QueryResultType,
-} from 'slonik/dist/types'
+} from 'slonik'
+import { PrimitiveValueExpressionType } from 'slonik/dist/src/types'
 import { createMockQueryResult } from './createMockQueryResult'
 
 export interface MockedDatabasePoolType extends DatabasePoolType {

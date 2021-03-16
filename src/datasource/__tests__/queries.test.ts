@@ -79,6 +79,10 @@ describe(QueryBuilder, () => {
           builder.where({ date: new Date('2020-11-30T00:00:00.000-0500') })
         ).toMatchSnapshot()
       })
+
+      it('handles null lookups correctly', () => {
+        expect(builder.where({ nullable: null })).toMatchSnapshot()
+      })
     })
 
     describe('orderBy', () => {
