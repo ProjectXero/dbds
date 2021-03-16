@@ -1,3 +1,10 @@
+### [1.5.2](https://github.com/ProjectXero/dbds/compare/v1.5.1...v1.5.2) (2021-03-16)
+
+
+### Bug Fixes
+
+* null value lookups ([295ceb0](https://github.com/ProjectXero/dbds/commit/295ceb0cb7dfa2e9c7564104426cefd7751e6fe4)), closes [#156](https://github.com/ProjectXero/dbds/issues/156)
+
 ### [1.5.1](https://github.com/ProjectXero/dbds/compare/v1.5.0...v1.5.1) (2020-12-28)
 
 
