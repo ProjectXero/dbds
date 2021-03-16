@@ -10,6 +10,7 @@ interface DummyRowType {
   withDefault?: string | SqlSqlTokenType
   tsTest: Date
   jsonbTest: { a: number }
+  nullable?: string | null
 }
 
 const columnTypes: Record<keyof DummyRowType, string> = {
@@ -19,6 +20,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   withDefault: 'text',
   tsTest: 'timestamptz',
   jsonbTest: 'jsonb',
+  nullable: 'text',
 }
 
 let pool: DatabasePoolType
@@ -44,7 +46,8 @@ beforeAll(async () => {
         "code" TEXT NOT NULL,
         "with_default" TEXT NOT NULL DEFAULT 'anything',
         "ts_test" TIMESTAMPTZ NOT NULL,
-        "jsonb_test" JSONB NOT NULL
+        "jsonb_test" JSONB NOT NULL,
+        "nullable" TEXT
       )
     `)
   })
@@ -112,6 +115,7 @@ describe(DBDataSource, () => {
       withDefault: sql`DEFAULT`,
       tsTest: new Date('2020-12-05T00:00:00.001Z'),
       jsonbTest: { a: 1 },
+      nullable: null,
     }
     const row2: DummyRowType = {
       id: 6,
@@ -120,6 +124,7 @@ describe(DBDataSource, () => {
       withDefault: 'value',
       tsTest: new Date('2020-12-05T00:00:00.002Z'),
       jsonbTest: { a: 2 },
+      nullable: null,
     }
     const row3: DummyRowType = {
       id: 7,
@@ -127,6 +132,7 @@ describe(DBDataSource, () => {
       name: 'ghi',
       tsTest: new Date('2020-12-05T00:00:00.003Z'),
       jsonbTest: { a: 3 },
+      nullable: null,
     }
 
     const results = await ds.testInsert([row1, row2, row3])
@@ -164,6 +170,7 @@ describe(DBDataSource, () => {
       withDefault: 'asdf',
       tsTest: new Date('2020-12-05T00:00:00.000Z'),
       jsonbTest: { a: 0 },
+      nullable: null,
     }
 
     it('can select rows by various criteria', async () => {
@@ -205,6 +212,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
+        nullable: null,
       }
       const newRow2: DummyRowType = {
         id: 11,
@@ -213,6 +221,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.002Z'),
         jsonbTest: { a: 2 },
+        nullable: null,
       }
       const result = await ds.testInsert([newRow1, newRow2])
       expect(result).toContainEqual(newRow1)
@@ -227,6 +236,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
+        nullable: null,
       }
       const newRow2: DummyRowType = {
         id: 11,
@@ -235,6 +245,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.002Z'),
         jsonbTest: { a: 2 },
+        nullable: null,
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -265,6 +276,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
+        nullable: null,
       }
       const newRow2: DummyRowType = {
         id: 11,
@@ -273,6 +285,7 @@ describe(DBDataSource, () => {
         withDefault: 'asdf',
         tsTest: new Date('2020-12-05T00:00:00.002Z'),
         jsonbTest: { a: 2 },
+        nullable: null,
       }
 
       await ds.testInsert([newRow1, newRow2])
@@ -337,6 +350,64 @@ describe(DBDataSource, () => {
 
       const result = await ds.codeLoader.load('any')
       expect(result).toMatchSnapshot()
+    })
+
+    it('can lookup rows by null values', async () => {
+      const row1: DummyRowType = {
+        id: 19,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
+        nullable: 'not null',
+      }
+      const row2: DummyRowType = {
+        id: 20,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 1 },
+        nullable: null,
+      }
+
+      await ds.testInsert([row1, row2])
+
+      const result = await ds.get({
+        where: { nullable: null },
+        expected: 'one',
+      })
+      expect(result).toMatchObject(row2)
+    })
+
+    it('can lookup rows by one of multiple values including null', async () => {
+      const row1: DummyRowType = {
+        id: 19,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
+        nullable: 'not null',
+      }
+      const row2: DummyRowType = {
+        id: 20,
+        code: 'any',
+        name: 'any',
+        withDefault: 'asdf',
+        tsTest: new Date('2020-12-05T00:00:00.002Z'),
+        jsonbTest: { a: 1 },
+        nullable: null,
+      }
+
+      await ds.testInsert([row1, row2])
+
+      const result = await ds.get({
+        where: { nullable: ['non-existent value', null] },
+        expected: 'one',
+      })
+      expect(result).toMatchObject(row2)
     })
   })
 })

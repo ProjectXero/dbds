@@ -235,15 +235,11 @@ Object {
 
 exports[`QueryBuilder clause generators where accepts complex conditions 1`] = `
 Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" = $2 AND \\"any_table\\".\\"stringOrNumber\\" = ANY($3::here[]))",
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" IS NULL AND (\\"any_table\\".\\"stringOrNumber\\" = $2 OR \\"any_table\\".\\"stringOrNumber\\" IS NULL))",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
     1,
-    null,
-    Array [
-      "a",
-      null,
-    ],
+    "a",
   ],
 }
 `;
@@ -269,6 +265,14 @@ Object {
       3,
     ],
   ],
+}
+`;
+
+exports[`QueryBuilder clause generators where handles null lookups correctly 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"nullable\\" IS NULL)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
 }
 `;
 
