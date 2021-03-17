@@ -25,43 +25,43 @@ export const TestTableOrder$Types: Record<keyof TestTableOrder, string> = {
     subsequent_table_type: \\"test_table_standard\\"
 };
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
-    id: number;
     arr_test: string[] | null;
     domain_test: string | null;
-    enum_test: TestTypeEnum;
     enum_arr_test: TestTypeEnum[] | null;
+    enum_test: TestTypeEnum;
+    id: number;
     jsonb_test: MapToSerializable<TJsonbTest> | null;
 }
 export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
-    id?: number;
     arr_test?: string[] | null;
     domain_test?: string | null;
-    enum_test: TestTypeEnum;
     enum_arr_test?: TestTypeEnum[] | null;
+    enum_test: TestTypeEnum;
+    id?: number;
     jsonb_test?: MapToSerializable<TJsonbTest> | null;
 }
 export const TestTableStandard$Types: Record<keyof TestTableStandard, string> = {
-    id: \\"int4\\",
     arr_test: \\"text\\",
     domain_test: \\"text\\",
-    enum_test: \\"test_type_enum\\",
     enum_arr_test: \\"test_type_enum\\",
+    enum_test: \\"test_type_enum\\",
+    id: \\"int4\\",
     jsonb_test: \\"jsonb\\"
 };
 export interface TestTableTypes {
     id: string;
-    table_test: TestTableStandard | null;
     table_arr_test: TestTableStandard[];
+    table_test: TestTableStandard | null;
 }
 export interface TestTableTypes$Insert {
     id: string;
-    table_test?: TestTableStandard | null;
     table_arr_test?: TestTableStandard[];
+    table_test?: TestTableStandard | null;
 }
 export const TestTableTypes$Types: Record<keyof TestTableTypes, string> = {
     id: \\"uuid\\",
-    table_test: \\"test_table_standard\\",
-    table_arr_test: \\"test_table_standard\\"
+    table_arr_test: \\"test_table_standard\\",
+    table_test: \\"test_table_standard\\"
 };
 "
 `;
