@@ -8,7 +8,6 @@ module.exports = {
     'eslint:recommended',
     'plugin:@typescript-eslint/recommended',
     'prettier',
-    'prettier/@typescript-eslint',
     'plugin:jsonc/auto-config',
   ],
   parser: '@typescript-eslint/parser',
