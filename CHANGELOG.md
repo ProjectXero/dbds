@@ -1,3 +1,10 @@
+### [1.5.3](https://github.com/ProjectXero/dbds/compare/v1.5.2...v1.5.3) (2021-03-17)
+
+
+### Bug Fixes
+
+* order columns alphabetically ([6ce8880](https://github.com/ProjectXero/dbds/commit/6ce888067dc4a554ad364dc6aafd292fd175773b)), closes [#168](https://github.com/ProjectXero/dbds/issues/168)
+
 ### [1.5.2](https://github.com/ProjectXero/dbds/compare/v1.5.1...v1.5.2) (2021-03-16)
 
 
