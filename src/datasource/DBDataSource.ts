@@ -49,6 +49,10 @@ export type LoaderCallback<TResultType> = (
 const parseTS = (value: number): Date | null =>
   value === null ? null : new Date(value)
 
+const isArray = <T extends unknown[] | readonly unknown[], U>(
+  value: T | U
+): value is T => Array.isArray(value)
+
 export default class DBDataSource<
   TRowType,
   TContext = unknown,
@@ -212,11 +216,10 @@ export default class DBDataSource<
     options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
     if (!options.expected) {
-      options.expected =
-        !Array.isArray(rows) || rows.length === 1 ? 'one' : 'many'
+      options.expected = !isArray(rows) || rows.length === 1 ? 'one' : 'many'
     }
 
-    if (Array.isArray(rows) && rows.length === 0) {
+    if (isArray(rows) && rows.length === 0) {
       switch (options.expected) {
         case 'one': // we should really raise here, strictly speaking
         case 'maybeOne':
@@ -419,7 +422,7 @@ export default class DBDataSource<
       return
     }
 
-    if (!Array.isArray(results)) {
+    if (!isArray(results)) {
       results = [results]
     }
 
