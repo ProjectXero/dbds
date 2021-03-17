@@ -88,7 +88,7 @@ export default class SchemaInfo {
         c.table_schema = ${this.name} AND
         c.table_name = ${table}
       )
-      ORDER BY c.ordinal_position
+      ORDER BY c.column_name
     `
   }
 
