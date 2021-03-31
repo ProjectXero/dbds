@@ -457,6 +457,8 @@ export default class QueryBuilder<
           } else {
             return condition
           }
+        } else if (isSqlSqlTokenType(value)) {
+          return sql`${this.identifier(column)} ${value}`
         }
 
         // We've already filtered out value === undefined above

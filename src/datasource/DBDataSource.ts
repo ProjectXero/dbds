@@ -439,10 +439,10 @@ export default class DBDataSource<
       ...options,
       expected: 'any',
       where: {
-        [column]: this.builder.any(
+        [column]: sql`= ${this.builder.any(
           ([...args] as unknown) as (string | number | boolean | Date | null)[],
           type
-        ),
+        )}`,
         ...options?.where,
       },
     })
