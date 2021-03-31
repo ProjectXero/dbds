@@ -1,3 +1,11 @@
+## [1.6.0](https://github.com/ProjectXero/dbds/compare/v1.5.3...v1.6.0) (2021-03-31)
+
+
+### Features
+
+* enable custom operators through use of sql tokens ([0254308](https://github.com/ProjectXero/dbds/commit/0254308a38019974c91fccff3e128c1e9ff86113))
+* enable custom operators through use of sql tokens ([#192](https://github.com/ProjectXero/dbds/issues/192)) ([c4a77db](https://github.com/ProjectXero/dbds/commit/c4a77dbb9d786ed5eab38d8ecac3f7afeb58299d))
+
 ### [1.5.3](https://github.com/ProjectXero/dbds/compare/v1.5.2...v1.5.3) (2021-03-17)
 
 
