@@ -69,6 +69,10 @@ describe(QueryBuilder, () => {
         expect(builder.where(conditions)).toMatchSnapshot()
       })
 
+      it('enables custom operators through use of sql tokens', () => {
+        expect(builder.where({ id: sql`> 1` })).toMatchSnapshot()
+      })
+
       it('produces a valid clause with no conditions', () => {
         expect(builder.where({})).toMatchSnapshot()
         expect(builder.where([])).toMatchSnapshot()

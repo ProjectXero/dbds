@@ -254,6 +254,14 @@ Object {
 }
 `;
 
+exports[`QueryBuilder clause generators where enables custom operators through use of sql tokens 1`] = `
+Object {
+  "sql": "WHERE (\\"any_table\\".\\"id\\" > 1)",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
 Object {
   "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
