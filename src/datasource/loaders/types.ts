@@ -20,6 +20,7 @@ export interface LoaderFactoryOptions<TRowType> {
 }
 
 export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
+  getData?: GetDataFunction<TRowType>
   multi?: boolean
   ignoreCase?: TRowType extends Record<TColumnName, string>
     ? boolean

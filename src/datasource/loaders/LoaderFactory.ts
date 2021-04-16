@@ -66,13 +66,15 @@ export default class LoaderFactory<TRowType> {
       options = {}
     }
 
+    const getData = options.getData || this.getData
+
     const type: string = columnType || this.options.columnTypes[key]
 
     const { multi = false, ignoreCase = false, callbackFn } = options
 
     return new DataLoader<TColType, TRowType[] | (TRowType | undefined)>(
       async (args: readonly TColType[]) => {
-        const data = await this.getData<TColumnName>(args, key, type, options)
+        const data = await getData<TColumnName>(args, key, type, options)
         callbackFn && data.forEach(callbackFn)
         return args.map((value) => {
           if (multi) {
