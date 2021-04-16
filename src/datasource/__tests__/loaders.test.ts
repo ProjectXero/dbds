@@ -119,6 +119,16 @@ describe(LoaderFactory, () => {
       expect(await loader.load('AAA')).toMatchSnapshot()
     })
   })
+
+  describe('create', () => {
+    it('can accept a getData override', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const loader = factory.create('name', {
+        getData: () => [dummyRow],
+      })
+      expect(await loader.load('zzz')).toMatchObject(dummyRow)
+    })
+  })
 })
 
 describe(match, () => {
