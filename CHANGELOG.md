@@ -1,3 +1,11 @@
+## [1.7.0](https://github.com/ProjectXero/dbds/compare/v1.6.0...v1.7.0) (2021-04-16)
+
+
+### Features
+
+* allow getData to be overridden in loader creation ([ebb2a1e](https://github.com/ProjectXero/dbds/commit/ebb2a1eb9337b3478e7e8edbf35755f33318c724))
+* allow getData to be overridden in loader creation ([#200](https://github.com/ProjectXero/dbds/issues/200)) ([abbde04](https://github.com/ProjectXero/dbds/commit/abbde041454fa6ce3429c936c9ebf02903d6b831))
+
 ## [1.6.0](https://github.com/ProjectXero/dbds/compare/v1.5.3...v1.6.0) (2021-03-31)
 
 
