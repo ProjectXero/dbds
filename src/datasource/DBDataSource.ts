@@ -46,7 +46,7 @@ export type LoaderCallback<TResultType> = (
   array: readonly TResultType[]
 ) => void
 
-const parseTS = (value: number): Date | null =>
+const parseTS = (value: number | string): Date | null =>
   value === null ? null : new Date(value)
 
 const isArray = <T extends unknown[] | readonly unknown[], U>(
@@ -477,9 +477,10 @@ export default class DBDataSource<
     value: unknown
   ): unknown {
     switch (columnType) {
+      case 'date':
       case 'timestamp':
       case 'timestamptz':
-        if (typeof value === 'number') {
+        if (typeof value === 'number' || typeof value === 'string') {
           return parseTS(value)
         }
         break

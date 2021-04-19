@@ -4,6 +4,7 @@ exports[`DBDataSource when there is data in the table can set query options on a
 Array [
   Object {
     "code": "any",
+    "dateTest": 2021-04-19T00:00:00.000Z,
     "id": 20,
     "jsonbTest": Object {
       "a": 1,
@@ -15,6 +16,7 @@ Array [
   },
   Object {
     "code": "any",
+    "dateTest": 2021-04-19T00:00:00.000Z,
     "id": 19,
     "jsonbTest": Object {
       "a": 1,
