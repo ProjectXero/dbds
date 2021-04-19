@@ -1,6 +1,6 @@
 {
   "name": "@fallingfish/dbds",
-  "version": "1.7.0",
+  "version": "1.7.1",
   "description": "TypeScript type generator for PostgreSQL databases",
   "keywords": [
     "sql",

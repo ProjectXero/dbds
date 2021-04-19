@@ -1,3 +1,11 @@
+### [1.7.1](https://github.com/ProjectXero/dbds/compare/v1.7.0...v1.7.1) (2021-04-19)
+
+
+### Bug Fixes
+
+* **date:** dates should be dates ([4875da2](https://github.com/ProjectXero/dbds/commit/4875da290174235376357fea5c4865449f0a7331))
+* **date:** dates should be dates ([#201](https://github.com/ProjectXero/dbds/issues/201)) ([769dc8b](https://github.com/ProjectXero/dbds/commit/769dc8bf449bb700e558b48498ffa6f0233bfc28))
+
 ## [1.7.0](https://github.com/ProjectXero/dbds/compare/v1.6.0...v1.7.0) (2021-04-16)
 
 
