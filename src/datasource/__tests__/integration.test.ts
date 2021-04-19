@@ -9,6 +9,7 @@ interface DummyRowType {
   code: string
   withDefault?: string | SqlSqlTokenType
   tsTest: Date
+  dateTest: Date
   jsonbTest: { a: number }
   nullable?: string | null
 }
@@ -19,6 +20,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   code: 'text',
   withDefault: 'text',
   tsTest: 'timestamptz',
+  dateTest: 'date',
   jsonbTest: 'jsonb',
   nullable: 'text',
 }
@@ -31,6 +33,7 @@ const createRow = (values: Partial<DummyRowType>): DummyRowType => {
     code: '',
     name: '',
     tsTest: new Date('2020-12-05T00:00:00.000Z'),
+    dateTest: new Date('2021-04-19'),
     jsonbTest: { a: 1 },
     nullable: null,
     ...values,
@@ -58,6 +61,7 @@ beforeAll(async () => {
         "code" TEXT NOT NULL,
         "with_default" TEXT NOT NULL DEFAULT 'anything',
         "ts_test" TIMESTAMPTZ NOT NULL,
+        "date_test" DATE NOT NULL,
         "jsonb_test" JSONB NOT NULL,
         "nullable" TEXT
       )
@@ -92,7 +96,7 @@ afterEach(() => {
   pool.query(sql`TRUNCATE test_table`)
 })
 
-describe(DBDataSource, () => {
+describe('DBDataSource', () => {
   describe('when the table is empty', () => {
     it('select returns an empty array', async () => {
       const result = await ds.get()
