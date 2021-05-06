@@ -1,3 +1,15 @@
+## [1.8.0](https://github.com/ProjectXero/dbds/compare/v1.7.1...v1.8.0) (2021-05-06)
+
+
+### Features
+
+* add method for counting by groups of columns ([c6afe19](https://github.com/ProjectXero/dbds/commit/c6afe19e25a15d0bf73f853fa404b8a0809898fd))
+
+
+### Bug Fixes
+
+* fix incorrect types for count method ([0d4796d](https://github.com/ProjectXero/dbds/commit/0d4796ddd8f1c407ecced6f7d41ef8bb0a4b5788))
+
 ### [1.7.1](https://github.com/ProjectXero/dbds/compare/v1.7.0...v1.7.1) (2021-04-19)
 
 
