@@ -416,4 +416,39 @@ describe('DBDataSource', () => {
       expect(result).toMatchObject(row2)
     })
   })
+
+  describe('counting rows', () => {
+    it('can count all rows in the table', async () => {
+      const rows: DummyRowType[] = [
+        createRow({ id: 21 }),
+        createRow({ id: 22 }),
+        createRow({ id: 23 }),
+      ]
+      await ds.testInsert(rows)
+
+      const result = await ds.count()
+      expect(result).toEqual(rows.length)
+    })
+
+    it('can count rows in groups', async () => {
+      const rows: DummyRowType[] = [
+        createRow({ id: 24, code: 'ONE' }),
+        createRow({ id: 25, code: 'TWO' }),
+        createRow({ id: 26, code: 'TWO' }),
+        createRow({ id: 27, code: 'THREE' }),
+        createRow({ id: 28, code: 'THREE' }),
+        createRow({ id: 29, code: 'THREE' }),
+      ]
+      await ds.testInsert(rows)
+
+      const [...result] = await ds.countGroup(['code'])
+      expect(result.sort((a, b) => a.count - b.count)).toEqual(
+        [
+          { code: 'ONE', count: 1 },
+          { code: 'TWO', count: 2 },
+          { code: 'THREE', count: 3 },
+        ].sort((a, b) => a.count - b.count)
+      )
+    })
+  })
 })

@@ -268,6 +268,18 @@ describe(QueryBuilder, () => {
       })
     })
 
+    describe('countGroup', () => {
+      it('creates a count query with a groupBy clause', () => {
+        expect(builder.countGroup(['name'])).toMatchSnapshot()
+      })
+
+      it('can use where clauses', () => {
+        expect(
+          builder.countGroup(['nullable', 'optional'], { where: { id: 1 } })
+        ).toMatchSnapshot()
+      })
+    })
+
     describe('insert', () => {
       it('accepts a basic object', () => {
         expect(

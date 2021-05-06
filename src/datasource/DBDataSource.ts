@@ -148,7 +148,10 @@ export default class DBDataSource<
   }
 
   public async count(
-    options?: Omit<QueryOptions<TRowType, CountQueryRowType>, 'expected'>
+    options?: Omit<
+      QueryOptions<TRowType, CountQueryRowType>,
+      'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
+    >
   ): Promise<number> {
     const query = this.builder.count(options)
     const result = await this.query(query, {
@@ -156,6 +159,23 @@ export default class DBDataSource<
       expected: 'one',
     })
     return result.count
+  }
+
+  public async countGroup<TGroup extends Array<string & keyof TRowType>>(
+    groupColumns: TGroup & Array<keyof TRowType>,
+    options?: Omit<
+      QueryOptions<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>,
+      'orderBy' | 'groupBy' | 'limit' | 'having' | 'expected'
+    >
+  ): Promise<
+    ReadonlyArray<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>
+  > {
+    const query = this.builder.countGroup(groupColumns, options)
+    const result = await this.query(query, {
+      ...options,
+      expected: 'any',
+    })
+    return result
   }
 
   /**
