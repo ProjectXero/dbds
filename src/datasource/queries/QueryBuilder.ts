@@ -168,6 +168,27 @@ export default class QueryBuilder<
     `
   }
 
+  public countGroup<TGroup extends Array<string & keyof TRowType>>(
+    groupColumns: TGroup & Array<keyof TRowType>,
+    options?: Omit<
+      QueryOptions<TRowType>,
+      'orderBy' | 'groupBy' | 'limit' | 'having'
+    >
+  ): TaggedTemplateLiteralInvocationType<
+    CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }
+  > {
+    options = this.getOptions(options)
+
+    const columns = this.columnList(groupColumns)
+
+    return sql<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>`
+      SELECT ${sql.join(columns, sql`, `)}, COUNT(*)
+      FROM ${this.identifier()}
+      ${options.where ? this.where(options.where) : EMPTY}
+      ${this.groupBy(groupColumns)}
+    `
+  }
+
   /* Public clause builders */
 
   /**

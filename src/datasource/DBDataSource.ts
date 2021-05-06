@@ -161,6 +161,23 @@ export default class DBDataSource<
     return result.count
   }
 
+  public async countGroup<TGroup extends Array<string & keyof TRowType>>(
+    groupColumns: TGroup & Array<keyof TRowType>,
+    options?: Omit<
+      QueryOptions<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>,
+      'orderBy' | 'groupBy' | 'limit' | 'having' | 'expected'
+    >
+  ): Promise<
+    ReadonlyArray<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>
+  > {
+    const query = this.builder.countGroup(groupColumns, options)
+    const result = await this.query(query, {
+      ...options,
+      expected: 'any',
+    })
+    return result
+  }
+
   /**
    * Insert a single row
    * @param rows Row data to insert

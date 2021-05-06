@@ -358,6 +358,34 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders countGroup can use where clauses 1`] = `
+Object {
+  "sql": "
+      SELECT \\"any_table\\".\\"nullable\\", \\"any_table\\".\\"optional\\", COUNT(*)
+      FROM \\"any_table\\"
+      WHERE (\\"any_table\\".\\"id\\" = $1)
+      GROUP BY \\"any_table\\".\\"nullable\\", \\"any_table\\".\\"optional\\"
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    1,
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders countGroup creates a count query with a groupBy clause 1`] = `
+Object {
+  "sql": "
+      SELECT \\"any_table\\".\\"name\\", COUNT(*)
+      FROM \\"any_table\\"
+      
+      GROUP BY \\"any_table\\".\\"name\\"
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [],
+}
+`;
+
 exports[`QueryBuilder core query builders delete builds clauses correctly 1`] = `
 Object {
   "sql": "
