@@ -148,7 +148,10 @@ export default class DBDataSource<
   }
 
   public async count(
-    options?: Omit<QueryOptions<TRowType, CountQueryRowType>, 'expected'>
+    options?: Omit<
+      QueryOptions<TRowType, CountQueryRowType>,
+      'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
+    >
   ): Promise<number> {
     const query = this.builder.count(options)
     const result = await this.query(query, {
