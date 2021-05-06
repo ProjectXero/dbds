@@ -441,7 +441,7 @@ describe('DBDataSource', () => {
       ]
       await ds.testInsert(rows)
 
-      const result = await ds.countGroup(['code'])
+      const [...result] = await ds.countGroup(['code'])
       expect(result.sort((a, b) => a.count - b.count)).toEqual(
         [
           { code: 'ONE', count: 1 },
