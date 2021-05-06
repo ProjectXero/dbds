@@ -416,4 +416,18 @@ describe('DBDataSource', () => {
       expect(result).toMatchObject(row2)
     })
   })
+
+  describe('counting rows', () => {
+    it('can count all rows in the table', async () => {
+      const rows: DummyRowType[] = [
+        createRow({ id: 21 }),
+        createRow({ id: 22 }),
+        createRow({ id: 23 }),
+      ]
+      await ds.testInsert(rows)
+
+      const result = await ds.count()
+      expect(result).toEqual(rows.length)
+    })
+  })
 })
