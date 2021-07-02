@@ -45,7 +45,7 @@
     "apollo-server-caching": "^0.5.2",
     "case": "^1.6.3",
     "dataloader": "^2.0.0",
-    "slonik": "^23.1.0",
+    "slonik": "^23.8.3",
     "slonik-sql-tag-raw": "^1.0.2",
     "yargs": "^16.1.1"
   },
