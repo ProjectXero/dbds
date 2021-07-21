@@ -37,42 +37,44 @@ describe(LoaderFactory, () => {
   const loaders = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
   const finders = new FinderFactory<DummyRowType>()
 
-  describe('multi: false', () => {
-    const loader = loaders.create('id')
-    const finder = finders.create(loader)
+  describe('create', () => {
+    describe('multi: false', () => {
+      const loader = loaders.create('id')
+      const finder = finders.create(loader)
 
-    it('returns the first matching result', async () => {
-      expect(await finder(1)).toMatchSnapshot()
+      it('returns the first matching result', async () => {
+        expect(await finder(1)).toMatchSnapshot()
+      })
+
+      it('returns null with no matching results', async () => {
+        expect(await finder(-Infinity)).toBeNull()
+      })
     })
 
-    it('returns null with no matching results', async () => {
-      expect(await finder(-Infinity)).toBeNull()
-    })
-  })
+    describe('multi: true', () => {
+      const loader = loaders.create('code', { multi: true })
+      const finder = finders.create(loader, { multi: true })
 
-  describe('multi: true', () => {
-    const loader = loaders.create('code', { multi: true })
-    const finder = finders.create(loader, { multi: true })
+      it('gets all matching results', async () => {
+        expect(await finder('abc')).toMatchSnapshot()
+      })
 
-    it('gets all matching results', async () => {
-      expect(await finder('abc')).toMatchSnapshot()
-    })
-
-    it('returns an empty array with no matching results', async () => {
-      expect(await finder('any value with no match')).toHaveLength(0)
-    })
-  })
-
-  describe('when inferring multi from an extended loader', () => {
-    const loader = loaders.create('code', { multi: true })
-    const finder = finders.create(loader)
-
-    it('gets all matching results', async () => {
-      expect(await finder('abc')).toMatchSnapshot()
+      it('returns an empty array with no matching results', async () => {
+        expect(await finder('any value with no match')).toHaveLength(0)
+      })
     })
 
-    it('returns an empty array with no matching results', async () => {
-      expect(await finder('any value with no match')).toHaveLength(0)
+    describe('when inferring multi from an extended loader', () => {
+      const loader = loaders.create('code', { multi: true })
+      const finder = finders.create(loader)
+
+      it('gets all matching results', async () => {
+        expect(await finder('abc')).toMatchSnapshot()
+      })
+
+      it('returns an empty array with no matching results', async () => {
+        expect(await finder('any value with no match')).toHaveLength(0)
+      })
     })
   })
 })
