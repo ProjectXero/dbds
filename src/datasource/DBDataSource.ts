@@ -245,7 +245,7 @@ export default class DBDataSource<
     options: QueryOptions<TRowType> = {}
   ): Promise<TRowType | readonly TRowType[] | null> {
     if (!options.expected) {
-      options.expected = !isArray(rows) || rows.length === 1 ? 'one' : 'many'
+      options.expected = !isArray(rows) ? 'one' : 'many'
     }
 
     if (isArray(rows) && rows.length === 0) {

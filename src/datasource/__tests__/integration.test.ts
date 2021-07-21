@@ -161,6 +161,21 @@ describe('DBDataSource', () => {
     })
   })
 
+  describe('when given an array with one input', () => {
+    it('returns an array of results', async () => {
+      const row1: DummyRowType = createRow({
+        id: 99,
+        code: 'A',
+        name: 'abc',
+        tsTest: new Date('2020-12-05T00:00:00.001Z'),
+        jsonbTest: { a: 1 },
+      })
+
+      const results = await ds.testInsert([row1])
+      expect(Array.isArray(results)).toBe(true)
+    })
+  })
+
   it('can insert rows with columns of arbitrary case', async () => {
     const row: DummyRowType = createRow({
       id: 8,
