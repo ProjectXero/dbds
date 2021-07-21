@@ -1,3 +1,12 @@
+## [1.9.0](https://github.com/ProjectXero/dbds/compare/v1.8.1...v1.9.0) (2021-07-21)
+
+
+### Features
+
+* finders overhaul ([#283](https://github.com/ProjectXero/dbds/issues/283)) ([3a3b446](https://github.com/ProjectXero/dbds/commit/3a3b446c4bc0e6fe283b7a4cf98c64bcbc4e5e8a))
+* **datasource:** create new FinderFactory interface ([d78a139](https://github.com/ProjectXero/dbds/commit/d78a1398f613c09a9e4d13a0d796691222ca4ce2))
+* **datasource:** extend loader to infer multi for finders ([02b5be8](https://github.com/ProjectXero/dbds/commit/02b5be82d57565c0d0d8f4a6fade918574c5f2ae))
+
 ### [1.8.1](https://github.com/ProjectXero/dbds/compare/v1.8.0...v1.8.1) (2021-07-02)
 
 ## [1.8.0](https://github.com/ProjectXero/dbds/compare/v1.7.1...v1.8.0) (2021-05-06)
