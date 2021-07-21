@@ -1,3 +1,11 @@
+### [1.9.1](https://github.com/ProjectXero/dbds/compare/v1.9.0...v1.9.1) (2021-07-21)
+
+
+### Bug Fixes
+
+* **insert:** return array when given an array of one input ([a9a4a8c](https://github.com/ProjectXero/dbds/commit/a9a4a8cefee25e5eef904d3b1c58047b0cb0d288))
+* **insert:** return array when given an array of one input ([#285](https://github.com/ProjectXero/dbds/issues/285)) ([c4ef47b](https://github.com/ProjectXero/dbds/commit/c4ef47bfaaab261b0c6978bb70ba9803b427807a))
+
 ## [1.9.0](https://github.com/ProjectXero/dbds/compare/v1.8.1...v1.9.0) (2021-07-21)
 
 
