@@ -62,4 +62,17 @@ describe(LoaderFactory, () => {
       expect(await finder('any value with no match')).toHaveLength(0)
     })
   })
+
+  describe('when inferring multi from an extended loader', () => {
+    const loader = loaders.create('code', { multi: true })
+    const finder = finders.create(loader)
+
+    it('gets all matching results', async () => {
+      expect(await finder('abc')).toMatchSnapshot()
+    })
+
+    it('returns an empty array with no matching results', async () => {
+      expect(await finder('any value with no match')).toHaveLength(0)
+    })
+  })
 })
