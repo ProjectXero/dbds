@@ -1,0 +1,24 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LoaderFactory multi: false returns the first matching result 1`] = `
+Object {
+  "code": "abc",
+  "id": 1,
+  "name": "aaa",
+}
+`;
+
+exports[`LoaderFactory multi: true gets all matching results 1`] = `
+Array [
+  Object {
+    "code": "abc",
+    "id": 1,
+    "name": "aaa",
+  },
+  Object {
+    "code": "abc",
+    "id": 7,
+    "name": "AAA",
+  },
+]
+`;

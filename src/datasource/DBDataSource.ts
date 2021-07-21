@@ -13,7 +13,7 @@ import { DataSource, DataSourceConfig } from 'apollo-datasource'
 
 export type { DatabasePoolType } from 'slonik'
 
-import { LoaderFactory } from './loaders'
+import { FinderFactory, LoaderFactory } from './loaders'
 import QueryBuilder, {
   QueryOptions as BuilderOptions,
   SelectOptions,
@@ -78,6 +78,15 @@ export default class DBDataSource<
     }
 
     return this._loaders
+  }
+
+  private _finders?: FinderFactory<TRowType>
+  protected get finders(): FinderFactory<TRowType> {
+    if (!this._finders) {
+      this._finders = new FinderFactory()
+    }
+
+    return this._finders
   }
 
   private _builder?: QueryBuilder<TRowType, TInsertType>
