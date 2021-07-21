@@ -31,3 +31,7 @@ export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
     array: readonly TRowType[]
   ) => void
 } & QueryOptions<TRowType>
+
+export type FinderOptions = {
+  multi?: boolean
+}
