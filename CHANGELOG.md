@@ -1,3 +1,10 @@
+### [1.9.2](https://github.com/ProjectXero/dbds/compare/v1.9.1...v1.9.2) (2021-09-13)
+
+
+### Bug Fixes
+
+* **generator:** use case-insensitive collations ([824dc27](https://github.com/ProjectXero/dbds/commit/824dc27558ebf19deff607f833050faee89bed96))
+
 ### [1.9.1](https://github.com/ProjectXero/dbds/compare/v1.9.0...v1.9.1) (2021-07-21)
 
 
