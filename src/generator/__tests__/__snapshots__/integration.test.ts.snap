@@ -26,6 +26,8 @@ export const TestTableOrder$Types: Record<keyof TestTableOrder, string> = {
 };
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
+    caseTest_upper: string | null;
+    casetest_lower: string | null;
     domain_test: string | null;
     enum_arr_test: TestTypeEnum[] | null;
     enum_test: TestTypeEnum;
@@ -34,6 +36,8 @@ export interface TestTableStandard<TJsonbTest = SerializableValueType> {
 }
 export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
     arr_test?: string[] | null;
+    caseTest_upper?: string | null;
+    casetest_lower?: string | null;
     domain_test?: string | null;
     enum_arr_test?: TestTypeEnum[] | null;
     enum_test: TestTypeEnum;
@@ -42,6 +46,8 @@ export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
 }
 export const TestTableStandard$Types: Record<keyof TestTableStandard, string> = {
     arr_test: \\"text\\",
+    caseTest_upper: \\"text\\",
+    casetest_lower: \\"text\\",
     domain_test: \\"text\\",
     enum_arr_test: \\"test_type_enum\\",
     enum_test: \\"test_type_enum\\",
