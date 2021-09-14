@@ -41,7 +41,7 @@ export default class SchemaInfo {
             ) AS "comment"
       FROM information_schema.tables
       WHERE table_schema = ${this.name}
-      ORDER BY lower(table_name) ASC
+      ORDER BY table_name::text COLLATE "C" ASC
     `
   }
 
@@ -88,7 +88,7 @@ export default class SchemaInfo {
         c.table_schema = ${this.name} AND
         c.table_name = ${table}
       )
-      ORDER BY lower(c.column_name)
+      ORDER BY c.column_name::text COLLATE "C" ASC
     `
   }
 
@@ -111,7 +111,7 @@ export default class SchemaInfo {
       GROUP BY n.nspname
              , t.typname
              , e.enumtypid
-      ORDER BY lower(t.typname)
+      ORDER BY t.typname::text COLLATE "C" ASC
     `
   }
 

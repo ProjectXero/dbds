@@ -40,7 +40,9 @@ beforeAll(async () => {
       domain_test TEST_TYPE_DOMAIN,
       enum_test TEST_TYPE_ENUM NOT NULL,
       enum_arr_test TEST_TYPE_ENUM[],
-      jsonb_test JSONB
+      jsonb_test JSONB,
+      "casetest_lower" TEXT,
+      "caseTest_upper" TEXT
     )
   `)
   await pool.query(sql`
