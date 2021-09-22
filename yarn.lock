@@ -1033,10 +1033,10 @@
   dependencies:
     "@types/yargs-parser" "*"
 
-"@types/yargs@^16.0.0":
-  version "16.0.0"
-  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-16.0.0.tgz#0e033b23452da5d61b6c44747612cb80ac528751"
-  integrity sha512-2nN6AGeMwe8+O6nO9ytQfbMQOJy65oi1yK2y/9oReR08DaXSGtMsrLyCM1ooKqfICpCx4oITaR4LkOmdzz41Ww==
+"@types/yargs@^17.0.3":
+  version "17.0.3"
+  resolved "https://registry.yarnpkg.com/@types/yargs/-/yargs-17.0.3.tgz#e6c552aa3277b21a8e802019d03ee5e77894cf27"
+  integrity sha512-K7rm3Ke3ag/pAniBe80A6J6fjoqRibvCrl3dRmtXV9eCEt9h/pZwmHX9MzjQVUc/elneQTL4Ky7XKorC71Lmxw==
   dependencies:
     "@types/yargs-parser" "*"
 
