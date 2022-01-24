@@ -1,11 +1,11 @@
-import { FieldType, QueryResultRowType, QueryResultType } from 'slonik'
+import { Field, QueryResultRow, QueryResult } from 'slonik'
 
 export const createMockQueryResult = (
-  rows: ReadonlyArray<QueryResultRowType>
-): QueryResultType<QueryResultRowType> => {
-  let fields: FieldType[] = []
+  rows: ReadonlyArray<QueryResultRow>
+): QueryResult<QueryResultRow> => {
+  let fields: Field[] = []
   if (rows.length > 0) {
-    fields = Object.keys(rows[0]).map<FieldType>((name, index) => ({
+    fields = Object.keys(rows[0]).map<Field>((name, index) => ({
       dataTypeId: index,
       name,
     }))

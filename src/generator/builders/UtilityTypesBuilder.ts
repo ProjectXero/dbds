@@ -67,7 +67,8 @@ export default class UtilityTypesBuilder {
         factory.createUnionTypeNode([
           typename,
           factory.createTypeReferenceNode('undefined'),
-        ])
+        ]),
+        undefined
       )
     )
 
@@ -135,7 +136,8 @@ export default class UtilityTypesBuilder {
       ),
       undefined,
       undefined,
-      stringKeyCheck
+      stringKeyCheck,
+      undefined
     )
 
     const objectCheck = factory.createConditionalTypeNode(

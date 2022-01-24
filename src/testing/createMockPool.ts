@@ -1,26 +1,22 @@
 import { createMockPool as slonikCreateMockPool } from 'slonik'
-import {
-  ClientConfigurationInputType,
-  DatabasePoolType,
-  QueryResultType,
-} from 'slonik'
-import { PrimitiveValueExpressionType } from 'slonik/dist/src/types'
+import { ClientConfigurationInput, DatabasePool, QueryResult } from 'slonik'
+import { PrimitiveValueExpression } from 'slonik/dist/src/types'
 import { createMockQueryResult } from './createMockQueryResult'
 
-export interface MockedDatabasePoolType extends DatabasePoolType {
+export interface MockedDatabasePoolType extends DatabasePool {
   mock: (
     sql: string,
-    rows: readonly Record<string, PrimitiveValueExpressionType>[]
+    rows: readonly Record<string, PrimitiveValueExpression>[]
   ) => void
   resetMocks: () => void
 }
 
 export const createMockPool = (
-  config?: ClientConfigurationInputType
+  config?: ClientConfigurationInput
 ): MockedDatabasePoolType => {
   const mockedQueries: Record<
     string,
-    Array<QueryResultType<Record<string, PrimitiveValueExpressionType>>>
+    Array<QueryResult<Record<string, PrimitiveValueExpression>>>
   > = {}
 
   const pool = slonikCreateMockPool(
@@ -58,7 +54,7 @@ export const createMockPool = (
   return Object.assign(pool, {
     mock: (
       sql: string,
-      rows: readonly Record<string, PrimitiveValueExpressionType>[]
+      rows: readonly Record<string, PrimitiveValueExpression>[]
     ) => {
       if (!mockedQueries[sql]) {
         mockedQueries[sql] = []

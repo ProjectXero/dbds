@@ -1,9 +1,9 @@
 import {
-  IdentifierSqlTokenType,
+  IdentifierSqlToken,
   sql,
-  SqlSqlTokenType,
-  SqlTokenType,
-  TaggedTemplateLiteralInvocationType,
+  SqlSqlToken,
+  SqlToken,
+  TaggedTemplateLiteralInvocation,
 } from 'slonik'
 import { raw } from 'slonik-sql-tag-raw'
 
@@ -20,13 +20,13 @@ import {
   UpdateSet,
   ValueOrArray,
 } from './types'
-import { isOrderTuple, isSqlSqlTokenType, isSqlToken } from './utils'
+import { isOrderTuple, isSqlSqlToken, isSqlToken } from './utils'
 
 export interface QueryOptions<TRowType> {
-  where?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
+  where?: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
   groupBy?: ColumnList
   orderBy?: OrderColumnList
-  having?: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
+  having?: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
   limit?: LimitClause
 }
 
@@ -59,10 +59,7 @@ export default class QueryBuilder<
     }
   }
 
-  public identifier(
-    column?: string,
-    includeTable = true
-  ): IdentifierSqlTokenType {
+  public identifier(column?: string, includeTable = true): IdentifierSqlToken {
     const names = []
 
     includeTable && names.push(this.table)
@@ -75,7 +72,7 @@ export default class QueryBuilder<
 
   public select(
     options?: QueryOptions<TRowType> & SelectOptions
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     return sql<TRowType>`
@@ -92,7 +89,7 @@ export default class QueryBuilder<
   public insert(
     rows: ValueOrArray<AllowSql<TInsertType>>,
     options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     // special case: we're given a single empty row...
@@ -120,7 +117,7 @@ export default class QueryBuilder<
   public update(
     values: UpdateSet<TRowType>,
     options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     const updateQuery = sql<TRowType>`
@@ -134,7 +131,7 @@ export default class QueryBuilder<
 
   public delete(
     options: QueryOptions<TRowType> | true
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     const force = options === true
     options = this.getOptions(options === true ? {} : options)
 
@@ -158,7 +155,7 @@ export default class QueryBuilder<
       QueryOptions<TRowType>,
       'orderBy' | 'groupBy' | 'limit' | 'having'
     >
-  ): TaggedTemplateLiteralInvocationType<CountQueryRowType> {
+  ): TaggedTemplateLiteralInvocation<CountQueryRowType> {
     options = this.getOptions(options)
 
     return sql<CountQueryRowType>`
@@ -174,7 +171,7 @@ export default class QueryBuilder<
       QueryOptions<TRowType>,
       'orderBy' | 'groupBy' | 'limit' | 'having'
     >
-  ): TaggedTemplateLiteralInvocationType<
+  ): TaggedTemplateLiteralInvocation<
     CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }
   > {
     options = this.getOptions(options)
@@ -196,16 +193,16 @@ export default class QueryBuilder<
    * @param rawConditions Conditions expression
    */
   public where(
-    rawConditions: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
-  ): SqlSqlTokenType {
-    const conditions = isSqlSqlTokenType(rawConditions)
+    rawConditions: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
+  ): SqlSqlToken {
+    const conditions = isSqlSqlToken(rawConditions)
       ? rawConditions
       : this.and(rawConditions)
 
     return sql`WHERE ${conditions}`
   }
 
-  public orderBy(columns: OrderColumnList): SqlSqlTokenType {
+  public orderBy(columns: OrderColumnList): SqlSqlToken {
     if (
       typeof columns === 'string' ||
       isOrderTuple(columns) ||
@@ -214,7 +211,7 @@ export default class QueryBuilder<
       columns = [columns]
     }
 
-    const list = columns.map<SqlTokenType>((entry) => {
+    const list = columns.map<SqlToken>((entry) => {
       if (typeof entry === 'object' && !Array.isArray(entry)) {
         return entry
       }
@@ -256,7 +253,7 @@ export default class QueryBuilder<
     return sql`ORDER BY ${sql.join(list, sql`, `)}`
   }
 
-  public groupBy(columns: ColumnList): SqlSqlTokenType {
+  public groupBy(columns: ColumnList): SqlSqlToken {
     if (!Array.isArray(columns)) {
       columns = [columns]
     }
@@ -267,17 +264,17 @@ export default class QueryBuilder<
   }
 
   public having(
-    rawConditions: Conditions<TRowType> | SqlSqlTokenType[] | SqlSqlTokenType
-  ): SqlSqlTokenType {
-    const conditions = isSqlSqlTokenType(rawConditions)
+    rawConditions: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
+  ): SqlSqlToken {
+    const conditions = isSqlSqlToken(rawConditions)
       ? rawConditions
       : this.and(rawConditions)
 
     return sql`HAVING ${conditions}`
   }
 
-  public limit(limit: LimitClause): SqlSqlTokenType {
-    let offset: SqlSqlTokenType = sql``
+  public limit(limit: LimitClause): SqlSqlToken {
+    let offset: SqlSqlToken = sql``
 
     if (Array.isArray(limit)) {
       offset = sql` OFFSET ${limit[1]}`
@@ -291,7 +288,7 @@ export default class QueryBuilder<
     return sql`LIMIT ${limit}${offset}`
   }
 
-  public forUpdate(forUpdate: true | string | string[]): SqlSqlTokenType {
+  public forUpdate(forUpdate: true | string | string[]): SqlSqlToken {
     const FOR_UPDATE = sql`FOR UPDATE`
 
     if (forUpdate === true) {
@@ -309,9 +306,7 @@ export default class QueryBuilder<
 
   /* Public query-building utilities */
 
-  public and(
-    rawConditions: Conditions<TRowType> | SqlSqlTokenType[]
-  ): SqlSqlTokenType {
+  public and(rawConditions: Conditions<TRowType> | SqlSqlToken[]): SqlSqlToken {
     const conditions = this.conditions(rawConditions)
 
     if (conditions.length == 0) {
@@ -321,9 +316,7 @@ export default class QueryBuilder<
     return sql`(${sql.join(conditions, sql` AND `)})`
   }
 
-  public or(
-    rawConditions: Conditions<TRowType> | SqlSqlTokenType[]
-  ): SqlSqlTokenType {
+  public or(rawConditions: Conditions<TRowType> | SqlSqlToken[]): SqlSqlToken {
     const conditions = this.conditions(rawConditions)
 
     if (conditions.length == 0) {
@@ -336,7 +329,7 @@ export default class QueryBuilder<
   public any(
     values: Array<string | number | boolean | Date | null>,
     type: string
-  ): SqlSqlTokenType {
+  ): SqlSqlToken {
     return sql`ANY(${sql.array(values.map(this.value), sql`${raw(type)}[]`)})`
   }
 
@@ -344,9 +337,9 @@ export default class QueryBuilder<
 
   protected wrapCte(
     queryName: string,
-    query: TaggedTemplateLiteralInvocationType<TRowType>,
+    query: TaggedTemplateLiteralInvocation<TRowType>,
     options: Omit<QueryOptions<TRowType>, 'where'>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     const queryId = this.identifier(queryName + '_rows', false)
 
     return sql<TRowType>`
@@ -363,7 +356,7 @@ export default class QueryBuilder<
 
   protected insertDefaultValues(
     options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     const insertQuery = sql<TRowType>`
@@ -378,7 +371,7 @@ export default class QueryBuilder<
   protected insertUniform(
     rows: TInsertType[],
     options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     const columns = this.rowsetKeys(rows)
@@ -387,7 +380,7 @@ export default class QueryBuilder<
       sql`, `
     )
 
-    const tableExpression = columns.map<SqlSqlTokenType>((column) => {
+    const tableExpression = columns.map<SqlSqlToken>((column) => {
       return sql`${sql.identifier([column])} ${raw(this.columnTypes[column])}`
     })
 
@@ -407,7 +400,7 @@ export default class QueryBuilder<
   protected insertNonUniform(
     rows: AllowSql<TInsertType>[],
     options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocationType<TRowType> {
+  ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
 
     const columns = this.rowsetKeys(rows)
@@ -416,12 +409,12 @@ export default class QueryBuilder<
       sql`, `
     )
 
-    const rowExpressions = rows.map<SqlSqlTokenType>(({ ...row }) => {
-      const values = columns.map<SqlSqlTokenType>((column) => {
+    const rowExpressions = rows.map<SqlSqlToken>(({ ...row }) => {
+      const values = columns.map<SqlSqlToken>((column) => {
         if (row[column] === undefined) {
           return sql`DEFAULT`
         }
-        return this.valueToSql(row[column] as PrimitiveValueType | SqlTokenType)
+        return this.valueToSql(row[column] as PrimitiveValueType | SqlToken)
       })
       return sql`(${sql.join(values, sql`, `)})`
     })
@@ -436,15 +429,15 @@ export default class QueryBuilder<
   }
 
   protected conditions(
-    conditions: Conditions<TRowType> | SqlSqlTokenType[]
-  ): SqlSqlTokenType[] {
+    conditions: Conditions<TRowType> | SqlSqlToken[]
+  ): SqlSqlToken[] {
     if (Array.isArray(conditions)) {
       return conditions
     }
 
     return Object.entries(conditions as GenericConditions)
       .filter(([column, value]) => column !== undefined && value !== undefined)
-      .map<SqlSqlTokenType>(([column, value]) => {
+      .map<SqlSqlToken>(([column, value]) => {
         const isNull = sql`${this.identifier(column)} IS NULL`
 
         if (value === null) {
@@ -454,7 +447,7 @@ export default class QueryBuilder<
           // like a normal value and ORed with `IS NULL`
           // we only need to use `any` if there are >= 2 actual, non-null values
 
-          let sqlValue: SqlSqlTokenType
+          let sqlValue: SqlSqlToken
           const nullable = this.isNullable(value)
           const nonNullValues = [...value].filter(
             <V>(v: V | null): v is V => v !== null
@@ -478,7 +471,7 @@ export default class QueryBuilder<
           } else {
             return condition
           }
-        } else if (isSqlSqlTokenType(value)) {
+        } else if (isSqlSqlToken(value) && value !== undefined) {
           return sql`${this.identifier(column)} ${value}`
         }
 
@@ -488,10 +481,10 @@ export default class QueryBuilder<
       })
   }
 
-  protected set(values: UpdateSet<TRowType>): SqlSqlTokenType {
+  protected set(values: UpdateSet<TRowType>): SqlSqlToken {
     const pairs = Object.entries(values)
       .filter(([column, value]) => column !== undefined && value !== undefined)
-      .map<SqlSqlTokenType>(([column, value]) => {
+      .map<SqlSqlToken>(([column, value]) => {
         return sql`${this.identifier(column, false)} = ${this.valueToSql(
           // We've already filtered out value === undefined above
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
@@ -501,8 +494,8 @@ export default class QueryBuilder<
     return sql`SET ${sql.join(pairs, sql`, `)}`
   }
 
-  protected columnList(...columns: Array<ColumnList>): SqlTokenType[] {
-    return columns.flat().map<SqlTokenType>((column) => {
+  protected columnList(...columns: Array<ColumnList>): SqlToken[] {
+    return columns.flat().map<SqlToken>((column) => {
       if (typeof column === 'string') {
         return this.identifier(column)
       }
@@ -511,8 +504,8 @@ export default class QueryBuilder<
   }
 
   private convertColumnEntry(
-    column: string | IdentifierSqlTokenType | SqlSqlTokenType
-  ): IdentifierSqlTokenType | SqlSqlTokenType {
+    column: string | IdentifierSqlToken | SqlSqlToken
+  ): IdentifierSqlToken | SqlSqlToken {
     if (typeof column === 'object') {
       return column
     }
@@ -524,9 +517,7 @@ export default class QueryBuilder<
     return array.some((v): v is null => v === null)
   }
 
-  private valueToSql(
-    rawValue: SerializableValueType | SqlTokenType
-  ): SqlSqlTokenType {
+  private valueToSql(rawValue: SerializableValueType | SqlToken): SqlSqlToken {
     if (isSqlToken(rawValue)) {
       return sql`${rawValue}`
     }
