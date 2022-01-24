@@ -87,7 +87,9 @@ export default class Generator {
       await this.buildEnums(statementBuilders)
       await this.buildTables(statementBuilders)
     } catch (error) {
-      console.error(error?.message)
+      if (error instanceof Error) {
+        console.error(error.message)
+      }
       throw error
     }
 

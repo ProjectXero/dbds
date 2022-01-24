@@ -1,6 +1,6 @@
-import { IdentifierSqlTokenType, SqlSqlTokenType, SqlTokenType } from 'slonik'
+import { IdentifierSqlToken, SqlSqlToken, SqlToken } from 'slonik'
 
-export type { ValueExpressionType } from 'slonik'
+export type { ValueExpression } from 'slonik'
 
 export type PrimitiveValueType = string | number | boolean | null
 export type SimpleValueType = PrimitiveValueType | Date
@@ -24,21 +24,20 @@ export type GenericConditions = Record<
   | ValueOrArray<Date | null>
   | null
   | undefined
-  | SqlTokenType
+  | SqlToken
 >
 
 export type Conditions<TRowType> = {
   [K in keyof TRowType]?:
     | TRowType[K]
     | Array<TRowType[K]>
-    | SqlTokenType
+    | SqlToken
     | undefined
-} &
-  GenericConditions
+} & GenericConditions
 
 export type GenericSet = Record<
   string,
-  SerializableValueType | SqlTokenType | undefined
+  SerializableValueType | SqlToken | undefined
 >
 
 export type UpdateSet<TRowType> = {
@@ -46,20 +45,19 @@ export type UpdateSet<TRowType> = {
     | (TRowType[K] extends SerializableValueType | undefined
         ? TRowType[K]
         : never)
-    | SqlTokenType
-} &
-  GenericSet
+    | SqlToken
+} & GenericSet
 
-export type ColumnListEntry = string | IdentifierSqlTokenType | SqlSqlTokenType
+export type ColumnListEntry = string | IdentifierSqlToken | SqlSqlToken
 export type ColumnList = ValueOrArray<ColumnListEntry>
 
 export type OrderTuple =
   | [ColumnListEntry]
-  | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlTokenType]
+  | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlToken]
 export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>
 
 export type AllowSql<T> = {
-  [K in keyof T]?: T[K] | SqlTokenType
+  [K in keyof T]?: T[K] | SqlToken
 }
 
 export interface CountQueryRowType {
@@ -69,5 +67,5 @@ export interface CountQueryRowType {
 export type LimitClause =
   | number
   | 'ALL'
-  | SqlSqlTokenType
+  | SqlSqlToken
   | [number | 'ALL', number]

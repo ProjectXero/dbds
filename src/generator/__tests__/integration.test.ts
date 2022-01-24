@@ -1,10 +1,10 @@
 import assert from 'assert'
-import { createPool, DatabasePoolType, sql } from 'slonik'
+import { createPool, DatabasePool, sql } from 'slonik'
 import { raw } from 'slonik-sql-tag-raw'
 import { Generator } from '..'
 import { SchemaInfo } from '../database'
 
-let pool: DatabasePoolType
+let pool: DatabasePool
 let instance: Generator
 
 const SCHEMA = 'generator'
@@ -57,6 +57,10 @@ beforeAll(async () => {
       subsequent_table_type TEST_TABLE_STANDARD
     )
   `)
+})
+
+afterAll(async () => {
+  await pool.end()
 })
 
 beforeEach(() => {

@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { createPool, DatabasePoolType, sql, SqlSqlTokenType } from 'slonik'
+import { createPool, DatabasePool, sql, SqlSqlToken } from 'slonik'
 
 import { DBDataSource } from '..'
 
@@ -7,7 +7,7 @@ interface DummyRowType {
   id: number
   name: string
   code: string
-  withDefault?: string | SqlSqlTokenType
+  withDefault?: string | SqlSqlToken
   tsTest: Date
   dateTest: Date
   jsonbTest: { a: number }
@@ -25,7 +25,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   nullable: 'text',
 }
 
-let pool: DatabasePoolType
+let pool: DatabasePool
 
 const createRow = (values: Partial<DummyRowType>): DummyRowType => {
   return {
@@ -67,6 +67,10 @@ beforeAll(async () => {
       )
     `)
   })
+})
+
+afterAll(async () => {
+  await pool.end()
 })
 
 class TestDataSource extends DBDataSource<DummyRowType> {

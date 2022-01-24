@@ -17,7 +17,7 @@ export const command = 'generate'
 export const aliases: string[] = ['g', 'gen']
 export const desc = 'Generate types for the database'
 
-export interface GenerateParams extends Params {
+export type GenerateParams = Params & {
   output: string
   genEnums: boolean
   genInsertTypes: boolean
@@ -108,18 +108,16 @@ export const handler = async (
         : await openAsync(argv.output, 'w')
 
     const dbUrl = argv['config-database'] || argv.database
+    const schema = argv['config-schema'] || argv.schema || 'public'
 
-    if (!dbUrl) {
+    if (typeof dbUrl !== 'string' || dbUrl === '') {
       throw new TypeError(
         'Database URL not provided. ' +
           'Did you set the DATABASE_URL environment variable?'
       )
     }
 
-    const schemaInfo = new SchemaInfo(
-      createPool(dbUrl),
-      argv['config-schema'] || argv.schema
-    )
+    const schemaInfo = new SchemaInfo(createPool(dbUrl), String(schema))
 
     const generator = new Generator({
       schema: schemaInfo,

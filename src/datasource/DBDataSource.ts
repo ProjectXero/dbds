@@ -2,16 +2,16 @@ import { camel, snake } from 'case'
 import DataLoader from 'dataloader'
 import {
   sql,
-  DatabasePoolType,
-  SqlSqlTokenType,
-  TaggedTemplateLiteralInvocationType,
-  IdentifierNormalizerType,
-  IdentifierSqlTokenType,
+  DatabasePool,
+  SqlSqlToken,
+  TaggedTemplateLiteralInvocation,
+  IdentifierNormalizer,
+  IdentifierSqlToken,
 } from 'slonik'
 
 import { DataSource, DataSourceConfig } from 'apollo-datasource'
 
-export type { DatabasePoolType } from 'slonik'
+export type { DatabasePool } from 'slonik'
 
 import { FinderFactory, LoaderFactory } from './loaders'
 import QueryBuilder, {
@@ -34,8 +34,8 @@ export interface QueryOptions<TRowType, TResultType = TRowType>
 }
 
 export interface KeyNormalizers {
-  keyToColumn: IdentifierNormalizerType
-  columnToKey: IdentifierNormalizerType
+  keyToColumn: IdentifierNormalizer
+  columnToKey: IdentifierNormalizer
 }
 
 export { DataLoader, sql }
@@ -57,7 +57,8 @@ export default class DBDataSource<
   TRowType,
   TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
-> implements DataSource<TContext> {
+> implements DataSource<TContext>
+{
   public static normalizers: KeyNormalizers = {
     columnToKey: camel,
     keyToColumn: snake,
@@ -104,7 +105,7 @@ export default class DBDataSource<
   }
 
   constructor(
-    protected readonly pool: DatabasePoolType,
+    protected readonly pool: DatabasePool,
     protected readonly table: string,
     /**
      * Types of the columns in the database.
@@ -367,23 +368,23 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options: QueryOptions<TData> & { expected?: 'any' | 'many' }
   ): Promise<readonly TData[]>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options: QueryOptions<TData> & { expected: 'one' }
   ): Promise<TData>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options: QueryOptions<TData> & { expected: 'maybeOne' }
   ): Promise<TData | null>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData | null | readonly TData[]>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData | null | readonly TData[]> {
     switch (options?.expected || 'any') {
@@ -399,7 +400,7 @@ export default class DBDataSource<
   }
 
   private async any<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
     const results = (await this.pool.any(query)).map((row) =>
@@ -410,7 +411,7 @@ export default class DBDataSource<
   }
 
   private async many<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
     const results = (await this.pool.many(query)).map((row) =>
@@ -421,7 +422,7 @@ export default class DBDataSource<
   }
 
   private async one<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData> {
     const result = this.transformResult<TData, TData>(
@@ -432,12 +433,12 @@ export default class DBDataSource<
   }
 
   private async maybeOne<TData>(
-    query: TaggedTemplateLiteralInvocationType<TData>,
+    query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData | null> {
     let result = await this.pool.maybeOne(query)
     if (result) {
-      result = this.transformResult<TData, TData>(result)
+      result = this.transformResult(result)
     }
     this.eachResult(result, options)
     return result
@@ -469,7 +470,7 @@ export default class DBDataSource<
       expected: 'any',
       where: {
         [column]: sql`= ${this.builder.any(
-          ([...args] as unknown) as (string | number | boolean | Date | null)[],
+          [...args] as unknown as (string | number | boolean | Date | null)[],
           type
         )}`,
         ...options?.where,
@@ -482,9 +483,8 @@ export default class DBDataSource<
 
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
       const column = transform(key)
-      const type: string | undefined = this.columnTypes[
-        column as keyof TRowType
-      ]
+      const type: string | undefined =
+        this.columnTypes[column as keyof TRowType]
       const value = this.mapTypeValue(
         column,
         type,
@@ -598,14 +598,14 @@ export default class DBDataSource<
   /**
    * @deprecated Use the query builder instead
    */
-  protected buildWhere(options?: QueryOptions<TRowType>): SqlSqlTokenType {
+  protected buildWhere(options?: QueryOptions<TRowType>): SqlSqlToken {
     return this.builder.where(options?.where || {})
   }
 
   /**
    * @deprecated Use query builder instead
    */
-  public column(columnName: string): IdentifierSqlTokenType {
+  public column(columnName: string): IdentifierSqlToken {
     return this.builder.identifier(columnName)
   }
 

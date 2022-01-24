@@ -1,8 +1,4 @@
-import {
-  DatabasePoolType,
-  sql,
-  TaggedTemplateLiteralInvocationType,
-} from 'slonik'
+import { DatabasePool, sql, TaggedTemplateLiteralInvocation } from 'slonik'
 
 export interface EnumInfo {
   name: string
@@ -26,11 +22,11 @@ export interface TableInfo {
 
 export default class SchemaInfo {
   constructor(
-    private readonly pool: DatabasePoolType,
+    private readonly pool: DatabasePool,
     public readonly name: string
   ) {}
 
-  public tableQuery(): TaggedTemplateLiteralInvocationType<
+  public tableQuery(): TaggedTemplateLiteralInvocation<
     Omit<TableInfo, 'columns'>
   > {
     return sql<Omit<TableInfo, 'columns'>>`
@@ -47,7 +43,7 @@ export default class SchemaInfo {
 
   public columnQuery(
     table: string
-  ): TaggedTemplateLiteralInvocationType<ColumnInfo> {
+  ): TaggedTemplateLiteralInvocation<ColumnInfo> {
     return sql<ColumnInfo>`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
@@ -92,7 +88,7 @@ export default class SchemaInfo {
     `
   }
 
-  public enumQuery(): TaggedTemplateLiteralInvocationType<EnumInfo> {
+  public enumQuery(): TaggedTemplateLiteralInvocation<EnumInfo> {
     return sql<EnumInfo>`
       SELECT t.typname AS "name"
            , array_agg(e.enumlabel ORDER BY e.enumlabel)::TEXT[] AS "values"
