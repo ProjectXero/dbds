@@ -69,6 +69,10 @@ beforeAll(async () => {
   })
 })
 
+afterAll(async () => {
+  await pool.end()
+})
+
 class TestDataSource extends DBDataSource<DummyRowType> {
   constructor() {
     super(pool, 'test_table', columnTypes)

@@ -59,6 +59,10 @@ beforeAll(async () => {
   `)
 })
 
+afterAll(async () => {
+  await pool.end()
+})
+
 beforeEach(() => {
   instance = new Generator({
     schema: new SchemaInfo(pool, SCHEMA),
