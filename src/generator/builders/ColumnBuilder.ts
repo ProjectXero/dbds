@@ -7,7 +7,8 @@ import NodeBuilder from './NodeBuilder'
 
 export default class ColumnBuilder
   extends NodeBuilder<PropertySignature>
-  implements ColumnInfo {
+  implements ColumnInfo
+{
   public readonly nullable: boolean
   public readonly hasDefault: boolean
   public readonly isArray: boolean
