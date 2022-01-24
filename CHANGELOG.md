@@ -1,3 +1,23 @@
+### [1.9.4](https://github.com/ProjectXero/dbds/compare/v1.9.3...v1.9.4) (2022-01-24)
+
+
+### ⚠ BREAKING CHANGES
+
+* **deps:** upgrade yargs
+* **deps:** upgrade slonik dependencies
+* **deps:** upgrade apollo dependencies
+
+### Bug Fixes
+
+* type changes ([3e78745](https://github.com/ProjectXero/dbds/commit/3e78745368328e0f9cf8f539254a169fdffac282))
+
+
+### Miscellaneous Chores
+
+* **deps:** upgrade apollo dependencies ([80151dd](https://github.com/ProjectXero/dbds/commit/80151dd4c9496f2af51ee35b448c71e185ce8671))
+* **deps:** upgrade slonik dependencies ([d6e8464](https://github.com/ProjectXero/dbds/commit/d6e8464c1943590247cf7f95bdbe4873aa7992ee))
+* **deps:** upgrade yargs ([381ef0c](https://github.com/ProjectXero/dbds/commit/381ef0c8183dccbb100f0ead48d669e5c2ce696c))
+
 ### [1.9.3](https://github.com/ProjectXero/dbds/compare/v1.9.2...v1.9.3) (2021-09-14)
 
 
