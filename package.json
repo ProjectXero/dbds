@@ -41,8 +41,8 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "apollo-datasource": "^0.7.2",
-    "apollo-server-caching": "^0.5.2",
+    "apollo-datasource": "^3.3.1",
+    "apollo-server-caching": "^3.3.0",
     "case": "^1.6.3",
     "dataloader": "^2.0.0",
     "slonik": "^23.8.3",
