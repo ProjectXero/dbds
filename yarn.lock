@@ -2715,12 +2715,12 @@ eslint-config-prettier@^8.3.0:
   integrity sha512-BgZuLUSeKzvlL/VUjx/Yb787VQ26RU3gGjA3iiFvdsp/2bMfVIWUVP7tjxtjS0e+HP409cPlPvNkQloz8C91ew==
 
 eslint-plugin-jsonc@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-2.0.0.tgz#4e3f77da6024e63618727400b61aa2a9d3aae9ee"
-  integrity sha512-5UbUUvx4gUVeF9hJ+SHDW9a4OPQ8vJWu12rttQ76qGO2tlH17OC103CLq+vrmjo5VQULeVzSJ0u4s+jUATJyWQ==
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/eslint-plugin-jsonc/-/eslint-plugin-jsonc-2.1.0.tgz#6b7fe6a5433695de2a39991d0d67b838718cd517"
+  integrity sha512-ueuFWW+u/hjU9+j5Ov+ZoWIukMlaWrB+MS/wfKYWqKkAVr7U9zYqUu4ZwLh2AHU3+FjvmS8+1Va5bP6J/ERVyg==
   dependencies:
     eslint-utils "^3.0.0"
-    jsonc-eslint-parser "^2.0.1"
+    jsonc-eslint-parser "^2.0.4"
     natural-compare "^1.4.0"
 
 eslint-plugin-prettier@^4.0.0:
@@ -4291,7 +4291,7 @@ json5@2.x, json5@^2.1.1, json5@^2.1.2:
   dependencies:
     minimist "^1.2.5"
 
-jsonc-eslint-parser@^2.0.1:
+jsonc-eslint-parser@^2.0.4:
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/jsonc-eslint-parser/-/jsonc-eslint-parser-2.1.0.tgz#4c126b530aa583d85308d0b3041ff81ce402bbb2"
   integrity sha512-qCRJWlbP2v6HbmKW7R3lFbeiVWHo+oMJ0j+MizwvauqnCV/EvtAeEeuCgoc/ErtsuoKgYB8U4Ih8AxJbXoE6/g==
