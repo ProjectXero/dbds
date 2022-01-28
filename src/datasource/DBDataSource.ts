@@ -59,7 +59,7 @@ export default class DBDataSource<
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
 > implements DataSource<TContext>
 {
-  public static normalizers: KeyNormalizers = {
+  protected normalizers: KeyNormalizers = {
     columnToKey: camel,
     keyToColumn: snake,
   }
@@ -73,7 +73,7 @@ export default class DBDataSource<
   protected get loaders(): LoaderFactory<TRowType> {
     if (!this._loaders) {
       this._loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-        ...DBDataSource.normalizers,
+        ...this.normalizers,
         columnTypes: this.columnTypes,
       })
     }
@@ -96,7 +96,7 @@ export default class DBDataSource<
       this._builder = new QueryBuilder(
         this.table,
         this.columnTypes,
-        DBDataSource.normalizers.keyToColumn,
+        this.normalizers.keyToColumn,
         this.defaultOptions
       )
     }
@@ -479,7 +479,7 @@ export default class DBDataSource<
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {
-    const transform = DBDataSource.normalizers.columnToKey
+    const transform = this.normalizers.columnToKey
 
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
       const column = transform(key)
