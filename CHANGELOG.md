@@ -1,3 +1,20 @@
+## [2.0.0](https://github.com/ProjectXero/dbds/compare/v1.9.4...v2.0.0) (2022-01-28)
+
+
+### ⚠ BREAKING CHANGES
+
+* **datasources:** improve api (#389)
+* **datasources:** make normalizers editable on a DS-by-DS basis
+* **datasources:** make public methods protected
+* **datasources:** remove deprecated methods
+
+### Bug Fixes
+
+* **datasources:** improve api ([#389](https://github.com/ProjectXero/dbds/issues/389)) ([be80d23](https://github.com/ProjectXero/dbds/commit/be80d235c7caaadd70a94f3539dd7d21e13715b8))
+* **datasources:** make normalizers editable on a DS-by-DS basis ([63ee861](https://github.com/ProjectXero/dbds/commit/63ee861601ba7e8bc3d135c730a6bd62632285fe))
+* **datasources:** make public methods protected ([820b295](https://github.com/ProjectXero/dbds/commit/820b2956088469fcd455632562a85d8795a7e666))
+* **datasources:** remove deprecated methods ([df45398](https://github.com/ProjectXero/dbds/commit/df45398be5954cbceef74694aa85c502e997e130))
+
 ### [1.9.4](https://github.com/ProjectXero/dbds/compare/v1.9.3...v1.9.4) (2022-01-24)
 
 
