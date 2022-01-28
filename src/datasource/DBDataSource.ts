@@ -3,10 +3,8 @@ import DataLoader from 'dataloader'
 import {
   sql,
   DatabasePool,
-  SqlSqlToken,
   TaggedTemplateLiteralInvocation,
   IdentifierNormalizer,
-  IdentifierSqlToken,
 } from 'slonik'
 
 import { DataSource, DataSourceConfig } from 'apollo-datasource'
@@ -25,7 +23,6 @@ import {
   ValueOrArray,
 } from './queries/types'
 import { KeyValueCache } from 'apollo-server-caching'
-import { SearchableKeys } from './loaders/types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
@@ -59,7 +56,7 @@ export default class DBDataSource<
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
 > implements DataSource<TContext>
 {
-  public static normalizers: KeyNormalizers = {
+  protected normalizers: KeyNormalizers = {
     columnToKey: camel,
     keyToColumn: snake,
   }
@@ -73,7 +70,7 @@ export default class DBDataSource<
   protected get loaders(): LoaderFactory<TRowType> {
     if (!this._loaders) {
       this._loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-        ...DBDataSource.normalizers,
+        ...this.normalizers,
         columnTypes: this.columnTypes,
       })
     }
@@ -96,7 +93,7 @@ export default class DBDataSource<
       this._builder = new QueryBuilder(
         this.table,
         this.columnTypes,
-        DBDataSource.normalizers.keyToColumn,
+        this.normalizers.keyToColumn,
         this.defaultOptions
       )
     }
@@ -126,7 +123,7 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options: QueryOptions<TRowType> & SelectOptions & { expected: 'one' }
   ): Promise<TRowType>
 
@@ -135,7 +132,7 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options: QueryOptions<TRowType> & SelectOptions & { expected: 'maybeOne' }
   ): Promise<TRowType | null>
 
@@ -144,12 +141,12 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options?: QueryOptions<TRowType> &
       SelectOptions & { expected?: 'any' | 'many' }
   ): Promise<readonly TRowType[]>
 
-  public async get(
+  protected async get(
     options?: QueryOptions<TRowType> & SelectOptions
   ): Promise<TRowType | readonly TRowType[] | null> {
     const query = this.builder.select(options)
@@ -157,7 +154,7 @@ export default class DBDataSource<
     return await this.query(query, options)
   }
 
-  public async count(
+  protected async count(
     options?: Omit<
       QueryOptions<TRowType, CountQueryRowType>,
       'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
@@ -171,7 +168,7 @@ export default class DBDataSource<
     return result.count
   }
 
-  public async countGroup<TGroup extends Array<string & keyof TRowType>>(
+  protected async countGroup<TGroup extends Array<string & keyof TRowType>>(
     groupColumns: TGroup & Array<keyof TRowType>,
     options?: Omit<
       QueryOptions<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>,
@@ -479,7 +476,7 @@ export default class DBDataSource<
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {
-    const transform = DBDataSource.normalizers.columnToKey
+    const transform = this.normalizers.columnToKey
 
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
       const column = transform(key)
@@ -516,252 +513,5 @@ export default class DBDataSource<
       default:
     }
     return value
-  }
-
-  /**
-   * @deprecated Use the loader factory instead
-   */
-  protected createColumnLoader<
-    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
-  >(
-    column: TColumnName,
-    type: string,
-    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
-    if (typeof callbackFn === 'object') {
-      callbackFn = callbackFn.eachResult
-    }
-    return this.loaders.create(column, type, { callbackFn })
-  }
-
-  /**
-   * @deprecated Use the loader factory instead
-   */
-  protected createColumnMultiLoader<
-    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
-  >(
-    column: TColumnName,
-    type: string,
-    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TRowType[TColumnName], TRowType[]> {
-    if (typeof callbackFn === 'object') {
-      callbackFn = callbackFn.eachResult
-    }
-    return this.loaders.create(column, type, { multi: true, callbackFn })
-  }
-
-  /**
-   * @deprecated Use the loader factory instead
-   */
-  protected createColumnLoaderCI<
-    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
-  >(
-    column: TColumnName,
-    type: string,
-    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TRowType[TColumnName], TRowType | undefined> {
-    if (typeof callbackFn === 'object') {
-      callbackFn = callbackFn.eachResult
-    }
-    return this.loaders.create(column, type, {
-      // We don't really know the type of the column, but to maintain backwards
-      // compatibility we're just going to force this through
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ignoreCase: true as any,
-      callbackFn,
-    })
-  }
-
-  /**
-   * @deprecated Use the loader factory instead
-   */
-  protected createColumnMultiLoaderCI<
-    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
-  >(
-    column: TColumnName,
-    type: string,
-    callbackFn?: LoaderCallback<TRowType> | QueryOptions<TRowType>
-  ): DataLoader<TRowType[TColumnName], TRowType[]> {
-    if (typeof callbackFn === 'object') {
-      callbackFn = callbackFn.eachResult
-    }
-    return this.loaders.create(column, type, {
-      multi: true,
-      // We don't really know the type of the column, but to maintain backwards
-      // compatibility we're just going to force this through
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ignoreCase: true as any,
-      callbackFn,
-    })
-  }
-
-  /**
-   * @deprecated Use the query builder instead
-   */
-  protected buildWhere(options?: QueryOptions<TRowType>): SqlSqlToken {
-    return this.builder.where(options?.where || {})
-  }
-
-  /**
-   * @deprecated Use query builder instead
-   */
-  public column(columnName: string): IdentifierSqlToken {
-    return this.builder.identifier(columnName)
-  }
-
-  /**
-   * @deprecated TBD
-   */
-  protected createFinder<TInput, TOutput>(
-    loader: DataLoader<TInput, TOutput | undefined>
-  ): (input: TInput) => Promise<TOutput | null> {
-    return async (target: TInput) => {
-      const result = await loader.load(target)
-      if (!result) {
-        return null
-      }
-      return result
-    }
-  }
-
-  /**
-   * @deprecated TBD
-   */
-  protected createMultiFinder<TInput, TOutput>(
-    loader: DataLoader<TInput, TOutput[]>
-  ): (input: TInput) => Promise<TOutput[]> {
-    return async (target: TInput) => {
-      const result = await loader.load(target)
-      if (!result) {
-        return []
-      }
-      return result
-    }
-  }
-
-  /**
-   * @deprecated Use `insert`
-   */
-  protected async insertOne(
-    data: AllowSql<TInsertType>,
-    options?: Omit<QueryOptions<TRowType>, 'expected'>
-  ): Promise<TRowType> {
-    return await this.insert(data, {
-      ...options,
-      expected: 'one',
-    })
-  }
-
-  /**
-   * @deprecated Use `insert`
-   */
-  protected async insertMany(
-    data: Array<AllowSql<TInsertType>>,
-    options?: Omit<QueryOptions<TRowType>, 'expected'>
-  ): Promise<TRowType[]> {
-    return [
-      ...(await this.insert(data, {
-        ...options,
-        expected: 'any',
-      })),
-    ]
-  }
-
-  /**
-   * @deprecated Use `update`
-   */
-  protected updateOne(
-    data: UpdateSet<TRowType>,
-    options?: Omit<QueryOptions<TRowType>, 'expected'>
-  ): Promise<TRowType> {
-    return this.update(data, {
-      ...options,
-      expected: 'one',
-    })
-  }
-
-  /**
-   * @deprecated Use `update`
-   */
-  protected async updateMany(
-    data: UpdateSet<TRowType>,
-    options?: Omit<QueryOptions<TRowType>, 'expected'>
-  ): Promise<TRowType[]> {
-    return [
-      ...(await this.update(data, {
-        ...options,
-        expected: 'any',
-      })),
-    ]
-  }
-
-  /**
-   * @deprecated Use `delete`
-   */
-  protected deleteOne(
-    options: Pick<QueryOptions<TRowType>, 'where' | 'eachResult'>
-  ): Promise<TRowType | null> {
-    return this.delete({
-      ...options,
-      expected: 'maybeOne',
-    })
-  }
-
-  /**
-   * @deprecated Use `delete`
-   */
-  protected async deleteMany(
-    options: Pick<QueryOptions<TRowType>, 'where' | 'eachResult'>
-  ): Promise<TRowType[]> {
-    return [
-      ...(await this.delete({
-        ...options,
-        expected: 'any',
-      })),
-    ]
-  }
-
-  /**
-   * @deprecated use `get`
-   */
-  public async findOneBy(
-    where: Required<QueryOptions<TRowType>>['where']
-  ): Promise<TRowType | null> {
-    return this.get({
-      where,
-      expected: 'one',
-    })
-  }
-
-  /**
-   * @deprecated use `get`
-   */
-  public async findManyBy(
-    where: Required<QueryOptions<TRowType>>['where']
-  ): Promise<TRowType[]> {
-    return [
-      ...(await this.get({
-        where,
-        expected: 'any',
-      })),
-    ]
-  }
-
-  /**
-   * @deprecated use `get`
-   */
-  public async all(
-    options: LoaderCallback<TRowType> | QueryOptions<TRowType> = {}
-  ): Promise<TRowType[]> {
-    if (typeof options === 'function') {
-      options = { eachResult: options }
-    }
-
-    const result = await this.get({
-      ...options,
-      expected: 'any',
-    })
-
-    return [...result]
   }
 }

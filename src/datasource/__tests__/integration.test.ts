@@ -85,6 +85,9 @@ class TestDataSource extends DBDataSource<DummyRowType> {
   })
 
   // these functions are protected, so we're not normally able to access them
+  public testGet: TestDataSource['get'] = this.get
+  public testCount: TestDataSource['count'] = this.count
+  public testCountGroup: TestDataSource['countGroup'] = this.countGroup
   public testInsert: TestDataSource['insert'] = this.insert
   public testUpdate: TestDataSource['update'] = this.update
   public testDelete: TestDataSource['delete'] = this.delete
@@ -103,13 +106,13 @@ afterEach(() => {
 describe('DBDataSource', () => {
   describe('when the table is empty', () => {
     it('select returns an empty array', async () => {
-      const result = await ds.get()
+      const result = await ds.testGet()
       expect(result).toHaveLength(0)
     })
 
     it('throws an exception when expecting one result', () => {
       expect(
-        ds.get({ expected: 'one' })
+        ds.testGet({ expected: 'one' })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`"Resource not found."`)
     })
 
@@ -207,19 +210,22 @@ describe('DBDataSource', () => {
     it('can select rows by various criteria', async () => {
       await ds.testInsert(row)
 
-      const resultAll = await ds.get()
+      const resultAll = await ds.testGet()
       expect(resultAll).toContainEqual(row)
 
-      const result1 = await ds.get({ where: { id: 2 }, expected: 'maybeOne' })
+      const result1 = await ds.testGet({
+        where: { id: 2 },
+        expected: 'maybeOne',
+      })
       expect(result1).toMatchObject(row)
 
-      const result2 = await ds.get({
+      const result2 = await ds.testGet({
         where: { code: 'CODE' },
         expected: 'maybeOne',
       })
       expect(result2).toMatchObject(row)
 
-      const result3 = await ds.get({
+      const result3 = await ds.testGet({
         where: { name: 'TEST ROW' },
         expected: 'maybeOne',
       })
@@ -229,7 +235,7 @@ describe('DBDataSource', () => {
     it('can select rows for update', async () => {
       await ds.testInsert(row)
 
-      const result = await ds.get({ forUpdate: true, expected: 'one' })
+      const result = await ds.testGet({ forUpdate: true, expected: 'one' })
       expect(result).toMatchObject(row)
     })
 
@@ -324,7 +330,7 @@ describe('DBDataSource', () => {
 
       expect(result).toMatchObject(newRow1)
 
-      const remaining = await ds.get()
+      const remaining = await ds.testGet()
       expect(remaining).toHaveLength(1)
       expect(remaining).toContainEqual(newRow2)
     })
@@ -399,7 +405,7 @@ describe('DBDataSource', () => {
 
       await ds.testInsert([row1, row2])
 
-      const result = await ds.get({
+      const result = await ds.testGet({
         where: { nullable: null },
         expected: 'one',
       })
@@ -428,7 +434,7 @@ describe('DBDataSource', () => {
 
       await ds.testInsert([row1, row2])
 
-      const result = await ds.get({
+      const result = await ds.testGet({
         where: { nullable: ['non-existent value', null] },
         expected: 'one',
       })
@@ -445,7 +451,7 @@ describe('DBDataSource', () => {
       ]
       await ds.testInsert(rows)
 
-      const result = await ds.count()
+      const result = await ds.testCount()
       expect(result).toEqual(rows.length)
     })
 
@@ -460,7 +466,7 @@ describe('DBDataSource', () => {
       ]
       await ds.testInsert(rows)
 
-      const [...result] = await ds.countGroup(['code'])
+      const [...result] = await ds.testCountGroup(['code'])
       expect(result.sort((a, b) => a.count - b.count)).toEqual(
         [
           { code: 'ONE', count: 1 },

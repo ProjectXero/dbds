@@ -110,22 +110,18 @@ worth it anyway.
 ##### Using DataLoaders
 
 Most commonly, you will create a wrapper function around each DataLoader. This can
-be accomplished by using the `createFinder` or `createMultiFinder` methods, depending
-on the rows each lookup is meant to return.
+be accomplished by using the `create` method on the FinderFactory (i.e. the
+`finders` property of a datasource).
 
 ```typescript
 class ExampleDataSource extends DBDataSource<...> {
-  private idLoader = this.createColumnLoader('id', 'uuid');
-  public readonly findById = this.createFinder(this.idLoader);
+  private idLoader = this.loaders.create('id', 'uuid');
+  public readonly findById = this.finders.create(this.idLoader);
 }
 ```
 
 Rows could then be looked up by calling `someDataSourceInstance.findById(someId)`,
 and those lookups will be cached until the end of the request.
-
-Note: `createFinder` and `createMultiFinder` should be considered deprecated; there
-is not yet a replacement, but the API **will change** in the near future. The existing
-API will stick around to maintain backwards compatibility for some time, however.
 
 #### Custom queries
 
