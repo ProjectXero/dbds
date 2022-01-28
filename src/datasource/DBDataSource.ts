@@ -126,7 +126,7 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options: QueryOptions<TRowType> & SelectOptions & { expected: 'one' }
   ): Promise<TRowType>
 
@@ -135,7 +135,7 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options: QueryOptions<TRowType> & SelectOptions & { expected: 'maybeOne' }
   ): Promise<TRowType | null>
 
@@ -144,12 +144,12 @@ export default class DBDataSource<
    *
    * @param options Query options
    */
-  public async get(
+  protected async get(
     options?: QueryOptions<TRowType> &
       SelectOptions & { expected?: 'any' | 'many' }
   ): Promise<readonly TRowType[]>
 
-  public async get(
+  protected async get(
     options?: QueryOptions<TRowType> & SelectOptions
   ): Promise<TRowType | readonly TRowType[] | null> {
     const query = this.builder.select(options)
@@ -157,7 +157,7 @@ export default class DBDataSource<
     return await this.query(query, options)
   }
 
-  public async count(
+  protected async count(
     options?: Omit<
       QueryOptions<TRowType, CountQueryRowType>,
       'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
@@ -171,7 +171,7 @@ export default class DBDataSource<
     return result.count
   }
 
-  public async countGroup<TGroup extends Array<string & keyof TRowType>>(
+  protected async countGroup<TGroup extends Array<string & keyof TRowType>>(
     groupColumns: TGroup & Array<keyof TRowType>,
     options?: Omit<
       QueryOptions<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>,
