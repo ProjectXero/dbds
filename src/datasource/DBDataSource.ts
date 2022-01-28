@@ -3,10 +3,8 @@ import DataLoader from 'dataloader'
 import {
   sql,
   DatabasePool,
-  SqlSqlToken,
   TaggedTemplateLiteralInvocation,
   IdentifierNormalizer,
-  IdentifierSqlToken,
 } from 'slonik'
 
 import { DataSource, DataSourceConfig } from 'apollo-datasource'
@@ -25,7 +23,6 @@ import {
   ValueOrArray,
 } from './queries/types'
 import { KeyValueCache } from 'apollo-server-caching'
-import { SearchableKeys } from './loaders/types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
