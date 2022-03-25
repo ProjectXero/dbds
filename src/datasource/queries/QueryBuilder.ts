@@ -537,12 +537,9 @@ export default class QueryBuilder<
     args: ReadonlyArray<Partial<TRowType>>
   ): SqlSqlToken {
     return sql`
-      LATERAL (
-        SELECT *
-        FROM json_populate_recordset(
-          null::${this.identifier()},
-          ${sql.json(args as unknown as SerializableValue)}
-        )
+      json_populate_recordset(
+        null::${this.identifier()},
+        ${sql.json(args as unknown as SerializableValue)}
       ) AS ${this.identifier(`${this.table}_${CONDITIONS_TABLE}`, false)}
     `
   }

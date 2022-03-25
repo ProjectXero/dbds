@@ -583,12 +583,9 @@ Object {
       SELECT \\"any_table\\".*
       FROM \\"any_table\\",
       
-      LATERAL (
-        SELECT *
-        FROM json_populate_recordset(
-          null::\\"any_table\\",
-          $1
-        )
+      json_populate_recordset(
+        null::\\"any_table\\",
+        $1
       ) AS \\"any_table_conditions\\"
     
       WHERE \\"any_table\\".\\"id\\"::\\"integer\\" = \\"any_table_conditions\\".\\"id\\"::\\"integer\\" AND \\"any_table\\".\\"name\\"::\\"text\\" = \\"any_table_conditions\\".\\"name\\"::\\"text\\"
