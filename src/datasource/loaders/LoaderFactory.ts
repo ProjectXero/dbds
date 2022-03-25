@@ -2,6 +2,7 @@ import DataLoader from 'dataloader'
 
 import {
   GetDataFunction,
+  GetDataMultiFunction,
   LoaderFactoryOptions,
   LoaderOptions,
   SearchableKeys,
@@ -17,6 +18,15 @@ export type ExtendedDataLoader<
   isMultiLoader: TMulti
 }
 
+export type BatchKeyType<
+  TRowType,
+  TColumnNames extends
+    | (keyof TRowType & keyof TRowType & string)
+    | Array<keyof TRowType & keyof TRowType & string>
+> = TColumnNames extends Array<keyof TRowType>
+  ? Record<TColumnNames[0], TRowType[TColumnNames[0] & (string | number)]>
+  : TRowType[TColumnNames & keyof TRowType & string]
+
 export default class LoaderFactory<TRowType> {
   private defaultOptions = {
     columnToKey: identity,
@@ -26,6 +36,7 @@ export default class LoaderFactory<TRowType> {
 
   constructor(
     private getData: GetDataFunction<TRowType>,
+    private getDataMulti: GetDataMultiFunction<TRowType>,
     options: LoaderFactoryOptions<TRowType>
   ) {
     this.options = {
@@ -40,10 +51,10 @@ export default class LoaderFactory<TRowType> {
     key: TColumnName,
     columnType:
       | string
-      | (LoaderOptions<TRowType, TColumnName> & {
+      | (LoaderOptions<TRowType> & {
           multi: true
         }),
-    options?: LoaderOptions<TRowType, TColumnName> & {
+    options?: LoaderOptions<TRowType> & {
       multi: true
     }
   ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
@@ -53,10 +64,36 @@ export default class LoaderFactory<TRowType> {
     key: TColumnName,
     columnType?:
       | string
-      | (LoaderOptions<TRowType, TColumnName> & {
+      | (LoaderOptions<TRowType> & {
           multi?: false
         }),
-    options?: LoaderOptions<TRowType, TColumnName> & {
+    options?: LoaderOptions<TRowType> & {
+      multi?: false
+    }
+  ): ExtendedDataLoader<false, TRowType[TColumnName], TRowType | undefined>
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    key: TColumnName,
+    columnType:
+      | string
+      | (LoaderOptions<TRowType> & {
+          multi: true
+        }),
+    options?: LoaderOptions<TRowType> & {
+      multi: true
+    }
+  ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    key: TColumnName,
+    columnType?:
+      | string
+      | (LoaderOptions<TRowType> & {
+          multi?: false
+        }),
+    options?: LoaderOptions<TRowType> & {
       multi?: false
     }
   ): ExtendedDataLoader<false, TRowType[TColumnName], TRowType | undefined>
@@ -65,8 +102,8 @@ export default class LoaderFactory<TRowType> {
     TColType extends TRowType[TColumnName] & (string | number)
   >(
     key: TColumnName,
-    columnType?: string | LoaderOptions<TRowType, TColumnName>,
-    options?: LoaderOptions<TRowType, TColumnName>
+    columnType?: string | LoaderOptions<TRowType>,
+    options?: LoaderOptions<TRowType>
   ): DataLoader<TColType, TRowType[] | TRowType | undefined> {
     if (typeof columnType === 'object') {
       options = columnType
@@ -101,6 +138,75 @@ export default class LoaderFactory<TRowType> {
     }) as ExtendedDataLoader<
       typeof multi,
       TColType,
+      TRowType[] | (TRowType | undefined)
+    >
+    loader.isMultiLoader = multi
+    return loader
+  }
+
+  public createMulti<
+    TColumnNames extends Array<
+      SearchableKeys<TRowType> & keyof TRowType & string
+    >,
+    TBatchKey extends Record<
+      TColumnNames[0],
+      TRowType[TColumnNames[0] & (string | number)]
+    >
+  >(
+    keys: TColumnNames,
+    columnTypes?: string[] | LoaderOptions<TRowType, true>,
+    options?: LoaderOptions<TRowType, true>
+  ): DataLoader<TBatchKey, TRowType[] | TRowType | undefined> {
+    if (typeof columnTypes === 'object' && !Array.isArray(columnTypes)) {
+      options = columnTypes
+      columnTypes = undefined
+    } else if (typeof options === 'undefined') {
+      options = {}
+    }
+
+    const getData = options.getData || this.getDataMulti
+
+    const types: string[] =
+      columnTypes || keys.map((key) => this.options.columnTypes[key])
+
+    if (types.length !== keys.length) {
+      throw new Error('Same number of types and keys must be provided')
+    }
+
+    const cacheKeyFn = (batchKey: TBatchKey): string =>
+      keys.map((key) => batchKey[key]).join(':')
+
+    const { multi = false, ignoreCase = false, callbackFn } = options
+
+    const loader = new DataLoader<
+      TBatchKey,
+      TRowType[] | (TRowType | undefined),
+      string
+    >(
+      async (args: readonly TBatchKey[]) => {
+        const data = await getData<TColumnNames>(args, keys, types, options)
+        callbackFn && data.forEach(callbackFn)
+        return args.map((batchKey) => {
+          const callback = (row: TRowType) => {
+            return Object.entries(batchKey).every(([key, value]) =>
+              match(
+                value as string | number,
+                row[key as keyof TRowType],
+                ignoreCase
+              )
+            )
+          }
+          if (multi) {
+            return data.filter(callback)
+          }
+
+          return data.find(callback)
+        })
+      },
+      { cacheKeyFn }
+    ) as ExtendedDataLoader<
+      typeof multi,
+      TBatchKey,
       TRowType[] | (TRowType | undefined)
     >
     loader.isMultiLoader = multi

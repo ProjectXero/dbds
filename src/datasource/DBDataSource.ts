@@ -69,10 +69,14 @@ export default class DBDataSource<
   private _loaders?: LoaderFactory<TRowType>
   protected get loaders(): LoaderFactory<TRowType> {
     if (!this._loaders) {
-      this._loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-        ...this.normalizers,
-        columnTypes: this.columnTypes,
-      })
+      this._loaders = new LoaderFactory(
+        this.getDataByColumn.bind(this),
+        this.getDataByMultipleColumns.bind(this),
+        {
+          ...this.normalizers,
+          columnTypes: this.columnTypes,
+        }
+      )
     }
 
     return this._loaders
@@ -473,6 +477,21 @@ export default class DBDataSource<
         ...options?.where,
       },
     })
+  }
+
+  private async getDataByMultipleColumns<
+    TColumnNames extends Array<keyof TRowType & string>
+  >(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _args: ReadonlyArray<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _columns: TColumnNames,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _types: string[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _options?: QueryOptions<TRowType>
+  ): Promise<readonly TRowType[]> {
+    return []
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {
