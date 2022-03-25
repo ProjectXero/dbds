@@ -479,19 +479,23 @@ export default class DBDataSource<
     })
   }
 
-  private async getDataByMultipleColumns<
-    TColumnNames extends Array<keyof TRowType & string>
+  protected async getDataByMultipleColumns<
+    TColumnNames extends Array<keyof TRowType & string>,
+    TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
   >(
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _args: ReadonlyArray<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>,
+    args: ReadonlyArray<TArgs>,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _columns: TColumnNames,
+    columns: TColumnNames,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _types: string[],
+    types: string[],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _options?: QueryOptions<TRowType>
+    options?: QueryOptions<TRowType> & SelectOptions
   ): Promise<readonly TRowType[]> {
-    return []
+    return await this.query(
+      this.builder.multiColumnBatchGet(args, columns, types, options),
+      { expected: 'any' }
+    )
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {

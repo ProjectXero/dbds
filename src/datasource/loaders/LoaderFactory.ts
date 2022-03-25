@@ -148,10 +148,9 @@ export default class LoaderFactory<TRowType> {
     TColumnNames extends Array<
       SearchableKeys<TRowType> & keyof TRowType & string
     >,
-    TBatchKey extends Record<
-      TColumnNames[0],
-      TRowType[TColumnNames[0] & (string | number)]
-    >
+    TBatchKey extends {
+      [K in TColumnNames[0]]: TRowType[K]
+    }
   >(
     keys: TColumnNames,
     columnTypes?: string[] | LoaderOptions<TRowType, true>,
@@ -184,7 +183,12 @@ export default class LoaderFactory<TRowType> {
       string
     >(
       async (args: readonly TBatchKey[]) => {
-        const data = await getData<TColumnNames>(args, keys, types, options)
+        const data = await getData<TColumnNames, TBatchKey>(
+          args,
+          keys,
+          types,
+          options
+        )
         callbackFn && data.forEach(callbackFn)
         return args.map((batchKey) => {
           const callback = (row: TRowType) => {

@@ -84,6 +84,10 @@ class TestDataSource extends DBDataSource<DummyRowType> {
     orderBy: ['id', 'DESC'],
   })
 
+  public idAndCodeLoader = this.loaders.createMulti(['name', 'code'], {
+    multi: true,
+  })
+
   // these functions are protected, so we're not normally able to access them
   public testGet: TestDataSource['get'] = this.get
   public testCount: TestDataSource['count'] = this.count
@@ -474,6 +478,20 @@ describe('DBDataSource', () => {
           { code: 'THREE', count: 3 },
         ].sort((a, b) => a.count - b.count)
       )
+    })
+  })
+
+  describe('multi loaders', () => {
+    it('can query with multi-column loaders', async () => {
+      const rows: DummyRowType[] = [
+        createRow({ id: 30, name: 'hello', code: 'secret' }),
+        createRow({ id: 31, name: 'noway', code: 'secret' }),
+      ]
+      await ds.testInsert(rows)
+
+      expect(
+        await ds.idAndCodeLoader.load({ name: 'hello', code: 'secret' })
+      ).toMatchSnapshot()
     })
   })
 })

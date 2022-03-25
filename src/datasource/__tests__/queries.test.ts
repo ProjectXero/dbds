@@ -409,5 +409,20 @@ describe(QueryBuilder, () => {
         ).toMatchSnapshot()
       })
     })
+
+    describe('multiColumnBatchGet', () => {
+      it('builds the query correctly', () => {
+        expect(
+          builder.multiColumnBatchGet(
+            [
+              { id: 1, name: 'asdf' },
+              { id: 2, name: 'blah' },
+            ],
+            ['id', 'name'],
+            ['integer', 'text']
+          )
+        ).toMatchSnapshot()
+      })
+    })
   })
 })

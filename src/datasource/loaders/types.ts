@@ -14,10 +14,11 @@ export interface GetDataFunction<TRowType> {
 }
 
 export interface GetDataMultiFunction<TRowType> {
-  <TColumnNames extends Array<keyof TRowType & string>>(
-    args:
-      | Array<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>
-      | ReadonlyArray<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>,
+  <
+    TColumnNames extends Array<keyof TRowType & string>,
+    TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
+  >(
+    args: Array<TArgs> | ReadonlyArray<TArgs>,
     columns: TColumnNames,
     types: string[],
     options?: QueryOptions<TRowType>
