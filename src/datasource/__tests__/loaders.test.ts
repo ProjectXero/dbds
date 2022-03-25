@@ -129,6 +129,38 @@ describe(LoaderFactory, () => {
       expect(await loader.load('zzz')).toMatchObject(dummyRow)
     })
   })
+
+  describe('with multiple columns', () => {
+    it('can create loaders with multiple columns', async () => {
+      const loader = factory.create(['name', 'code'], {
+        multi: true,
+        ignoreCase: true,
+      })
+      expect(await loader.load({ name: 'ccc', code: 'abc' })).toMatchSnapshot()
+    })
+
+    it('properly batches queries', async () => {
+      const loader = factory.create(['name', 'code'], {
+        multi: true,
+        ignoreCase: true,
+      })
+      expect(
+        await Promise.all([
+          loader.load({ name: 'ccc', code: 'abc' }),
+          loader.load({ name: 'aaa', code: 'def' }),
+        ])
+      ).toMatchSnapshot()
+    })
+
+    it('properly caches queries', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const getData = jest.fn(() => [dummyRow])
+      const loader = factory.create(['name', 'code'], { getData })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      expect(getData).toBeCalledTimes(1)
+    })
+  })
 })
 
 describe(match, () => {
