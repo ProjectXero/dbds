@@ -49,12 +49,7 @@ export default class LoaderFactory<TRowType> {
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
     key: TColumnName,
-    columnType:
-      | string
-      | (LoaderOptions<TRowType> & {
-          multi: true
-        }),
-    options?: LoaderOptions<TRowType> & {
+    options: LoaderOptions<TRowType> & {
       multi: true
     }
   ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
@@ -62,11 +57,15 @@ export default class LoaderFactory<TRowType> {
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
     key: TColumnName,
-    columnType?:
-      | string
-      | (LoaderOptions<TRowType> & {
-          multi?: false
-        }),
+    columnType: string,
+    options: LoaderOptions<TRowType> & {
+      multi: true
+    }
+  ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
+  public create<
+    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
+  >(
+    key: TColumnName,
     options?: LoaderOptions<TRowType> & {
       multi?: false
     }
@@ -75,24 +74,7 @@ export default class LoaderFactory<TRowType> {
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
   >(
     key: TColumnName,
-    columnType:
-      | string
-      | (LoaderOptions<TRowType> & {
-          multi: true
-        }),
-    options?: LoaderOptions<TRowType> & {
-      multi: true
-    }
-  ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
-  public create<
-    TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
-  >(
-    key: TColumnName,
-    columnType?:
-      | string
-      | (LoaderOptions<TRowType> & {
-          multi?: false
-        }),
+    columnType?: string,
     options?: LoaderOptions<TRowType> & {
       multi?: false
     }
@@ -144,6 +126,60 @@ export default class LoaderFactory<TRowType> {
     return loader
   }
 
+  public createMulti<
+    TColumnNames extends Array<
+      SearchableKeys<TRowType> & keyof TRowType & string
+    >,
+    TBatchKey extends {
+      [K in TColumnNames[0]]: TRowType[K]
+    }
+  >(
+    key: TColumnNames,
+    options: LoaderOptions<TRowType, true> & {
+      multi: true
+    }
+  ): ExtendedDataLoader<true, TBatchKey, TRowType[]>
+  public createMulti<
+    TColumnNames extends Array<
+      SearchableKeys<TRowType> & keyof TRowType & string
+    >,
+    TBatchKey extends {
+      [K in TColumnNames[0]]: TRowType[K]
+    }
+  >(
+    key: TColumnNames,
+    columnTypes: string[],
+    options: LoaderOptions<TRowType, true> & {
+      multi: true
+    }
+  ): ExtendedDataLoader<true, TBatchKey, TRowType[]>
+  public createMulti<
+    TColumnNames extends Array<
+      SearchableKeys<TRowType> & keyof TRowType & string
+    >,
+    TBatchKey extends {
+      [K in TColumnNames[0]]: TRowType[K]
+    }
+  >(
+    key: TColumnNames,
+    options?: LoaderOptions<TRowType, true> & {
+      multi?: false
+    }
+  ): ExtendedDataLoader<false, TBatchKey, TRowType | undefined>
+  public createMulti<
+    TColumnNames extends Array<
+      SearchableKeys<TRowType> & keyof TRowType & string
+    >,
+    TBatchKey extends {
+      [K in TColumnNames[0]]: TRowType[K]
+    }
+  >(
+    key: TColumnNames,
+    columnTypes?: string[],
+    options?: LoaderOptions<TRowType, true> & {
+      multi?: false
+    }
+  ): ExtendedDataLoader<false, TBatchKey, TRowType | undefined>
   public createMulti<
     TColumnNames extends Array<
       SearchableKeys<TRowType> & keyof TRowType & string
