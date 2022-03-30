@@ -1,3 +1,12 @@
+## [2.1.0](https://github.com/ProjectXero/dbds/compare/v2.0.0...v2.1.0) (2022-03-30)
+
+
+### Features
+
+* implement multi-loader data function ([d34b561](https://github.com/ProjectXero/dbds/commit/d34b561f3c135c5388f9600f4f49d76222ebce72))
+* initial implementation of createMulti loader ([7d286ce](https://github.com/ProjectXero/dbds/commit/7d286ced6e6cd8a8711957b1e9b68c28f6c89399))
+* multi-column loaders ([#410](https://github.com/ProjectXero/dbds/issues/410)) ([c55f2a5](https://github.com/ProjectXero/dbds/commit/c55f2a5ea31bb763998ca348b041252ed009eab5))
+
 ## [2.0.0](https://github.com/ProjectXero/dbds/compare/v1.9.4...v2.0.0) (2022-01-28)
 
 
