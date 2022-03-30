@@ -1,3 +1,11 @@
+### [2.1.1](https://github.com/ProjectXero/dbds/compare/v2.1.0...v2.1.1) (2022-03-30)
+
+
+### Bug Fixes
+
+* add missing overloads ([0d299b5](https://github.com/ProjectXero/dbds/commit/0d299b5ef9eb7b6b9ab8094d36dce2f972b71174))
+* add missing overloads ([#413](https://github.com/ProjectXero/dbds/issues/413)) ([1d62716](https://github.com/ProjectXero/dbds/commit/1d627169989d720fa488f9437993661a1755920d))
+
 ## [2.1.0](https://github.com/ProjectXero/dbds/compare/v2.0.0...v2.1.0) (2022-03-30)
 
 
