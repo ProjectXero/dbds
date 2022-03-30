@@ -1,6 +1,6 @@
-export const match = <T extends string | number>(
-  left: T,
-  right: T,
+export const match = (
+  left: unknown,
+  right: unknown,
   ignoreCase = false
 ): boolean => {
   if (typeof left === 'string' && typeof right === 'string' && ignoreCase) {

@@ -13,18 +13,30 @@ export interface GetDataFunction<TRowType> {
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
 
+export interface GetDataMultiFunction<TRowType> {
+  <
+    TColumnNames extends Array<keyof TRowType & string>,
+    TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
+  >(
+    args: Array<TArgs> | ReadonlyArray<TArgs>,
+    columns: TColumnNames,
+    types: string[],
+    options?: QueryOptions<TRowType>
+  ): readonly TRowType[] | Promise<readonly TRowType[]>
+}
+
 export interface LoaderFactoryOptions<TRowType> {
   columnToKey?: (column: string) => string
   keyToColumn?: (column: string) => string
   columnTypes: Record<keyof TRowType, string>
 }
 
-export type LoaderOptions<TRowType, TColumnName extends keyof TRowType> = {
-  getData?: GetDataFunction<TRowType>
+export type LoaderOptions<TRowType, IsMulti extends boolean = false> = {
+  getData?: IsMulti extends true
+    ? GetDataMultiFunction<TRowType>
+    : GetDataFunction<TRowType>
   multi?: boolean
-  ignoreCase?: TRowType extends Record<TColumnName, string>
-    ? boolean
-    : false | undefined
+  ignoreCase?: boolean
   callbackFn?: (
     row: TRowType,
     index: number,

@@ -1,5 +1,4 @@
 import { FinderFactory, LoaderFactory } from '../loaders'
-import { GetDataFunction } from '../loaders/types'
 
 interface DummyRowType {
   id: number
@@ -14,9 +13,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
-    DummyRowType[]
-  > => {
+  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -34,7 +31,9 @@ describe(LoaderFactory, () => {
     ]
   }
 
-  const loaders = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
+  const loaders = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
+    columnTypes,
+  })
   const finders = new FinderFactory<DummyRowType>()
 
   describe('create', () => {

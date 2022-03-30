@@ -1,5 +1,34 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`LoaderFactory createMulti can create loaders with multiple columns 1`] = `
+Array [
+  Object {
+    "code": "ABC",
+    "id": 10,
+    "name": "ccc",
+  },
+]
+`;
+
+exports[`LoaderFactory createMulti properly batches queries 1`] = `
+Array [
+  Array [
+    Object {
+      "code": "ABC",
+      "id": 10,
+      "name": "ccc",
+    },
+  ],
+  Array [
+    Object {
+      "code": "DEF",
+      "id": 5,
+      "name": "AAa",
+    },
+  ],
+]
+`;
+
 exports[`LoaderFactory multi: false, ignoreCase: false is able to load many items 1`] = `
 Array [
   Object {

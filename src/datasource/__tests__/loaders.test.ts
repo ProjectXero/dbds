@@ -1,5 +1,4 @@
 import { LoaderFactory } from '../loaders'
-import { GetDataFunction } from '../loaders/types'
 import { match } from '../loaders/utils'
 
 interface DummyRowType {
@@ -15,9 +14,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
-    DummyRowType[]
-  > => {
+  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -35,7 +32,9 @@ describe(LoaderFactory, () => {
     ]
   }
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
+  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
+    columnTypes,
+  })
 
   describe('multi: false, ignoreCase: false', () => {
     const loader = factory.create('id', 'any', {
@@ -129,6 +128,58 @@ describe(LoaderFactory, () => {
       expect(await loader.load('zzz')).toMatchObject(dummyRow)
     })
   })
+
+  describe('createMulti', () => {
+    it('can create loaders with multiple columns', async () => {
+      const loader = factory.createMulti(['name', 'code'], {
+        multi: true,
+        ignoreCase: true,
+      })
+      expect(await loader.load({ name: 'ccc', code: 'abc' })).toMatchSnapshot()
+    })
+
+    it('properly batches queries', async () => {
+      const loader = factory.createMulti(['name', 'code'], {
+        multi: true,
+        ignoreCase: true,
+      })
+      expect(
+        await Promise.all([
+          loader.load({ name: 'ccc', code: 'abc' }),
+          loader.load({ name: 'aaa', code: 'def' }),
+        ])
+      ).toMatchSnapshot()
+    })
+
+    it('properly caches queries', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const getData = jest.fn(() => [dummyRow])
+      const loader = factory.createMulti(['name', 'code'], { getData })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      expect(getData).toBeCalledTimes(1)
+    })
+
+    it('expects columnTypes of the same length if given', () => {
+      expect(() => factory.createMulti(['name', 'code'])).not.toThrowError()
+
+      expect(() =>
+        factory.createMulti(['name', 'code'], ['onlyType1'])
+      ).toThrowErrorMatchingInlineSnapshot(
+        `"Same number of types and keys must be provided"`
+      )
+
+      expect(() =>
+        factory.createMulti(['name', 'code'], ['type1', 'type2'])
+      ).not.toThrowError()
+
+      expect(() =>
+        factory.createMulti(['name', 'code'], ['type1', 'type2', 'type3?????'])
+      ).toThrowErrorMatchingInlineSnapshot(
+        `"Same number of types and keys must be provided"`
+      )
+    })
+  })
 })
 
 describe(match, () => {
@@ -154,20 +205,5 @@ describe(match, () => {
     expect(match('', '', true)).toBe(true)
     expect(match('a', 'asdf', true)).toBe(false)
     expect(match('a', 'AA', true)).toBe(false)
-  })
-
-  it('is resilient to non-matching types', () => {
-    // @ts-expect-error testing bad caller
-    expect(match(0, false)).toBe(false)
-    // @ts-expect-error testing bad caller
-    expect(match(null, 0)).toBe(false)
-    // @ts-expect-error testing bad caller
-    expect(match('', null)).toBe(false)
-    // @ts-expect-error testing bad caller
-    expect(match(false, '')).toBe(false)
-    // @ts-expect-error testing bad caller
-    expect(match(0, '')).toBe(false)
-    // @ts-expect-error testing bad caller
-    expect(match(false, '', true)).toBe(false)
   })
 })

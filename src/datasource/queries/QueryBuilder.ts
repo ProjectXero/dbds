@@ -1,5 +1,6 @@
 import {
   IdentifierSqlToken,
+  SerializableValue,
   sql,
   SqlSqlToken,
   SqlToken,
@@ -36,6 +37,7 @@ export interface SelectOptions {
 
 const EMPTY = sql``
 const noop = (v: string): string => v
+const CONDITIONS_TABLE = 'conditions'
 
 export default class QueryBuilder<
   TRowType,
@@ -59,10 +61,17 @@ export default class QueryBuilder<
     }
   }
 
-  public identifier(column?: string, includeTable = true): IdentifierSqlToken {
+  public identifier(
+    column?: string,
+    includeTable: boolean | string = true
+  ): IdentifierSqlToken {
     const names = []
 
-    includeTable && names.push(this.table)
+    if (typeof includeTable === 'string') {
+      names.push(includeTable)
+    } else if (includeTable) {
+      names.push(this.table)
+    }
     column !== undefined && names.push(this.columnCase(column))
 
     return sql.identifier(names)
@@ -501,6 +510,57 @@ export default class QueryBuilder<
       }
       return column
     })
+  }
+
+  public multiColumnBatchGet<
+    TColumnNames extends Array<keyof TRowType & string>
+  >(
+    args: ReadonlyArray<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>,
+    columns: TColumnNames,
+    types: string[],
+    options?: QueryOptions<TRowType> & SelectOptions
+  ): TaggedTemplateLiteralInvocation<TRowType> {
+    options = this.getOptions(options)
+    return sql`
+      SELECT ${this.identifier()}.*
+      FROM ${this.identifier()},
+      ${this.jsonRowComparison(args as ReadonlyArray<Partial<TRowType>>)}
+      WHERE ${this.columnConditionsMap(columns, types)}
+      ${options.groupBy ? this.groupBy(options.groupBy) : EMPTY}
+      ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
+      ${options.limit ? this.limit(options.limit) : EMPTY}
+      ${options.forUpdate ? this.forUpdate(options.forUpdate) : EMPTY}
+    `
+  }
+
+  private jsonRowComparison(
+    args: ReadonlyArray<Partial<TRowType>>
+  ): SqlSqlToken {
+    return sql`
+      json_populate_recordset(
+        null::${this.identifier()},
+        ${sql.json(args as unknown as SerializableValue)}
+      ) AS ${this.identifier(`${this.table}_${CONDITIONS_TABLE}`, false)}
+    `
+  }
+
+  private columnConditionsMap(
+    columns: Array<keyof TRowType & string>,
+    types: string[]
+  ): SqlSqlToken {
+    return sql`${sql.join(
+      columns.map((columnName, idx) => {
+        const tableColumn = this.identifier(columnName)
+        const conditionsColumn = this.identifier(
+          columnName,
+          `${this.table}_${CONDITIONS_TABLE}`
+        )
+        const type = this.identifier(types[idx], false)
+
+        return sql`${tableColumn}::${type} = ${conditionsColumn}::${type}`
+      }),
+      sql` AND `
+    )}`
   }
 
   private convertColumnEntry(

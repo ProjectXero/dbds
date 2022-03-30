@@ -577,6 +577,30 @@ Object {
 }
 `;
 
+exports[`QueryBuilder core query builders multiColumnBatchGet builds the query correctly 1`] = `
+Object {
+  "sql": "
+      SELECT \\"any_table\\".*
+      FROM \\"any_table\\",
+      
+      json_populate_recordset(
+        null::\\"any_table\\",
+        $1
+      ) AS \\"any_table_conditions\\"
+    
+      WHERE \\"any_table\\".\\"id\\"::\\"integer\\" = \\"any_table_conditions\\".\\"id\\"::\\"integer\\" AND \\"any_table\\".\\"name\\"::\\"text\\" = \\"any_table_conditions\\".\\"name\\"::\\"text\\"
+      
+      
+      
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "[{\\"id\\":1,\\"name\\":\\"asdf\\"},{\\"id\\":2,\\"name\\":\\"blah\\"}]",
+  ],
+}
+`;
+
 exports[`QueryBuilder core query builders select can select for update 1`] = `
 Object {
   "sql": "

@@ -1,5 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
+exports[`DBDataSource multi loaders can query with multi-column loaders 1`] = `
+Array [
+  Object {
+    "code": "secret",
+    "dateTest": 2021-04-19T00:00:00.000Z,
+    "id": 30,
+    "jsonbTest": Object {
+      "a": 1,
+    },
+    "name": "hello",
+    "nullable": null,
+    "tsTest": 2020-12-05T00:00:00.000Z,
+    "withDefault": "anything",
+  },
+]
+`;
+
 exports[`DBDataSource when there is data in the table can set query options on a loader 1`] = `
 Array [
   Object {

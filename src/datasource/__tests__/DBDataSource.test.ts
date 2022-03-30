@@ -1,7 +1,6 @@
 import { DBDataSource } from '..'
 import { createMockPool } from '../../testing'
 import { LoaderFactory } from '../loaders'
-import { GetDataFunction } from '../loaders/types'
 
 interface DummyRowType {
   id: number
@@ -16,9 +15,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(DBDataSource, () => {
-  const dummyBatchFn: GetDataFunction<DummyRowType> = async (): Promise<
-    DummyRowType[]
-  > => {
+  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -36,7 +33,9 @@ describe(DBDataSource, () => {
     ]
   }
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, { columnTypes })
+  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
+    columnTypes,
+  })
 
   class DummyDBDataSource extends DBDataSource<DummyRowType> {
     constructor() {

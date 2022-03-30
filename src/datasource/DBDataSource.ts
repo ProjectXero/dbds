@@ -69,10 +69,14 @@ export default class DBDataSource<
   private _loaders?: LoaderFactory<TRowType>
   protected get loaders(): LoaderFactory<TRowType> {
     if (!this._loaders) {
-      this._loaders = new LoaderFactory(this.getDataByColumn.bind(this), {
-        ...this.normalizers,
-        columnTypes: this.columnTypes,
-      })
+      this._loaders = new LoaderFactory(
+        this.getDataByColumn.bind(this),
+        this.getDataByMultipleColumns.bind(this),
+        {
+          ...this.normalizers,
+          columnTypes: this.columnTypes,
+        }
+      )
     }
 
     return this._loaders
@@ -473,6 +477,25 @@ export default class DBDataSource<
         ...options?.where,
       },
     })
+  }
+
+  protected async getDataByMultipleColumns<
+    TColumnNames extends Array<keyof TRowType & string>,
+    TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
+  >(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    args: ReadonlyArray<TArgs>,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    columns: TColumnNames,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    types: string[],
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    options?: QueryOptions<TRowType> & SelectOptions
+  ): Promise<readonly TRowType[]> {
+    return await this.query(
+      this.builder.multiColumnBatchGet(args, columns, types, options),
+      { expected: 'any' }
+    )
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {
