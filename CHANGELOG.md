@@ -1,3 +1,11 @@
+### [2.1.2](https://github.com/ProjectXero/dbds/compare/v2.1.1...v2.1.2) (2022-03-31)
+
+
+### Bug Fixes
+
+* respect column casing in multi-column matchers ([#414](https://github.com/ProjectXero/dbds/issues/414)) ([538b793](https://github.com/ProjectXero/dbds/commit/538b79308294df7ca0d99b7edb47be0b687a0c8b))
+* respect column casing in multi-loaders ([4072efc](https://github.com/ProjectXero/dbds/commit/4072efc769e4f2206cb886382812be89123fea87))
+
 ### [2.1.1](https://github.com/ProjectXero/dbds/compare/v2.1.0...v2.1.1) (2022-03-30)
 
 
