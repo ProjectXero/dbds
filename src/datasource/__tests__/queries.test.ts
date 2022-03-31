@@ -1,4 +1,6 @@
+import { snake } from 'case'
 import { sql } from 'slonik'
+
 import { QueryBuilder } from '../queries'
 
 interface DummyRowType {
@@ -26,7 +28,7 @@ describe(QueryBuilder, () => {
   const builder = new QueryBuilder<DummyRowType>(
     'any_table',
     DummyRowColumnTypes,
-    (v) => v,
+    snake,
     {}
   )
 
@@ -420,6 +422,16 @@ describe(QueryBuilder, () => {
             ],
             ['id', 'name'],
             ['integer', 'text']
+          )
+        ).toMatchSnapshot()
+      })
+
+      it('respects casing for column names', () => {
+        expect(
+          builder.multiColumnBatchGet(
+            [{ optionallyNullable: 'anything', stringOrNumber: 0 }],
+            ['optionallyNullable', 'stringOrNumber'],
+            ['any', 'thing']
           )
         ).toMatchSnapshot()
       })

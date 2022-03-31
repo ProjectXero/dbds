@@ -235,7 +235,7 @@ Object {
 
 exports[`QueryBuilder clause generators where accepts complex conditions 1`] = `
 Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" IS NULL AND (\\"any_table\\".\\"stringOrNumber\\" = $2 OR \\"any_table\\".\\"stringOrNumber\\" IS NULL))",
+  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" IS NULL AND (\\"any_table\\".\\"string_or_number\\" = $2 OR \\"any_table\\".\\"string_or_number\\" IS NULL))",
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
     1,
@@ -438,7 +438,7 @@ Object {
   "sql": "
       WITH \\"insert_rows\\" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\")
       SELECT *
       FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
       RETURNING *
@@ -462,7 +462,7 @@ Object {
   "sql": "
       WITH \\"insert_rows\\" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\")
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\")
       SELECT *
       FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
       RETURNING *
@@ -558,7 +558,7 @@ Object {
   "sql": "
       WITH \\"insert_rows\\" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"stringOrNumber\\", \\"date\\")
+      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\", \\"date\\")
       SELECT *
       FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here, \\"date\\" date)
       RETURNING *
@@ -597,6 +597,30 @@ Object {
   "type": "SLONIK_TOKEN_SQL",
   "values": Array [
     "[{\\"id\\":1,\\"name\\":\\"asdf\\"},{\\"id\\":2,\\"name\\":\\"blah\\"}]",
+  ],
+}
+`;
+
+exports[`QueryBuilder core query builders multiColumnBatchGet respects casing for column names 1`] = `
+Object {
+  "sql": "
+      SELECT \\"any_table\\".*
+      FROM \\"any_table\\",
+      
+      json_populate_recordset(
+        null::\\"any_table\\",
+        $1
+      ) AS \\"any_table_conditions\\"
+    
+      WHERE \\"any_table\\".\\"optionally_nullable\\"::\\"any\\" = \\"any_table_conditions\\".\\"optionally_nullable\\"::\\"any\\" AND \\"any_table\\".\\"string_or_number\\"::\\"thing\\" = \\"any_table_conditions\\".\\"string_or_number\\"::\\"thing\\"
+      
+      
+      
+      
+    ",
+  "type": "SLONIK_TOKEN_SQL",
+  "values": Array [
+    "[{\\"optionally_nullable\\":\\"anything\\",\\"string_or_number\\":0}]",
   ],
 }
 `;
@@ -689,7 +713,7 @@ Object {
       WITH \\"update_rows\\" AS (
         
       UPDATE \\"any_table\\"
-      SET \\"id\\" = $1, \\"name\\" = $2, \\"nullable\\" = $3, \\"optional\\" = $4, \\"optionallyNullable\\" = $5, \\"stringOrNumber\\" = $6
+      SET \\"id\\" = $1, \\"name\\" = $2, \\"nullable\\" = $3, \\"optional\\" = $4, \\"optionally_nullable\\" = $5, \\"string_or_number\\" = $6
       
       RETURNING *
     

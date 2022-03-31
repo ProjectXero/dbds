@@ -75,5 +75,37 @@ describe(LoaderFactory, () => {
         expect(await finder('any value with no match')).toHaveLength(0)
       })
     })
+    describe('with a multi-column loader', () => {
+      describe('multi: true', () => {
+        const loader = loaders.createMulti(['name', 'code'], { multi: true })
+        const finder = finders.create(loader)
+
+        it('gets all matching results', async () => {
+          expect(await finder({ name: 'aaa', code: 'abc' })).toMatchSnapshot()
+        })
+      })
+
+      describe('multi: false', () => {
+        const loader = loaders.createMulti(['id', 'code'])
+        const finder = finders.create(loader)
+
+        it('gets all matching results', async () => {
+          expect(await finder({ id: 1, code: 'abc' })).toMatchSnapshot()
+        })
+      })
+
+      describe('with a callback function', () => {
+        const loader = loaders.createMulti(['id', 'code'], {
+          callbackFn: () => {
+            // i don't think we really need to do anything here tbh
+          },
+        })
+        const finder = finders.create(loader)
+
+        it('gets all matching results', async () => {
+          expect(await finder({ id: 1, code: 'abc' })).toMatchSnapshot()
+        })
+      })
+    })
   })
 })

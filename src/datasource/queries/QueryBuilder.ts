@@ -536,10 +536,18 @@ export default class QueryBuilder<
   private jsonRowComparison(
     args: ReadonlyArray<Partial<TRowType>>
   ): SqlSqlToken {
+    const jsonObject: SerializableValue[] = args.map((entry) =>
+      Object.entries(entry).reduce((result, [key, value]) => {
+        return {
+          ...result,
+          [this.columnCase(key)]: value as SerializableValue,
+        }
+      }, {} as object & SerializableValue)
+    )
     return sql`
       json_populate_recordset(
         null::${this.identifier()},
-        ${sql.json(args as unknown as SerializableValue)}
+        ${sql.json(jsonObject)}
       ) AS ${this.identifier(`${this.table}_${CONDITIONS_TABLE}`, false)}
     `
   }

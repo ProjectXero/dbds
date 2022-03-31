@@ -8,6 +8,7 @@ interface DummyRowType {
   name: string
   code: string
   withDefault?: string | SqlSqlToken
+  camelCase: string
   tsTest: Date
   dateTest: Date
   jsonbTest: { a: number }
@@ -19,6 +20,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   name: 'citext',
   code: 'text',
   withDefault: 'text',
+  camelCase: 'text',
   tsTest: 'timestamptz',
   dateTest: 'date',
   jsonbTest: 'jsonb',
@@ -32,6 +34,7 @@ const createRow = (values: Partial<DummyRowType>): DummyRowType => {
     id: 1,
     code: '',
     name: '',
+    camelCase: '',
     tsTest: new Date('2020-12-05T00:00:00.000Z'),
     dateTest: new Date('2021-04-19'),
     jsonbTest: { a: 1 },
@@ -60,6 +63,7 @@ beforeAll(async () => {
         "name" CITEXT NOT NULL,
         "code" TEXT NOT NULL,
         "with_default" TEXT NOT NULL DEFAULT 'anything',
+        "camel_case" TEXT NOT NULL,
         "ts_test" TIMESTAMPTZ NOT NULL,
         "date_test" DATE NOT NULL,
         "jsonb_test" JSONB NOT NULL,
@@ -87,6 +91,8 @@ class TestDataSource extends DBDataSource<DummyRowType> {
   public idAndCodeLoader = this.loaders.createMulti(['name', 'code'], {
     multi: true,
   })
+
+  public idAndCamelCaseLoader = this.loaders.createMulti(['id', 'camelCase'])
 
   // these functions are protected, so we're not normally able to access them
   public testGet: TestDataSource['get'] = this.get
@@ -481,8 +487,8 @@ describe('DBDataSource', () => {
     })
   })
 
-  describe('multi loaders', () => {
-    it('can query with multi-column loaders', async () => {
+  describe('multi-column loader', () => {
+    it('can query data successfully', async () => {
       const rows: DummyRowType[] = [
         createRow({ id: 30, name: 'hello', code: 'secret' }),
         createRow({ id: 31, name: 'noway', code: 'secret' }),
@@ -491,6 +497,15 @@ describe('DBDataSource', () => {
 
       expect(
         await ds.idAndCodeLoader.load({ name: 'hello', code: 'secret' })
+      ).toMatchSnapshot()
+    })
+
+    it('can query data correctly with casing differences', async () => {
+      const row: DummyRowType = createRow({ id: 32, camelCase: 'value1' })
+      await ds.testInsert(row)
+
+      expect(
+        await ds.idAndCamelCaseLoader.load({ id: 32, camelCase: 'value1' })
       ).toMatchSnapshot()
     })
   })
