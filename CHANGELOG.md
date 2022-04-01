@@ -1,3 +1,11 @@
+### [2.1.3](https://github.com/ProjectXero/dbds/compare/v2.1.2...v2.1.3) (2022-04-01)
+
+
+### Bug Fixes
+
+* make multi-column loaders actually castable ([b9b7006](https://github.com/ProjectXero/dbds/commit/b9b7006e2fee359fb2b1aa8bcfe18f9aecffb36e))
+* make multi-column loaders actually castable ([#415](https://github.com/ProjectXero/dbds/issues/415)) ([0889674](https://github.com/ProjectXero/dbds/commit/0889674fdf0abb76ca8f28965d52a5c11d3e43f8))
+
 ### [2.1.2](https://github.com/ProjectXero/dbds/compare/v2.1.1...v2.1.2) (2022-03-31)
 
 
