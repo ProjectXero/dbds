@@ -77,6 +77,10 @@ export default class QueryBuilder<
     return sql.identifier(names)
   }
 
+  public jsonIdentifier(name: string): SqlSqlToken {
+    return raw(`'${name}'`)
+  }
+
   /* Public core query builders */
 
   public select(
@@ -521,10 +525,14 @@ export default class QueryBuilder<
     options?: QueryOptions<TRowType> & SelectOptions
   ): TaggedTemplateLiteralInvocation<TRowType> {
     options = this.getOptions(options)
+    const typedColumns = this.jsonTypedColumns(columns, types)
     return sql`
       SELECT ${this.identifier()}.*
       FROM ${this.identifier()},
-      ${this.jsonRowComparison(args as ReadonlyArray<Partial<TRowType>>)}
+      ${this.jsonRowComparison(
+        args as ReadonlyArray<Partial<TRowType>>,
+        typedColumns
+      )}
       WHERE ${this.columnConditionsMap(columns, types)}
       ${options.groupBy ? this.groupBy(options.groupBy) : EMPTY}
       ${options.orderBy ? this.orderBy(options.orderBy) : EMPTY}
@@ -533,8 +541,28 @@ export default class QueryBuilder<
     `
   }
 
+  private jsonTypedColumns<TColumnNames extends Array<keyof TRowType & string>>(
+    columns: TColumnNames,
+    types: string[]
+  ): SqlSqlToken {
+    return sql`${sql.join(
+      columns.map((columnName, idx) => {
+        const column = this.columnCase(columnName)
+        const type = types[idx]
+        return sql`(conditions->>${this.jsonIdentifier(
+          column
+        )})::${this.identifier(type, false)} AS ${this.identifier(
+          column,
+          false
+        )}`
+      }),
+      sql`, `
+    )}`
+  }
+
   private jsonRowComparison(
-    args: ReadonlyArray<Partial<TRowType>>
+    args: ReadonlyArray<Partial<TRowType>>,
+    typedColumns: SqlSqlToken
   ): SqlSqlToken {
     const jsonObject: SerializableValue[] = args.map((entry) =>
       Object.entries(entry).reduce((result, [key, value]) => {
@@ -545,9 +573,9 @@ export default class QueryBuilder<
       }, {} as object & SerializableValue)
     )
     return sql`
-      json_populate_recordset(
-        null::${this.identifier()},
-        ${sql.json(jsonObject)}
+      (
+        SELECT ${typedColumns}
+        FROM jsonb_array_elements(${sql.json(jsonObject)}) AS conditions
       ) AS ${this.identifier(`${this.table}_${CONDITIONS_TABLE}`, false)}
     `
   }
