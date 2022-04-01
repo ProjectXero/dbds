@@ -1,4 +1,5 @@
 import { LoaderFactory } from '../loaders'
+import { GetDataMultiFunction } from '../loaders/types'
 import { match } from '../loaders/utils'
 
 interface DummyRowType {
@@ -178,6 +179,27 @@ describe(LoaderFactory, () => {
       ).toThrowErrorMatchingInlineSnapshot(
         `"Same number of types and keys must be provided"`
       )
+    })
+
+    it('passes the given types correctly', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const getData = jest.fn(
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        ((_args, _columns, _types, _options) => [
+          dummyRow,
+        ]) as GetDataMultiFunction<DummyRowType>
+      )
+      const loader = factory.createMulti(['name', 'code'], ['type1', 'type2'], {
+        getData,
+      })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      expect(getData.mock.calls[0][2]).toMatchInlineSnapshot(`
+        Array [
+          "type1",
+          "type2",
+        ]
+      `)
     })
   })
 })

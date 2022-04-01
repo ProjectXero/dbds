@@ -583,9 +583,9 @@ Object {
       SELECT \\"any_table\\".*
       FROM \\"any_table\\",
       
-      json_populate_recordset(
-        null::\\"any_table\\",
-        $1
+      (
+        SELECT (conditions->>'id')::\\"integer\\" AS \\"id\\", (conditions->>'name')::\\"text\\" AS \\"name\\"
+        FROM jsonb_array_elements($1) AS conditions
       ) AS \\"any_table_conditions\\"
     
       WHERE \\"any_table\\".\\"id\\"::\\"integer\\" = \\"any_table_conditions\\".\\"id\\"::\\"integer\\" AND \\"any_table\\".\\"name\\"::\\"text\\" = \\"any_table_conditions\\".\\"name\\"::\\"text\\"
@@ -607,9 +607,9 @@ Object {
       SELECT \\"any_table\\".*
       FROM \\"any_table\\",
       
-      json_populate_recordset(
-        null::\\"any_table\\",
-        $1
+      (
+        SELECT (conditions->>'optionally_nullable')::\\"any\\" AS \\"optionally_nullable\\", (conditions->>'string_or_number')::\\"thing\\" AS \\"string_or_number\\"
+        FROM jsonb_array_elements($1) AS conditions
       ) AS \\"any_table_conditions\\"
     
       WHERE \\"any_table\\".\\"optionally_nullable\\"::\\"any\\" = \\"any_table_conditions\\".\\"optionally_nullable\\"::\\"any\\" AND \\"any_table\\".\\"string_or_number\\"::\\"thing\\" = \\"any_table_conditions\\".\\"string_or_number\\"::\\"thing\\"

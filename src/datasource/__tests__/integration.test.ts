@@ -55,10 +55,10 @@ beforeAll(async () => {
 
   await pool.transaction(async (connection) => {
     await connection.query(sql`
-      CREATE EXTENSION citext
+      CREATE EXTENSION IF NOT EXISTS citext
     `)
     await connection.query(sql`
-      CREATE TABLE "test_table" (
+      CREATE TABLE IF NOT EXISTS "test_table" (
         "id" INTEGER PRIMARY KEY,
         "name" CITEXT NOT NULL,
         "code" TEXT NOT NULL,
@@ -93,6 +93,10 @@ class TestDataSource extends DBDataSource<DummyRowType> {
   })
 
   public idAndCamelCaseLoader = this.loaders.createMulti(['id', 'camelCase'])
+  public castingLoader = this.loaders.createMulti(
+    ['id', 'name'],
+    ['text', 'text']
+  )
 
   // these functions are protected, so we're not normally able to access them
   public testGet: TestDataSource['get'] = this.get
@@ -507,6 +511,23 @@ describe('DBDataSource', () => {
       expect(
         await ds.idAndCamelCaseLoader.load({ id: 32, camelCase: 'value1' })
       ).toMatchSnapshot()
+    })
+
+    it('can cast values correctly', async () => {
+      const row: DummyRowType = createRow({
+        id: 33,
+        name: '7963ad1f-3289-4a50-860a-56e3571d27db',
+      })
+      await ds.testInsert(row)
+
+      await expect(
+        ds.castingLoader.load({
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore this is a test for casting
+          id: 'some string',
+          name: 'not a valid uuid',
+        })
+      ).resolves.not.toThrowError()
     })
   })
 })
