@@ -1,4 +1,5 @@
-import { QueryOptions } from '../queries/QueryBuilder'
+import type DataLoader from 'dataloader'
+import type { QueryOptions } from '../queries/QueryBuilder'
 
 export type SearchableKeys<T, SearchableType = string | number | null> = {
   [K in keyof T]?: T extends { [_ in K]?: SearchableType } ? K : never
@@ -31,6 +32,25 @@ export interface LoaderFactoryOptions<TRowType> {
   columnTypes: Record<keyof TRowType, string>
 }
 
+export type ExtendedDataLoader<
+  TMulti extends boolean,
+  K,
+  V,
+  C = K
+> = DataLoader<K, V, C> & {
+  isMultiLoader: TMulti
+  columns: string | string[]
+}
+
+export type BatchKeyType<
+  TRowType,
+  TColumnNames extends
+    | (keyof TRowType & keyof TRowType & string)
+    | Array<keyof TRowType & keyof TRowType & string>
+> = TColumnNames extends Array<keyof TRowType>
+  ? Record<TColumnNames[0], TRowType[TColumnNames[0] & (string | number)]>
+  : TRowType[TColumnNames & keyof TRowType & string]
+
 export type LoaderOptions<TRowType, IsMulti extends boolean = false> = {
   getData?: IsMulti extends true
     ? GetDataMultiFunction<TRowType>
@@ -42,6 +62,14 @@ export type LoaderOptions<TRowType, IsMulti extends boolean = false> = {
     index: number,
     array: readonly TRowType[]
   ) => void
+  primeLoaders?:
+    | Array<
+        ExtendedDataLoader<boolean, unknown, TRowType[] | TRowType | undefined>
+      >
+    | (() => Array<
+        ExtendedDataLoader<boolean, unknown, TRowType[] | TRowType | undefined>
+      >)
+  autoPrime?: boolean
 } & QueryOptions<TRowType>
 
 export type FinderOptions = {
