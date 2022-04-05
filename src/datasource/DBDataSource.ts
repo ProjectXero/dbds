@@ -5,6 +5,7 @@ import {
   DatabasePool,
   TaggedTemplateLiteralInvocation,
   IdentifierNormalizer,
+  DatabaseTransactionConnection,
 } from 'slonik'
 
 import { DataSource, DataSourceConfig } from 'apollo-datasource'
@@ -23,6 +24,7 @@ import {
   ValueOrArray,
 } from './queries/types'
 import { KeyValueCache } from 'apollo-server-caching'
+import { AsyncLocalStorage } from 'async_hooks'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
@@ -49,6 +51,17 @@ const parseTS = (value: number | string): Date | null =>
 const isArray = <T extends unknown[] | readonly unknown[], U>(
   value: T | U
 ): value is T => Array.isArray(value)
+
+interface AsyncStorage<TRowType> {
+  transaction: DatabaseTransactionConnection
+  loaderLookups: Array<[Loader<TRowType>, readonly unknown[]]>
+}
+
+type Loader<TRowType> = DataLoader<unknown, TRowType[] | (TRowType | undefined)>
+
+interface ExtendedDatabasePool<TRowType> extends DatabasePool {
+  async: AsyncLocalStorage<AsyncStorage<TRowType>>
+}
 
 export default class DBDataSource<
   TRowType,
@@ -105,8 +118,10 @@ export default class DBDataSource<
     return this._builder
   }
 
+  protected readonly pool: ExtendedDatabasePool<TRowType>
+
   constructor(
-    protected readonly pool: DatabasePool,
+    pool: DatabasePool,
     protected readonly table: string,
     /**
      * Types of the columns in the database.
@@ -115,11 +130,48 @@ export default class DBDataSource<
      * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
      */
     protected readonly columnTypes: Record<keyof TRowType, string>
-  ) {}
+  ) {
+    this.pool = pool as ExtendedDatabasePool<TRowType>
+    this.pool.async ||= new AsyncLocalStorage()
+  }
 
   public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
     this.context = config.context
     this.cache = config.cache
+  }
+
+  protected get connection(): DatabasePool | DatabaseTransactionConnection {
+    const store = this.pool.async.getStore()
+    return store?.transaction || this.pool
+  }
+
+  public async transaction<T>(
+    callback: () => Promise<T>,
+    transactionRetryLimit?: number
+  ): Promise<T> {
+    return await this.connection.transaction<T>((connection) => {
+      return this.pool.async.run(
+        {
+          transaction: connection,
+          loaderLookups: [],
+        },
+        async () => {
+          try {
+            return await callback()
+          } catch (error) {
+            const store = this.pool.async.getStore()
+            if (store) {
+              store.loaderLookups.forEach(([loader, args]) => {
+                args.forEach((key) => {
+                  loader.clear(key)
+                })
+              })
+            }
+            throw error
+          }
+        }
+      )
+    }, transactionRetryLimit)
   }
 
   /**
@@ -404,7 +456,7 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
-    const results = (await this.pool.any(query)).map((row) =>
+    const results = (await this.connection.any(query)).map((row) =>
       this.transformResult<TData, TData>(row)
     )
     this.eachResult(results, options)
@@ -415,7 +467,7 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
-    const results = (await this.pool.many(query)).map((row) =>
+    const results = (await this.connection.many(query)).map((row) =>
       this.transformResult<TData, TData>(row)
     )
     this.eachResult(results, options)
@@ -427,7 +479,7 @@ export default class DBDataSource<
     options?: QueryOptions<TData>
   ): Promise<TData> {
     const result = this.transformResult<TData, TData>(
-      await this.pool.one(query)
+      await this.connection.one(query)
     )
     this.eachResult(result, options)
     return result
@@ -437,12 +489,14 @@ export default class DBDataSource<
     query: TaggedTemplateLiteralInvocation<TData>,
     options?: QueryOptions<TData>
   ): Promise<TData | null> {
-    let result = await this.pool.maybeOne(query)
+    let result = await this.connection.maybeOne(query)
     if (result) {
       result = this.transformResult(result)
     }
     this.eachResult(result, options)
     return result
+
+    AsyncLocalStorage
   }
 
   private eachResult<TData>(
@@ -464,8 +518,17 @@ export default class DBDataSource<
     args: ReadonlyArray<TRowType[TColumnName]>,
     column: TColumnName,
     type: string,
+    loader: DataLoader<
+      TRowType[TColumnName] & (string | number),
+      TRowType[] | TRowType | undefined
+    >,
     options?: Omit<QueryOptions<TRowType>, 'expected'>
   ): Promise<readonly TRowType[]> {
+    const store = this.pool.async.getStore()
+    if (store) {
+      store.loaderLookups.push([loader, args])
+    }
+
     return await this.get({
       ...options,
       expected: 'any',
@@ -483,15 +546,17 @@ export default class DBDataSource<
     TColumnNames extends Array<keyof TRowType & string>,
     TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
   >(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     args: ReadonlyArray<TArgs>,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     columns: TColumnNames,
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     types: string[],
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    loader: DataLoader<TArgs, TRowType[] | TRowType | undefined>,
     options?: QueryOptions<TRowType> & SelectOptions
   ): Promise<readonly TRowType[]> {
+    const store = this.pool.async.getStore()
+    if (store) {
+      store.loaderLookups.push([loader, args])
+    }
+
     return await this.query(
       this.builder.multiColumnBatchGet(args, columns, types, options),
       { expected: 'any' }
