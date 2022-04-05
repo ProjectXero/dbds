@@ -1,7 +1,6 @@
 import DataLoader from 'dataloader'
-import { ExtendedDataLoader } from './LoaderFactory'
 
-import { FinderOptions } from './types'
+import { FinderOptions, ExtendedDataLoader } from './types'
 
 export interface FinderFunction<TInput, TRowType> {
   (value: TInput): Promise<TRowType>

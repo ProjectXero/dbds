@@ -1,5 +1,6 @@
+import assert from 'assert'
 import { LoaderFactory } from '../loaders'
-import { GetDataMultiFunction } from '../loaders/types'
+import { ExtendedDataLoader, GetDataMultiFunction } from '../loaders/types'
 import { match } from '../loaders/utils'
 
 interface DummyRowType {
@@ -15,7 +16,7 @@ const columnTypes: Record<keyof DummyRowType, string> = {
 }
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
+  const dummyBatchFn = jest.fn(async (): Promise<DummyRowType[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -31,16 +32,32 @@ describe(LoaderFactory, () => {
       { id: 12, name: 'CCc', code: 'GHI' },
       { id: 13, name: 'CCC', code: 'zzz' },
     ]
-  }
+  })
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
-    columnTypes,
+  const getFactory = () =>
+    new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
+      columnTypes,
+    })
+  let factory: LoaderFactory<DummyRowType>
+
+  beforeEach(() => {
+    factory = getFactory()
+    dummyBatchFn.mockClear()
   })
 
   describe('multi: false, ignoreCase: false', () => {
-    const loader = factory.create('id', 'any', {
-      multi: false,
-      ignoreCase: false,
+    let loader: ExtendedDataLoader<
+      false,
+      number,
+      DummyRowType | undefined,
+      number
+    >
+
+    beforeEach(() => {
+      loader = factory.create('id', 'any', {
+        multi: false,
+        ignoreCase: false,
+      })
     })
 
     it('returns the first matching result', async () => {
@@ -57,9 +74,13 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: false', () => {
-    const loader = factory.create('code', 'any', {
-      multi: true,
-      ignoreCase: false,
+    let loader: ExtendedDataLoader<true, string, DummyRowType[], string>
+
+    beforeEach(() => {
+      loader = factory.create('code', 'any', {
+        multi: true,
+        ignoreCase: false,
+      })
     })
 
     it('gets all matching results', async () => {
@@ -76,9 +97,18 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: false, ignoreCase: true', () => {
-    const loader = factory.create('name', 'any', {
-      multi: false,
-      ignoreCase: true,
+    let loader: ExtendedDataLoader<
+      false,
+      string,
+      DummyRowType | undefined,
+      string
+    >
+
+    beforeEach(() => {
+      loader = factory.create('name', 'any', {
+        multi: false,
+        ignoreCase: true,
+      })
     })
 
     it('returns the first matching result', async () => {
@@ -95,9 +125,13 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: true', () => {
-    const loader = factory.create('name', 'any', {
-      multi: true,
-      ignoreCase: true,
+    let loader: ExtendedDataLoader<true, string, DummyRowType[], string>
+
+    beforeEach(() => {
+      loader = factory.create('name', 'any', {
+        multi: true,
+        ignoreCase: true,
+      })
     })
 
     it('gets all matching results', async () => {
@@ -200,6 +234,67 @@ describe(LoaderFactory, () => {
           "type2",
         ]
       `)
+    })
+  })
+
+  describe('auto-priming loaders', () => {
+    it("doesn't auto-prime loaders without the option set", async () => {
+      const loader1 = factory.create('id')
+      const loader2 = factory.create('id')
+      await loader1.load(1)
+      await loader2.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(2)
+    })
+
+    it('auto-primes loaders when the option is set', async () => {
+      const loader1 = factory.create('id', { autoPrime: true })
+      const loader2 = factory.create('id', { autoPrime: true })
+      await loader1.load(1)
+      await loader2.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+    })
+
+    it('allows a specific list of loaders to be auto-primed', async () => {
+      const loader1 = factory.create('id')
+      const loader2 = factory.create('id', {
+        autoPrime: true,
+        primeLoaders: [loader1],
+      })
+      await loader2.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+      await loader1.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+    })
+
+    it('allows a function to specify loaders to be auto-primed', async () => {
+      const loader1 = factory.create('id', {
+        autoPrime: true,
+        primeLoaders: () => [loader2],
+      })
+      const loader2 = factory.create('id')
+      await loader1.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+      await loader2.load(1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+    })
+
+    it('still calls the callback function', async () => {
+      const callbackFn = jest.fn()
+      const loader1 = factory.create('id', { autoPrime: true, callbackFn })
+      factory.create('id', { autoPrime: true })
+      await loader1.load(1)
+      expect(callbackFn).toBeCalled()
+    })
+
+    it('can prime multi-column loaders', async () => {
+      const loader1 = factory.create('id', { autoPrime: true })
+      const loader2 = factory.createMulti(['id', 'code'], { autoPrime: true })
+      const result1 = await loader1.load(2)
+      assert(result1)
+      expect(dummyBatchFn).toBeCalledTimes(1)
+      const result2 = await loader2.load({ code: result1.code, id: result1.id })
+      expect(dummyBatchFn).toBeCalledTimes(1)
+      expect(result2).toBe(result1)
     })
   })
 })

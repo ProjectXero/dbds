@@ -1,6 +1,7 @@
 import DataLoader from 'dataloader'
 
 import {
+  ExtendedDataLoader,
   GetDataFunction,
   GetDataMultiFunction,
   LoaderFactoryOptions,
@@ -9,30 +10,16 @@ import {
 } from './types'
 import { identity, match } from './utils'
 
-export type ExtendedDataLoader<
-  TMulti extends boolean,
-  K,
-  V,
-  C = K
-> = DataLoader<K, V, C> & {
-  isMultiLoader: TMulti
-}
-
-export type BatchKeyType<
-  TRowType,
-  TColumnNames extends
-    | (keyof TRowType & keyof TRowType & string)
-    | Array<keyof TRowType & keyof TRowType & string>
-> = TColumnNames extends Array<keyof TRowType>
-  ? Record<TColumnNames[0], TRowType[TColumnNames[0] & (string | number)]>
-  : TRowType[TColumnNames & keyof TRowType & string]
-
 export default class LoaderFactory<TRowType> {
   private defaultOptions = {
     columnToKey: identity,
     keyToColumn: identity,
   }
   private options: Required<LoaderFactoryOptions<TRowType>>
+
+  protected loaders: Array<
+    ExtendedDataLoader<boolean, unknown, TRowType[] | TRowType | undefined>
+  > = []
 
   constructor(
     private getData: GetDataFunction<TRowType>,
@@ -42,6 +29,37 @@ export default class LoaderFactory<TRowType> {
     this.options = {
       ...this.defaultOptions,
       ...options,
+    }
+  }
+
+  protected async autoPrimeLoaders(
+    result: TRowType | undefined,
+    loaders = this.loaders
+  ): Promise<void> {
+    if (!result) {
+      // we can't auto-prime undefined results because we have no values to
+      // prime on :(
+      return
+    }
+
+    for (const loader of loaders) {
+      if (loader.isMultiLoader) {
+        // auto-priming multi-loaders is currently unsupported
+        continue
+      }
+
+      if (typeof loader.columns === 'string') {
+        loader.prime(result[loader.columns as keyof TRowType], result)
+      } else {
+        const key = loader.columns.reduce(
+          (key, column) => ({
+            ...key,
+            [column]: result[column as keyof TRowType],
+          }),
+          {}
+        )
+        loader.prime(key, result)
+      }
     }
   }
 
@@ -98,14 +116,29 @@ export default class LoaderFactory<TRowType> {
 
     const type: string = columnType || this.options.columnTypes[key]
 
-    const { multi = false, ignoreCase = false, callbackFn } = options
+    const {
+      multi = false,
+      ignoreCase = false,
+      callbackFn,
+      autoPrime,
+      primeLoaders,
+    } = options
 
     const loader = new DataLoader<
       TColType,
       TRowType[] | (TRowType | undefined)
     >(async (args: readonly TColType[]) => {
       const data = await getData<TColumnName>(args, key, type, options)
-      callbackFn && data.forEach(callbackFn)
+
+      data.forEach((row, idx, arr) => {
+        callbackFn && callbackFn(row, idx, arr)
+        autoPrime &&
+          this.autoPrimeLoaders(
+            row,
+            typeof primeLoaders === 'function' ? primeLoaders() : primeLoaders
+          )
+      })
+
       return args.map((value) => {
         if (multi) {
           return data.filter((row) =>
@@ -123,6 +156,8 @@ export default class LoaderFactory<TRowType> {
       TRowType[] | (TRowType | undefined)
     >
     loader.isMultiLoader = multi
+    loader.columns = key
+    this.loaders.push(loader)
     return loader
   }
 
@@ -211,7 +246,13 @@ export default class LoaderFactory<TRowType> {
     const cacheKeyFn = (batchKey: TBatchKey): string =>
       keys.map((key) => batchKey[key]).join(':')
 
-    const { multi = false, ignoreCase = false, callbackFn } = options
+    const {
+      multi = false,
+      ignoreCase = false,
+      callbackFn,
+      autoPrime,
+      primeLoaders,
+    } = options
 
     const loader = new DataLoader<
       TBatchKey,
@@ -225,7 +266,16 @@ export default class LoaderFactory<TRowType> {
           types,
           options
         )
-        callbackFn && data.forEach(callbackFn)
+
+        data.forEach((row, idx, arr) => {
+          callbackFn && callbackFn(row, idx, arr)
+          autoPrime &&
+            this.autoPrimeLoaders(
+              row,
+              typeof primeLoaders === 'function' ? primeLoaders() : primeLoaders
+            )
+        })
+
         return args.map((batchKey) => {
           const callback = (row: TRowType) => {
             return Object.entries(batchKey).every(([key, value]) =>
@@ -245,11 +295,13 @@ export default class LoaderFactory<TRowType> {
       },
       { cacheKeyFn }
     ) as ExtendedDataLoader<
-      typeof multi,
+      boolean,
       TBatchKey,
       TRowType[] | (TRowType | undefined)
     >
     loader.isMultiLoader = multi
+    loader.columns = [...keys]
+    this.loaders.push(loader)
     return loader
   }
 }
