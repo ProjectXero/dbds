@@ -1,3 +1,10 @@
+## [2.3.0](https://github.com/ProjectXero/dbds/compare/v2.2.0...v2.3.0) (2022-04-05)
+
+
+### Features
+
+* transaction support ([a00de42](https://github.com/ProjectXero/dbds/commit/a00de4206e4bf333f1410a8e631af9c636cbff3a))
+
 ## [2.2.0](https://github.com/ProjectXero/dbds/compare/v2.1.3...v2.2.0) (2022-04-05)
 
 
