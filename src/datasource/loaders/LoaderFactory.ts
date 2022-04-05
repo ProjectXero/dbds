@@ -128,7 +128,7 @@ export default class LoaderFactory<TRowType> {
       TColType,
       TRowType[] | (TRowType | undefined)
     >(async (args: readonly TColType[]) => {
-      const data = await getData<TColumnName>(args, key, type, options)
+      const data = await getData<TColumnName>(args, key, type, loader, options)
 
       data.forEach((row, idx, arr) => {
         callbackFn && callbackFn(row, idx, arr)
@@ -264,6 +264,7 @@ export default class LoaderFactory<TRowType> {
           args,
           keys,
           types,
+          loader,
           options
         )
 

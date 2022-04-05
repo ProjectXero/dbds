@@ -10,6 +10,10 @@ export interface GetDataFunction<TRowType> {
     args: Array<TRowType[TColumnName]> | ReadonlyArray<TRowType[TColumnName]>,
     column: TColumnName,
     type: string,
+    loader: DataLoader<
+      TRowType[TColumnName] & (string | number),
+      TRowType[] | (TRowType | undefined)
+    >,
     options?: QueryOptions<TRowType>
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
@@ -22,6 +26,7 @@ export interface GetDataMultiFunction<TRowType> {
     args: Array<TArgs> | ReadonlyArray<TArgs>,
     columns: TColumnNames,
     types: string[],
+    loader: DataLoader<TArgs, TRowType[] | (TRowType | undefined)>,
     options?: QueryOptions<TRowType>
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }

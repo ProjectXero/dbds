@@ -530,4 +530,84 @@ describe('DBDataSource', () => {
       ).resolves.not.toThrowError()
     })
   })
+
+  describe.only('transaction support', () => {
+    it('can use transactions successfully', async () => {
+      const row: DummyRowType = createRow({
+        id: 34,
+      })
+
+      await expect(
+        ds.transaction<void>(async () => {
+          await ds.testInsert(row)
+          expect(
+            await ds.testGet({ where: { id: 34 }, expected: 'maybeOne' })
+          ).toBeTruthy()
+
+          throw new Error('rollback')
+        })
+      ).rejects.toThrowError('rollback')
+
+      expect(
+        await ds.testGet({ where: { id: 34 }, expected: 'maybeOne' })
+      ).toBeFalsy()
+    })
+
+    it('handles loader cache clearing correctly', async () => {
+      const row: DummyRowType = createRow({
+        id: 35,
+      })
+
+      await expect(
+        ds.transaction<void>(async () => {
+          await ds.testInsert(row)
+          expect(await ds.idLoader.load(35)).toBeTruthy()
+
+          throw new Error('rollback')
+        })
+      ).rejects.toThrowError('rollback')
+
+      expect(await ds.idLoader.load(35)).toBeFalsy()
+    })
+
+    it("doesn't clear already-cached loader items", async () => {
+      const row: DummyRowType = createRow({
+        id: 36,
+      })
+      await ds.testInsert(row)
+      await ds.idLoader.load(36)
+
+      await expect(
+        ds.transaction<void>(async () => {
+          expect(await ds.idLoader.load(36)).toBeTruthy()
+          throw new Error('rollback')
+        })
+      ).rejects.toThrowError('rollback')
+
+      expect(await ds.idLoader.load(36)).toBeTruthy()
+    })
+
+    it('uses transactions cross-datasource', async () => {
+      const ds2 = new TestDataSource()
+
+      const row: DummyRowType = createRow({
+        id: 37,
+      })
+
+      await expect(
+        ds.transaction<void>(async () => {
+          await ds.testInsert(row)
+          expect(
+            await ds2.testGet({ where: { id: 37 }, expected: 'maybeOne' })
+          ).toBeTruthy()
+
+          throw new Error('rollback')
+        })
+      ).rejects.toThrowError('rollback')
+
+      expect(
+        await ds2.testGet({ where: { id: 37 }, expected: 'maybeOne' })
+      ).toBeFalsy()
+    })
+  })
 })
