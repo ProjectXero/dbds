@@ -1,3 +1,10 @@
+## [2.2.0](https://github.com/ProjectXero/dbds/compare/v2.1.3...v2.2.0) (2022-04-05)
+
+
+### Features
+
+* auto-prime other loaders ([4cdd9a0](https://github.com/ProjectXero/dbds/commit/4cdd9a016f87409033aa1c01f0d14d4478fbd640))
+
 ### [2.1.3](https://github.com/ProjectXero/dbds/compare/v2.1.2...v2.1.3) (2022-04-01)
 
 
