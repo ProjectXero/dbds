@@ -1,3 +1,11 @@
+## [2.4.0](https://github.com/ProjectXero/dbds/compare/v2.3.0...v2.4.0) (2022-04-13)
+
+
+### Features
+
+* add zod-based schema parsing capability ([51a2957](https://github.com/ProjectXero/dbds/commit/51a2957ea1bcb2833f58dcfeb9a0d13fa4b10fd8))
+* generate columnTypes as const rather than Record ([8bda964](https://github.com/ProjectXero/dbds/commit/8bda96443fab04bb99f9caca2acad628a918bf37))
+
 ## [2.3.0](https://github.com/ProjectXero/dbds/compare/v2.2.0...v2.3.0) (2022-04-05)
 
 
