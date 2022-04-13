@@ -18,16 +18,16 @@ export interface TableWithNoColumns {
 }
 export interface TableWithNoColumns$Insert {
 }
-export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+export const TableWithNoColumns$Types = {} as const;
 export interface TableWithNumericId {
     id: number;
 }
 export interface TableWithNumericId$Insert {
     id?: number;
 }
-export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+export const TableWithNumericId$Types = {
     id: \\"int8\\"
-};
+} as const;
 export interface TableWithCustomTypes {
     enum_type: TestEnum;
     enum_array_type: TestEnum[];
@@ -40,21 +40,21 @@ export interface TableWithCustomTypes$Insert {
     table_type: TableWithUuidId;
     table_array_type: TableWithUuidId[];
 }
-export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+export const TableWithCustomTypes$Types = {
     enum_type: \\"test_enum\\",
     enum_array_type: \\"test_enum\\",
     table_type: \\"table_with_uuid_id\\",
     table_array_type: \\"table_with_uuid_id\\"
-};
+} as const;
 export interface TableWithUuidId {
     id: string;
 }
 export interface TableWithUuidId$Insert {
     id?: string;
 }
-export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+export const TableWithUuidId$Types = {
     id: \\"uuid\\"
-};
+} as const;
 export interface TableWithNullableFields {
     nullable: string | null;
     nullable_with_default: string | null;
@@ -67,12 +67,12 @@ export interface TableWithNullableFields$Insert {
     nullable_array?: string[] | null;
     nullable_array_with_default?: string[] | null;
 }
-export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+export const TableWithNullableFields$Types = {
     nullable: \\"text\\",
     nullable_with_default: \\"text\\",
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
-};
+} as const;
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
     jsonb: MapToSerializable<TJsonb> | null;
@@ -81,10 +81,10 @@ export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb
     json: MapToSerializable<TJson>;
     jsonb?: MapToSerializable<TJsonb> | null;
 }
-export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+export const TableWithJsonJsonb$Types = {
     json: \\"json\\",
     jsonb: \\"jsonb\\"
-};
+} as const;
 "
 `;
 
@@ -106,16 +106,16 @@ export interface TableWithNoColumns {
 }
 export interface TableWithNoColumns$Insert {
 }
-export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
+export const TableWithNoColumns$Types = {} as const;
 export interface TableWithNumericId {
     id: number;
 }
 export interface TableWithNumericId$Insert {
     id?: number;
 }
-export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+export const TableWithNumericId$Types = {
     id: \\"int8\\"
-};
+} as const;
 export interface TableWithCustomTypes {
     enumType: TestEnum;
     enumArrayType: TestEnum[];
@@ -128,21 +128,21 @@ export interface TableWithCustomTypes$Insert {
     tableType: TableWithUuidId;
     tableArrayType: TableWithUuidId[];
 }
-export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+export const TableWithCustomTypes$Types = {
     enumType: \\"test_enum\\",
     enumArrayType: \\"test_enum\\",
     tableType: \\"table_with_uuid_id\\",
     tableArrayType: \\"table_with_uuid_id\\"
-};
+} as const;
 export interface TableWithUuidId {
     id: string;
 }
 export interface TableWithUuidId$Insert {
     id?: string;
 }
-export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+export const TableWithUuidId$Types = {
     id: \\"uuid\\"
-};
+} as const;
 export interface TableWithNullableFields {
     nullable: string | null;
     nullableWithDefault: string | null;
@@ -155,12 +155,12 @@ export interface TableWithNullableFields$Insert {
     nullableArray?: string[] | null;
     nullableArrayWithDefault?: string[] | null;
 }
-export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+export const TableWithNullableFields$Types = {
     nullable: \\"text\\",
     nullableWithDefault: \\"text\\",
     nullableArray: \\"text\\",
     nullableArrayWithDefault: \\"text\\"
-};
+} as const;
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
     jsonb: MapToSerializable<TJsonb> | null;
@@ -169,10 +169,10 @@ export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb
     json: MapToSerializable<TJson>;
     jsonb?: MapToSerializable<TJsonb> | null;
 }
-export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+export const TableWithJsonJsonb$Types = {
     json: \\"json\\",
     jsonb: \\"jsonb\\"
-};
+} as const;
 "
 `;
 
@@ -308,29 +308,29 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
-export const TableWithNoColumns$Types: Record<keyof TableWithNoColumns, string> = {};
-export const TableWithNumericId$Types: Record<keyof TableWithNumericId, string> = {
+export const TableWithNoColumns$Types = {} as const;
+export const TableWithNumericId$Types = {
     id: \\"int8\\"
-};
-export const TableWithCustomTypes$Types: Record<keyof TableWithCustomTypes, string> = {
+} as const;
+export const TableWithCustomTypes$Types = {
     enum_type: \\"test_enum\\",
     enum_array_type: \\"test_enum\\",
     table_type: \\"table_with_uuid_id\\",
     table_array_type: \\"table_with_uuid_id\\"
-};
-export const TableWithUuidId$Types: Record<keyof TableWithUuidId, string> = {
+} as const;
+export const TableWithUuidId$Types = {
     id: \\"uuid\\"
-};
-export const TableWithNullableFields$Types: Record<keyof TableWithNullableFields, string> = {
+} as const;
+export const TableWithNullableFields$Types = {
     nullable: \\"text\\",
     nullable_with_default: \\"text\\",
     nullable_array: \\"text\\",
     nullable_array_with_default: \\"text\\"
-};
-export const TableWithJsonJsonb$Types: Record<keyof TableWithJsonJsonb, string> = {
+} as const;
+export const TableWithJsonJsonb$Types = {
     json: \\"json\\",
     jsonb: \\"jsonb\\"
-};
+} as const;
 "
 `;
 

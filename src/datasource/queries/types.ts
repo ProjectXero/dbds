@@ -41,11 +41,7 @@ export type GenericSet = Record<
 >
 
 export type UpdateSet<TRowType> = {
-  [K in keyof TRowType]?:
-    | (TRowType[K] extends SerializableValueType | undefined
-        ? TRowType[K]
-        : never)
-    | SqlToken
+  [K in keyof TRowType]?: TRowType[K] | SqlToken
 } & GenericSet
 
 export type ColumnListEntry = string | IdentifierSqlToken | SqlSqlToken

@@ -1,9 +1,10 @@
 import assert from 'assert'
 import { createPool, DatabasePool, sql, SqlSqlToken } from 'slonik'
+import { z, ZodSchema } from 'zod'
 
 import { DBDataSource } from '..'
 
-interface DummyRowType {
+interface DummyRowType<TSchema = DefaultJsonbSchema> {
   id: number
   name: string
   code: string
@@ -11,11 +12,15 @@ interface DummyRowType {
   camelCase: string
   tsTest: Date
   dateTest: Date
-  jsonbTest: { a: number }
+  jsonbTest: TSchema
   nullable?: string | null
 }
 
-const columnTypes: Record<keyof DummyRowType, string> = {
+interface DefaultJsonbSchema {
+  a: number
+}
+
+const columnTypes = {
   id: 'int8',
   name: 'citext',
   code: 'text',
@@ -25,11 +30,13 @@ const columnTypes: Record<keyof DummyRowType, string> = {
   dateTest: 'date',
   jsonbTest: 'jsonb',
   nullable: 'text',
-}
+} as const
 
 let pool: DatabasePool
 
-const createRow = (values: Partial<DummyRowType>): DummyRowType => {
+const createRow = <TSchema = DefaultJsonbSchema>(
+  values: Partial<DummyRowType<TSchema>>
+): DummyRowType<TSchema> => {
   return {
     id: 1,
     code: '',
@@ -37,7 +44,7 @@ const createRow = (values: Partial<DummyRowType>): DummyRowType => {
     camelCase: '',
     tsTest: new Date('2020-12-05T00:00:00.000Z'),
     dateTest: new Date('2021-04-19'),
-    jsonbTest: { a: 1 },
+    jsonbTest: { a: 1 } as unknown as TSchema,
     nullable: null,
     ...values,
   }
@@ -77,9 +84,20 @@ afterAll(async () => {
   await pool.end()
 })
 
-class TestDataSource extends DBDataSource<DummyRowType> {
-  constructor() {
-    super(pool, 'test_table', columnTypes)
+class TestDataSource<TSchema = DefaultJsonbSchema> extends DBDataSource<
+  DummyRowType<TSchema>,
+  unknown,
+  DummyRowType<TSchema>,
+  typeof columnTypes
+> {
+  constructor(columnSchemas?: {
+    [K in keyof DummyRowType<TSchema> as typeof columnTypes[K] extends
+      | 'json'
+      | 'jsonb'
+      ? K
+      : never]?: ZodSchema
+  }) {
+    super(pool, 'test_table', columnTypes, columnSchemas)
   }
 
   public idLoader = this.loaders.create('id')
@@ -99,12 +117,12 @@ class TestDataSource extends DBDataSource<DummyRowType> {
   )
 
   // these functions are protected, so we're not normally able to access them
-  public testGet: TestDataSource['get'] = this.get
-  public testCount: TestDataSource['count'] = this.count
-  public testCountGroup: TestDataSource['countGroup'] = this.countGroup
-  public testInsert: TestDataSource['insert'] = this.insert
-  public testUpdate: TestDataSource['update'] = this.update
-  public testDelete: TestDataSource['delete'] = this.delete
+  public testGet: TestDataSource<TSchema>['get'] = this.get
+  public testCount: TestDataSource<TSchema>['count'] = this.count
+  public testCountGroup: TestDataSource<TSchema>['countGroup'] = this.countGroup
+  public testInsert: TestDataSource<TSchema>['insert'] = this.insert
+  public testUpdate: TestDataSource<TSchema>['update'] = this.update
+  public testDelete: TestDataSource<TSchema>['delete'] = this.delete
 }
 
 let ds: TestDataSource
@@ -124,8 +142,8 @@ describe('DBDataSource', () => {
       expect(result).toHaveLength(0)
     })
 
-    it('throws an exception when expecting one result', () => {
-      expect(
+    it('throws an exception when expecting one result', async () => {
+      await expect(
         ds.testGet({ expected: 'one' })
       ).rejects.toThrowErrorMatchingInlineSnapshot(`"Resource not found."`)
     })
@@ -531,7 +549,7 @@ describe('DBDataSource', () => {
     })
   })
 
-  describe.only('transaction support', () => {
+  describe('transaction support', () => {
     it('can use transactions successfully', async () => {
       const row: DummyRowType = createRow({
         id: 34,
@@ -608,6 +626,165 @@ describe('DBDataSource', () => {
       expect(
         await ds2.testGet({ where: { id: 37 }, expected: 'maybeOne' })
       ).toBeFalsy()
+    })
+  })
+
+  describe('json column schemas', () => {
+    let ds: TestDataSource
+
+    beforeEach(() => {
+      ds = new TestDataSource({
+        jsonbTest: z.object({ a: z.number() }),
+      })
+    })
+
+    describe('when inserting', () => {
+      describe('one row', () => {
+        describe('with a valid schema', () => {
+          it('throws no errors', async () => {
+            await expect(
+              ds.testInsert(createRow({ id: 34, jsonbTest: { a: 2222 } }))
+            ).resolves.not.toThrowError()
+          })
+
+          it('inserts the row', async () => {
+            const result = await ds.testInsert(
+              createRow({ id: 34, jsonbTest: { a: 2222 } })
+            )
+            expect(result.id).toEqual(34)
+          })
+        })
+
+        describe('with an invalid schema', () => {
+          it('throws an error', async () => {
+            await expect(
+              // @ts-expect-error testing schema parsing
+              ds.testInsert(createRow({ id: 36, jsonbTest: { a: 'asdf' } }))
+            ).rejects.toThrowError('Expected number, received string')
+          })
+
+          it("doesn't insert the row", async () => {
+            try {
+              await ds.testInsert(
+                // @ts-expect-error testing schema parsing
+                createRow({ id: 36, jsonbTest: { a: 'asdf' } })
+              )
+            } catch {
+              // swallow the error
+            }
+            const result = await ds.testGet()
+            expect(result.length).toEqual(0)
+          })
+        })
+      })
+      describe('multiple rows', () => {
+        describe('with all valid schemas', () => {
+          it('throws no errors', async () => {
+            await expect(
+              ds.testInsert([
+                createRow({ id: 37, jsonbTest: { a: 2222 } }),
+                createRow({ id: 38, jsonbTest: { a: 2223 } }),
+              ])
+            ).resolves.not.toThrowError()
+          })
+
+          it('inserts the rows', async () => {
+            const row1 = createRow({ id: 39, jsonbTest: { a: 2222 } })
+            const row2 = createRow({ id: 40, jsonbTest: { a: 2223 } })
+            const result = await ds.testInsert([row1, row2])
+            expect(result.length).toEqual(2)
+            expect(result).toContainEqual(
+              expect.objectContaining({ id: row1.id })
+            )
+            expect(result).toContainEqual(
+              expect.objectContaining({ id: row2.id })
+            )
+          })
+        })
+
+        describe('with at least one invalid schema', () => {
+          it('throws an error', async () => {
+            await expect(
+              ds.testInsert([
+                // @ts-expect-error testing schema parsing
+                createRow({ id: 41, jsonbTest: { a: 'asdf' } }),
+                createRow({ id: 42, jsonbTest: { a: 2223 } }),
+              ])
+            ).rejects.toThrowError('Expected number, received string')
+          })
+
+          it('inserts no rows', async () => {
+            try {
+              await ds.testInsert([
+                // @ts-expect-error testing schema parsing
+                createRow({ id: 43, jsonbTest: { a: 'asdf' } }),
+                createRow({ id: 44, jsonbTest: { a: 2223 } }),
+              ])
+            } catch {
+              // swallow the error
+            }
+            const result = await ds.testGet({ expected: 'any' })
+            expect(result.length).toBe(0)
+          })
+        })
+      })
+    })
+
+    describe('when updating', () => {
+      const originalValue = 2222
+
+      beforeEach(async () => {
+        const row = createRow({ id: 39, jsonbTest: { a: originalValue } })
+        await ds.testInsert(row)
+      })
+      describe('and given a valid schema', () => {
+        it('throws no errors and inserts correctly', async () => {
+          await expect(
+            ds.testUpdate({ jsonbTest: { a: 1234 } })
+          ).resolves.not.toThrowError()
+        })
+
+        it('updates the row', async () => {
+          const newValue = 9999
+          const result = await ds.testUpdate(
+            { jsonbTest: { a: newValue } },
+            {
+              where: { id: 39 },
+              expected: 'one',
+            }
+          )
+          expect(result.jsonbTest.a).toEqual(newValue)
+        })
+      })
+
+      describe('and given an invalid schema', () => {
+        it('throws an error', async () => {
+          await expect(
+            // @ts-expect-error testing schema parsing
+            ds.testUpdate({ jsonbTest: { a: 'asdf' } })
+          ).rejects.toThrowError('Expected number, received string')
+        })
+
+        it("doesn't update the row", async () => {
+          try {
+            await ds.testUpdate(
+              // @ts-expect-error testing schema parsing
+              { jsonbTest: { a: 'asdf' } },
+              {
+                where: { id: 39 },
+                expected: 'one',
+              }
+            )
+          } catch {
+            // swallow the error
+          }
+          const result = await ds.testGet({
+            where: { id: 39 },
+            expected: 'one',
+          })
+          expect(result.jsonbTest.a).toEqual(originalValue)
+        })
+      })
     })
   })
 })

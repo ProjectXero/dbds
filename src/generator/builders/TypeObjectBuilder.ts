@@ -3,10 +3,10 @@ import {
   VariableStatement,
   PropertyAssignment,
   SyntaxKind,
-  ObjectLiteralExpression,
-  TypeNode,
   NodeFlags,
   Identifier,
+  KeywordTypeSyntaxKind,
+  AsExpression,
 } from 'typescript'
 
 import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
@@ -41,17 +41,15 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
     })
   }
 
-  protected buildObjectLiteral(): ObjectLiteralExpression {
+  protected buildObjectLiteral(): AsExpression {
     const properties = this.buildProperties()
-    return factory.createObjectLiteralExpression(properties, true)
-  }
 
-  protected buildType(): TypeNode {
-    const parentType = factory.createTypeReferenceNode(super.typename())
-    return factory.createTypeReferenceNode('Record', [
-      factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, parentType),
-      factory.createKeywordTypeNode(SyntaxKind.StringKeyword),
-    ])
+    return factory.createAsExpression(
+      factory.createObjectLiteralExpression(properties, true),
+      factory.createKeywordTypeNode(
+        SyntaxKind.ConstKeyword as KeywordTypeSyntaxKind
+      )
+    )
   }
 
   public typename(name: string = this.name): Identifier {
@@ -62,7 +60,7 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
     const declaration = factory.createVariableDeclaration(
       this.typename(),
       undefined,
-      this.buildType(),
+      undefined,
       this.buildObjectLiteral()
     )
 
