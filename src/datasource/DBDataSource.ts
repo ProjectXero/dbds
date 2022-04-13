@@ -25,6 +25,8 @@ import {
 } from './queries/types'
 import { KeyValueCache } from 'apollo-server-caching'
 import { AsyncLocalStorage } from 'async_hooks'
+import type { ZodSchema } from 'zod'
+import { isSqlToken } from './queries/utils'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
@@ -66,7 +68,11 @@ interface ExtendedDatabasePool<TRowType> extends DatabasePool {
 export default class DBDataSource<
   TRowType,
   TContext = unknown,
-  TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
+  TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType,
+  TColumnTypes extends Record<keyof TRowType, string> = Record<
+    keyof TRowType,
+    string
+  >
 > implements DataSource<TContext>
 {
   protected normalizers: KeyNormalizers = {
@@ -129,7 +135,12 @@ export default class DBDataSource<
      *
      * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
      */
-    protected readonly columnTypes: Record<keyof TRowType, string>
+    protected readonly columnTypes: TColumnTypes,
+    protected readonly columnSchemas?: {
+      [K in keyof TRowType as TColumnTypes[K] extends 'json' | 'jsonb'
+        ? K
+        : never]?: ZodSchema
+    }
   ) {
     this.pool = pool as ExtendedDatabasePool<TRowType>
     this.pool.async ||= new AsyncLocalStorage()
@@ -313,6 +324,12 @@ export default class DBDataSource<
       }
     }
 
+    if (isArray(rows)) {
+      rows.map((row) => this.parseColumnSchemas(row))
+    } else {
+      rows = this.parseColumnSchemas(rows)
+    }
+
     const query = this.builder.insert(rows, options)
     return await this.query(query, options)
   }
@@ -357,6 +374,7 @@ export default class DBDataSource<
     data: UpdateSet<TRowType>,
     options?: QueryOptions<TRowType>
   ): Promise<TRowType | readonly TRowType[] | null> {
+    data = this.parseColumnSchemas(data)
     const query = this.builder.update(data, options)
     return await this.query(query, options)
   }
@@ -561,6 +579,26 @@ export default class DBDataSource<
       this.builder.multiColumnBatchGet(args, columns, types, options),
       { expected: 'any' }
     )
+  }
+
+  protected parseColumnSchemas<TRow extends AllowSql<TRowType | TInsertType>>(
+    row: TRow
+  ): TRow {
+    if (!this.columnSchemas) {
+      return row
+    }
+    const keys = Object.keys(
+      this.columnSchemas
+    ) as (keyof typeof this.columnSchemas)[]
+    for (const column of keys) {
+      const schema = this.columnSchemas[column]
+      if (!schema || isSqlToken(row[column])) {
+        continue
+      }
+
+      row[column] = schema.parse(row[column])
+    }
+    return row
   }
 
   private transformResult<TInput, TOutput>(input: TInput): TOutput {
