@@ -540,8 +540,7 @@ describe('DBDataSource', () => {
 
       await expect(
         ds.castingLoader.load({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore this is a test for casting
+          // @ts-expect-error this is a test for casting
           id: 'some string',
           name: 'not a valid uuid',
         })
