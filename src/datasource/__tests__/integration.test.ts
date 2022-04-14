@@ -540,8 +540,7 @@ describe('DBDataSource', () => {
 
       await expect(
         ds.castingLoader.load({
-          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-          // @ts-ignore this is a test for casting
+          // @ts-expect-error this is a test for casting
           id: 'some string',
           name: 'not a valid uuid',
         })
@@ -655,7 +654,7 @@ describe('DBDataSource', () => {
           })
         })
 
-        describe('with an invalid schema', () => {
+        describe('with an invalid schema (invalid value)', () => {
           it('throws an error', async () => {
             await expect(
               // @ts-expect-error testing schema parsing
@@ -676,7 +675,53 @@ describe('DBDataSource', () => {
             expect(result.length).toEqual(0)
           })
         })
+
+        describe('with an invalid schema (missing key)', () => {
+          it('throws an error', async () => {
+            await expect(
+              // @ts-expect-error testing schema parsing
+              ds.testInsert(createRow({ id: 36, jsonbTest: {} }))
+            ).rejects.toThrowError('Required')
+          })
+
+          it("doesn't insert the row", async () => {
+            try {
+              await ds.testInsert(
+                // @ts-expect-error testing schema parsing
+                createRow({ id: 36, jsonbTest: {} })
+              )
+            } catch {
+              // swallow the error
+            }
+            const result = await ds.testGet()
+            expect(result.length).toEqual(0)
+          })
+        })
+
+        describe('with an invalid schema (extra key)', () => {
+          it('inserts the row, but removes the extra key', async () => {
+            const result = await ds.testInsert(
+              createRow({ id: 36, jsonbTest: { a: 9, extra: 'anything' } })
+            )
+            // @ts-expect-error testing types
+            expect(result.jsonbTest.extra).toBeUndefined()
+          })
+
+          it("doesn't insert the row", async () => {
+            try {
+              await ds.testInsert(
+                // @ts-expect-error testing schema parsing
+                createRow({ id: 36, jsonbTest: { a: 'asdf' } })
+              )
+            } catch {
+              // swallow the error
+            }
+            const result = await ds.testGet()
+            expect(result.length).toEqual(0)
+          })
+        })
       })
+
       describe('multiple rows', () => {
         describe('with all valid schemas', () => {
           it('throws no errors', async () => {
@@ -784,6 +829,47 @@ describe('DBDataSource', () => {
           })
           expect(result.jsonbTest.a).toEqual(originalValue)
         })
+      })
+    })
+
+    describe('with union schemas', () => {
+      const schema1 = z.object({
+        type: z.literal('type1'),
+        someKey: z.string(),
+      })
+      type Schema1 = z.infer<typeof schema1>
+
+      const schema2 = z.object({
+        type: z.literal('type2'),
+        someOtherKey: z.number(),
+      })
+      type Schema2 = z.infer<typeof schema2>
+
+      const schemaCombo = z.union([schema1, schema2])
+      type SchemaCombo = z.infer<typeof schemaCombo>
+
+      let ds: TestDataSource<SchemaCombo>
+
+      beforeEach(() => {
+        ds = new TestDataSource<SchemaCombo>({
+          jsonbTest: schemaCombo,
+        })
+      })
+
+      it('can process any of the given union schemas', async () => {
+        const rowData1: Schema1 = { type: 'type1', someKey: 'any string' }
+        const rowData2: Schema2 = { type: 'type2', someOtherKey: 1234 }
+        const result = await ds.testInsert([
+          createRow({ id: 50, jsonbTest: rowData1 }),
+          createRow({ id: 51, jsonbTest: rowData2 }),
+        ])
+        expect(result.length).toEqual(2)
+        expect(result).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ jsonbTest: rowData1 }),
+            expect.objectContaining({ jsonbTest: rowData2 }),
+          ])
+        )
       })
     })
   })
