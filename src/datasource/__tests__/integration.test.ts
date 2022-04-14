@@ -676,6 +676,7 @@ describe('DBDataSource', () => {
           })
         })
       })
+
       describe('multiple rows', () => {
         describe('with all valid schemas', () => {
           it('throws no errors', async () => {
