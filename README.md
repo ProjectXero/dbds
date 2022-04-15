@@ -1,5 +1,7 @@
 # dbds
 
+[![codecov](https://codecov.io/gh/ProjectXero/dbds/branch/main/graph/badge.svg?token=KIGHDB3D2H)](https://codecov.io/gh/ProjectXero/dbds)
+
 `DBDataSource` (**dbds**) is primarily a lightweight PostgreSQL-backed [`dataSource`]
 for [apollo-server]. It also includes a simple CLI utility for generating TypeScript
 types for a PostgreSQL database.
@@ -10,13 +12,13 @@ and avoiding any "magic" ORM-style implicit queries.
 
 ## Table of Contents
 
-* [Background](#background)
-* [Install](#install)
-  * [Dependencies](#dependencies)
-* [Usage](#usage)
-  * [CLI](#cli)
-* [Contributing](#contributing)
-* [License](#license)
+- [Background](#background)
+- [Install](#install)
+  - [Dependencies](#dependencies)
+- [Usage](#usage)
+  - [CLI](#cli)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Background
 
@@ -39,9 +41,9 @@ have outdated/obsolete dependencies, or otherwise did not meet the requirements
 for the projects I'm working on. Here is some prior art that inspired various features
 in the type generation aspect of **dbds**.
 
-* [schemats](https://github.com/SweetIQ/schemats)
-* [database-types](https://github.com/gajus/database-types)
-* [sq-reflect](https://github.com/harryparkdotio/sq-reflect)
+- [schemats](https://github.com/SweetIQ/schemats)
+- [database-types](https://github.com/gajus/database-types)
+- [sq-reflect](https://github.com/harryparkdotio/sq-reflect)
 
 ## Install
 
@@ -59,9 +61,9 @@ npm install @fallingfish/dbds
 
 ### Dependencies
 
-* `node-config` - must be installed for the `--config-`-prefixed CLI options to
+- `node-config` - must be installed for the `--config-`-prefixed CLI options to
   function
-* `typescript` - **dbds** has `typescript` as a peer dependency; it's possible that
+- `typescript` - **dbds** has `typescript` as a peer dependency; it's possible that
   it will work with versions earlier than the one that is specified in the `package.json`,
   since no super complicated features are used.
 
@@ -73,7 +75,11 @@ Subsequent documentation will refer to those classes as simply "datasources".
 ### Creating Datasources
 
 ```typescript
-class ExampleDataSource extends DBDataSource<Examples, ContextType, Examples$Insert> { }
+class ExampleDataSource extends DBDataSource<
+  Examples,
+  ContextType,
+  Examples$Insert
+> {}
 ```
 
 The above example shows the simplest example datasource, which uses `Examples` and
@@ -135,7 +141,7 @@ varying failure cases. Now, all queries have been united under a single API usin
 the `options` object.
 
 | option       | description                                           |
-|--------------|-------------------------------------------------------|
+| ------------ | ----------------------------------------------------- |
 | `eachResult` | function to call once for each object in a result set |
 | `expected`   | number of rows to expect; see [slonik] docs           |
 | `where`      | WHERE clause options                                  |
@@ -187,7 +193,7 @@ Pull requests, questions, and bug reports are gladly accepted!
 MIT License
 
 [apollo-server]: https://www.apollographql.com/docs/apollo-server/
-[`dataSource`]: https://www.apollographql.com/docs/apollo-server/data/data-sources/
+[`datasource`]: https://www.apollographql.com/docs/apollo-server/data/data-sources/
 [dataloader]: https://github.com/graphql/dataloader
 [slonik]: https://github.com/gajus/slonik
-[Stop using Knex.js]: https://gajus.medium.com/stop-using-knex-js-and-earn-30-bf410349856c
+[stop using knex.js]: https://gajus.medium.com/stop-using-knex-js-and-earn-30-bf410349856c

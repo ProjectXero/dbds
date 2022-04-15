@@ -1,6 +1,10 @@
 name: Test
 
-on: [pull_request]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
 
 jobs:
   test:
@@ -24,3 +28,7 @@ jobs:
 
       - name: Run tests
         run: yarn -s test --ci
+
+      - name: Upload coverage report
+        uses: codecov/codecov-action@v3.0.0
+        if: always()
