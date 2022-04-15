@@ -11,7 +11,18 @@ describe(Generator, () => {
   const tableSpy = jest.spyOn(dummySchema, 'getTables')
   const enumSpy = jest.spyOn(dummySchema, 'getEnums')
 
+  const warnSpy = jest.spyOn(console, 'warn')
+  warnSpy.mockImplementation(() => {
+    /* do nothing */
+  })
+
+  const errorSpy = jest.spyOn(console, 'error')
+  errorSpy.mockImplementation(() => {
+    /* do nothing */
+  })
+
   beforeEach(() => {
+    warnSpy.mockClear()
     tableSpy.mockImplementation(async () => mockTables)
     enumSpy.mockImplementation(async () => mockEnums)
   })
@@ -50,10 +61,6 @@ describe(Generator, () => {
     })
 
     it('generates tables', async () => {
-      const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {
-        /* do nothing */
-      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -83,10 +90,6 @@ describe(Generator, () => {
     })
 
     it('generates insert types', async () => {
-      const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {
-        /* do nothing */
-      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -102,10 +105,6 @@ describe(Generator, () => {
     })
 
     it('generates type objects', async () => {
-      const warnSpy = jest.spyOn(console, 'warn')
-      warnSpy.mockImplementation(() => {
-        /* do nothing */
-      })
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -115,11 +114,67 @@ describe(Generator, () => {
     const instance = new Generator({
       schema: dummySchema,
       transformColumns: 'camel',
-      transformEnumMembers: 'constant',
+      transformEnumMembers: 'none',
     })
 
     it('properly cases members', async () => {
       expect(await instance.build()).toMatchSnapshot()
+    })
+  })
+
+  describe('when re-registering an already-registered type', () => {
+    beforeEach(() => {
+      tableSpy.mockImplementation(async () => [
+        {
+          name: 'somehow_duplicated_type_name',
+          canInsert: true,
+          columns: [],
+        },
+        {
+          name: 'somehow_duplicated_type_name',
+          canInsert: true,
+          columns: [],
+        },
+      ])
+    })
+
+    const instance = new Generator({
+      schema: dummySchema,
+      genEnums: false,
+      genTables: true,
+      genInsertTypes: false,
+      genTypeObjects: false,
+    })
+
+    it('outputs a warning', async () => {
+      expect(await instance.build()).toMatchSnapshot()
+      expect(warnSpy.mock.calls).toMatchSnapshot()
+    })
+  })
+
+  describe('build', () => {
+    const instance = new Generator({
+      schema: dummySchema,
+    })
+    const buildTablesSpy = jest.spyOn(instance, 'buildTables' as never)
+
+    beforeEach(() => {
+      buildTablesSpy.mockImplementation(() => {
+        throw new Error('testing error handling')
+      })
+    })
+
+    afterEach(() => {
+      buildTablesSpy.mockReset()
+    })
+
+    describe('when builders throw an error', () => {
+      it('logs the error and rethrows', async () => {
+        await expect(instance.build()).rejects.toThrowError(
+          'testing error handling'
+        )
+        expect(errorSpy.mock.calls).toMatchSnapshot()
+      })
     })
   })
 })

@@ -60,7 +60,7 @@ beforeAll(async () => {
 })
 
 afterAll(async () => {
-  await pool.end()
+  await instance.destroy()
 })
 
 beforeEach(() => {
