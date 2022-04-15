@@ -1,5 +1,7 @@
 # dbds
 
+[![codecov](https://codecov.io/gh/ProjectXero/dbds/branch/main/graph/badge.svg?token=KIGHDB3D2H)](https://codecov.io/gh/ProjectXero/dbds)
+
 `DBDataSource` (**dbds**) is primarily a lightweight PostgreSQL-backed [`dataSource`]
 for [apollo-server]. It also includes a simple CLI utility for generating TypeScript
 types for a PostgreSQL database.
