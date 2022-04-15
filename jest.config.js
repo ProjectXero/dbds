@@ -10,7 +10,6 @@ module.exports = {
     'src/**/*.ts',
     '!src/testing/**',
     '!**/__tests__/**',
-    "!**/node_modules/**",
+    '!**/node_modules/**',
   ],
-  
 }
