@@ -27,3 +27,4 @@ jobs:
 
       - name: Upload coverage report
         uses: codecov/codecov-action@v3.0.0
+        if: always()
