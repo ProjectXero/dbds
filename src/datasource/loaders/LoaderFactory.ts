@@ -1,4 +1,5 @@
 import DataLoader from 'dataloader'
+import { QueryOptions } from '../queries/QueryBuilder'
 
 import {
   ExtendedDataLoader,
@@ -69,7 +70,8 @@ export default class LoaderFactory<TRowType> {
     key: TColumnName,
     options: LoaderOptions<TRowType> & {
       multi: true
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
   public create<
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
@@ -78,7 +80,8 @@ export default class LoaderFactory<TRowType> {
     columnType: string,
     options: LoaderOptions<TRowType> & {
       multi: true
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<true, TRowType[TColumnName], TRowType[]>
   public create<
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
@@ -86,7 +89,8 @@ export default class LoaderFactory<TRowType> {
     key: TColumnName,
     options?: LoaderOptions<TRowType> & {
       multi?: false
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<false, TRowType[TColumnName], TRowType | undefined>
   public create<
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string
@@ -95,7 +99,8 @@ export default class LoaderFactory<TRowType> {
     columnType?: string,
     options?: LoaderOptions<TRowType> & {
       multi?: false
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<false, TRowType[TColumnName], TRowType | undefined>
   public create<
     TColumnName extends SearchableKeys<TRowType> & keyof TRowType & string,
@@ -103,16 +108,21 @@ export default class LoaderFactory<TRowType> {
   >(
     key: TColumnName,
     columnType?: string | LoaderOptions<TRowType>,
-    options?: LoaderOptions<TRowType>
+    options?: LoaderOptions<TRowType> | (() => QueryOptions<TRowType>),
+    queryOptions?: () => QueryOptions<TRowType>
   ): DataLoader<TColType, TRowType[] | TRowType | undefined> {
+    if (typeof options === 'function') {
+      queryOptions = options
+      options = undefined
+    }
     if (typeof columnType === 'object') {
       options = columnType
       columnType = undefined
-    } else if (typeof options === 'undefined') {
-      options = {}
     }
 
-    const getData = options.getData || this.getData
+    const actualOptions = options || {}
+
+    const getData = actualOptions.getData || this.getData
 
     const type: string = columnType || this.options.columnTypes[key]
 
@@ -122,13 +132,16 @@ export default class LoaderFactory<TRowType> {
       callbackFn,
       autoPrime,
       primeLoaders,
-    } = options
+    } = actualOptions
 
     const loader = new DataLoader<
       TColType,
       TRowType[] | (TRowType | undefined)
     >(async (args: readonly TColType[]) => {
-      const data = await getData<TColumnName>(args, key, type, loader, options)
+      const data = await getData<TColumnName>(args, key, type, loader, {
+        ...actualOptions,
+        ...queryOptions?.(),
+      })
 
       data.forEach((row, idx, arr) => {
         callbackFn && callbackFn(row, idx, arr)
@@ -172,7 +185,8 @@ export default class LoaderFactory<TRowType> {
     key: TColumnNames,
     options: LoaderOptions<TRowType, true> & {
       multi: true
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<true, TBatchKey, TRowType[]>
   public createMulti<
     TColumnNames extends Array<
@@ -186,7 +200,8 @@ export default class LoaderFactory<TRowType> {
     columnTypes: string[],
     options: LoaderOptions<TRowType, true> & {
       multi: true
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<true, TBatchKey, TRowType[]>
   public createMulti<
     TColumnNames extends Array<
@@ -199,7 +214,8 @@ export default class LoaderFactory<TRowType> {
     key: TColumnNames,
     options?: LoaderOptions<TRowType, true> & {
       multi?: false
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<false, TBatchKey, TRowType | undefined>
   public createMulti<
     TColumnNames extends Array<
@@ -213,7 +229,8 @@ export default class LoaderFactory<TRowType> {
     columnTypes?: string[],
     options?: LoaderOptions<TRowType, true> & {
       multi?: false
-    }
+    },
+    queryOptions?: () => QueryOptions<TRowType>
   ): ExtendedDataLoader<false, TBatchKey, TRowType | undefined>
   public createMulti<
     TColumnNames extends Array<
@@ -225,16 +242,21 @@ export default class LoaderFactory<TRowType> {
   >(
     keys: TColumnNames,
     columnTypes?: string[] | LoaderOptions<TRowType, true>,
-    options?: LoaderOptions<TRowType, true>
+    options?: LoaderOptions<TRowType, true> | (() => QueryOptions<TRowType>),
+    queryOptions?: () => QueryOptions<TRowType>
   ): DataLoader<TBatchKey, TRowType[] | TRowType | undefined> {
+    if (typeof options === 'function') {
+      queryOptions = options
+      options = undefined
+    }
     if (typeof columnTypes === 'object' && !Array.isArray(columnTypes)) {
       options = columnTypes
       columnTypes = undefined
-    } else if (typeof options === 'undefined') {
-      options = {}
     }
 
-    const getData = options.getData || this.getDataMulti
+    const actualOptions = options || {}
+
+    const getData = actualOptions.getData || this.getDataMulti
 
     const types: string[] =
       columnTypes || keys.map((key) => this.options.columnTypes[key])
@@ -252,7 +274,7 @@ export default class LoaderFactory<TRowType> {
       callbackFn,
       autoPrime,
       primeLoaders,
-    } = options
+    } = actualOptions
 
     const loader = new DataLoader<
       TBatchKey,
@@ -265,7 +287,10 @@ export default class LoaderFactory<TRowType> {
           keys,
           types,
           loader,
-          options
+          {
+            ...actualOptions,
+            ...queryOptions?.(),
+          }
         )
 
         data.forEach((row, idx, arr) => {

@@ -162,6 +162,22 @@ describe(LoaderFactory, () => {
       })
       expect(await loader.load('zzz')).toMatchObject(dummyRow)
     })
+
+    it('accepts a query options function', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const getData = jest.fn((): [DummyRowType] => [dummyRow])
+      const loader = factory.create('name', { getData }, () => ({ limit: 1 }))
+      await loader.load('zzz')
+      expect(getData).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({
+          limit: 1,
+        })
+      )
+    })
   })
 
   describe('createMulti', () => {
@@ -234,6 +250,24 @@ describe(LoaderFactory, () => {
           "type2",
         ]
       `)
+    })
+
+    it('accepts a query options function', async () => {
+      const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
+      const getData = jest.fn((): [DummyRowType] => [dummyRow])
+      const loader = factory.createMulti(['name', 'code'], { getData }, () => ({
+        limit: 1,
+      }))
+      await loader.load({ name: 'zzz', code: 'zzz' })
+      expect(getData).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.anything(),
+        expect.objectContaining({
+          limit: 1,
+        })
+      )
     })
   })
 
