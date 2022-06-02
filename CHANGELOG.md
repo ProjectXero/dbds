@@ -1,3 +1,11 @@
+## [2.5.0](https://github.com/ProjectXero/dbds/compare/v2.4.0...v2.5.0) (2022-06-02)
+
+
+### Features
+
+* allow query options to be overridden at call time ([e827992](https://github.com/ProjectXero/dbds/commit/e827992a75d2525fd567114a9b064f95574e1532))
+* allow query options to be overridden at call time ([#446](https://github.com/ProjectXero/dbds/issues/446)) ([be19e5d](https://github.com/ProjectXero/dbds/commit/be19e5d2a3e2d4521ce61bb752558db13e6c1610))
+
 ## [2.4.0](https://github.com/ProjectXero/dbds/compare/v2.3.0...v2.4.0) (2022-04-13)
 
 
