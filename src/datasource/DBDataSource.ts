@@ -8,8 +8,6 @@ import {
   DatabaseTransactionConnection,
 } from 'slonik'
 
-import { DataSource, DataSourceConfig } from 'apollo-datasource'
-
 export type { DatabasePool } from 'slonik'
 
 import { FinderFactory, LoaderFactory } from './loaders'
@@ -23,7 +21,6 @@ import {
   UpdateSet,
   ValueOrArray,
 } from './queries/types'
-import { KeyValueCache } from 'apollo-server-caching'
 import { AsyncLocalStorage } from 'async_hooks'
 import type { ZodSchema } from 'zod'
 import { isSqlToken } from './queries/utils'
@@ -67,23 +64,18 @@ interface ExtendedDatabasePool<TRowType> extends DatabasePool {
 
 export default class DBDataSource<
   TRowType,
-  TContext = unknown,
   TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType,
   TColumnTypes extends Record<keyof TRowType, string> = Record<
     keyof TRowType,
     string
   >
-> implements DataSource<TContext>
-{
+> {
   protected normalizers: KeyNormalizers = {
     columnToKey: camel,
     keyToColumn: snake,
   }
 
   protected defaultOptions: QueryOptions<TRowType> = {}
-
-  protected context!: TContext
-  protected cache!: KeyValueCache
 
   private _loaders?: LoaderFactory<TRowType>
   protected get loaders(): LoaderFactory<TRowType> {
@@ -144,11 +136,6 @@ export default class DBDataSource<
   ) {
     this.pool = pool as ExtendedDatabasePool<TRowType>
     this.pool.async ||= new AsyncLocalStorage()
-  }
-
-  public async initialize(config: DataSourceConfig<TContext>): Promise<void> {
-    this.context = config.context
-    this.cache = config.cache
   }
 
   protected get connection(): DatabasePool | DatabaseTransactionConnection {

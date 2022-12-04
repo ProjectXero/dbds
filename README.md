@@ -2,8 +2,8 @@
 
 [![codecov](https://codecov.io/gh/ProjectXero/dbds/branch/main/graph/badge.svg?token=KIGHDB3D2H)](https://codecov.io/gh/ProjectXero/dbds)
 
-`DBDataSource` (**dbds**) is primarily a lightweight PostgreSQL-backed [`dataSource`]
-for [apollo-server]. It also includes a simple CLI utility for generating TypeScript
+`DBDataSource` (**dbds**) is primarily a lightweight PostgreSQL-backed data access
+object library. It also includes a simple CLI utility for generating TypeScript
 types for a PostgreSQL database.
 
 It is built with [dataloader] and [slonik] for simple, out-of-the-box query batching
@@ -192,8 +192,6 @@ Pull requests, questions, and bug reports are gladly accepted!
 
 MIT License
 
-[apollo-server]: https://www.apollographql.com/docs/apollo-server/
-[`datasource`]: https://www.apollographql.com/docs/apollo-server/data/data-sources/
 [dataloader]: https://github.com/graphql/dataloader
 [slonik]: https://github.com/gajus/slonik
 [stop using knex.js]: https://gajus.medium.com/stop-using-knex-js-and-earn-30-bf410349856c

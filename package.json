@@ -9,7 +9,6 @@
     "generation",
     "typings",
     "graphql",
-    "apollo-server",
     "dataloader",
     "dao"
   ],
@@ -41,8 +40,6 @@
     "prepack": "yarn build"
   },
   "dependencies": {
-    "apollo-datasource": "^3.3.1",
-    "apollo-server-caching": "^3.3.0",
     "case": "^1.6.3",
     "dataloader": "^2.0.0",
     "slonik": "^27.1.0",
