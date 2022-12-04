@@ -12,9 +12,12 @@ module.exports = {
     '!**/__tests__/**',
     '!**/node_modules/**',
   ],
-  globals: {
-    'ts-jest': {
-      tsconfig: 'tsconfig.test.json',
-    },
+  transform: {
+    '^.+\\.[cm]?ts$': [
+      'ts-jest',
+      {
+        tsconfig: 'tsconfig.test.json',
+      },
+    ],
   },
 }

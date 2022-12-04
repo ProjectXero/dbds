@@ -10,10 +10,10 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
 export enum TestTypeEnum {
-    Aa = \\"aa\\",
-    Bb = \\"bb\\",
-    Cc = \\"cc\\",
-    Zzzz = \\"zzzz\\"
+    Aa = "aa",
+    Bb = "bb",
+    Cc = "cc",
+    Zzzz = "zzzz"
 }
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
@@ -22,7 +22,7 @@ export interface TestTableOrder$Insert {
     subsequent_table_type?: TestTableStandard | null;
 }
 export const TestTableOrder$Types = {
-    subsequent_table_type: \\"test_table_standard\\"
+    subsequent_table_type: "test_table_standard"
 } as const;
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
@@ -45,14 +45,14 @@ export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
     jsonb_test?: MapToSerializable<TJsonbTest> | null;
 }
 export const TestTableStandard$Types = {
-    arr_test: \\"text\\",
-    caseTest_upper: \\"text\\",
-    casetest_lower: \\"text\\",
-    domain_test: \\"text\\",
-    enum_arr_test: \\"test_type_enum\\",
-    enum_test: \\"test_type_enum\\",
-    id: \\"int4\\",
-    jsonb_test: \\"jsonb\\"
+    arr_test: "text",
+    caseTest_upper: "text",
+    casetest_lower: "text",
+    domain_test: "text",
+    enum_arr_test: "test_type_enum",
+    enum_test: "test_type_enum",
+    id: "int4",
+    jsonb_test: "jsonb"
 } as const;
 export interface TestTableTypes {
     id: string;
@@ -65,9 +65,9 @@ export interface TestTableTypes$Insert {
     table_test?: TestTableStandard | null;
 }
 export const TestTableTypes$Types = {
-    id: \\"uuid\\",
-    table_arr_test: \\"test_table_standard\\",
-    table_test: \\"test_table_standard\\"
+    id: "uuid",
+    table_arr_test: "test_table_standard",
+    table_test: "test_table_standard"
 } as const;
 "
 `;

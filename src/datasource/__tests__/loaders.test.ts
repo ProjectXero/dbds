@@ -245,7 +245,7 @@ describe(LoaderFactory, () => {
       await loader.load({ name: 'zzz', code: 'zzz' })
       await loader.load({ name: 'zzz', code: 'zzz' })
       expect(getData.mock.calls[0][2]).toMatchInlineSnapshot(`
-        Array [
+        [
           "type1",
           "type2",
         ]

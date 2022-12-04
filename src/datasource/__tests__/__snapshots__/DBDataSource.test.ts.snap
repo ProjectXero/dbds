@@ -1,17 +1,17 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DBDataSource defaultOptions uses the default options 1`] = `
-Object {
+{
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
-      ORDER BY \\"any_table\\".\\"id\\"
+      ORDER BY "any_table"."id"
       
       
     ",
   "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "values": [],
 }
 `;

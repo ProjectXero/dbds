@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator build when builders throw an error logs the error and rethrows 1`] = `
-Array [
-  Array [
+[
+  [
     "testing error handling",
   ],
 ]
@@ -25,8 +25,8 @@ export interface SomehowDuplicatedTypeName {
 `;
 
 exports[`Generator when re-registering an already-registered type outputs a warning 2`] = `
-Array [
-  Array [
+[
+  [
     "Re-registering known type 'somehow_duplicated_type_name': SomehowDuplicatedTypeName => SomehowDuplicatedTypeName",
   ],
 ]
@@ -42,9 +42,9 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
 export enum TestEnum {
-    A = \\"A\\",
-    B = \\"b\\",
-    CamelCaseRules = \\"camel_case_rules\\"
+    A = "A",
+    B = "b",
+    CamelCaseRules = "camel_case_rules"
 }
 export interface TableWithNoColumns {
 }
@@ -58,7 +58,7 @@ export interface TableWithNumericId$Insert {
     id?: number;
 }
 export const TableWithNumericId$Types = {
-    id: \\"int8\\"
+    id: "int8"
 } as const;
 export interface TableWithCustomTypes {
     enum_type: TestEnum;
@@ -73,10 +73,10 @@ export interface TableWithCustomTypes$Insert {
     table_array_type: TableWithUuidId[];
 }
 export const TableWithCustomTypes$Types = {
-    enum_type: \\"test_enum\\",
-    enum_array_type: \\"test_enum\\",
-    table_type: \\"table_with_uuid_id\\",
-    table_array_type: \\"table_with_uuid_id\\"
+    enum_type: "test_enum",
+    enum_array_type: "test_enum",
+    table_type: "table_with_uuid_id",
+    table_array_type: "table_with_uuid_id"
 } as const;
 export interface TableWithUuidId {
     id: string;
@@ -85,7 +85,7 @@ export interface TableWithUuidId$Insert {
     id?: string;
 }
 export const TableWithUuidId$Types = {
-    id: \\"uuid\\"
+    id: "uuid"
 } as const;
 export interface TableWithNullableFields {
     nullable: string | null;
@@ -100,10 +100,10 @@ export interface TableWithNullableFields$Insert {
     nullable_array_with_default?: string[] | null;
 }
 export const TableWithNullableFields$Types = {
-    nullable: \\"text\\",
-    nullable_with_default: \\"text\\",
-    nullable_array: \\"text\\",
-    nullable_array_with_default: \\"text\\"
+    nullable: "text",
+    nullable_with_default: "text",
+    nullable_array: "text",
+    nullable_array_with_default: "text"
 } as const;
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
@@ -114,8 +114,8 @@ export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb
     jsonb?: MapToSerializable<TJsonb> | null;
 }
 export const TableWithJsonJsonb$Types = {
-    json: \\"json\\",
-    jsonb: \\"jsonb\\"
+    json: "json",
+    jsonb: "jsonb"
 } as const;
 "
 `;
@@ -130,9 +130,9 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
 export enum TestEnum {
-    A = \\"A\\",
-    b = \\"b\\",
-    camel_case_rules = \\"camel_case_rules\\"
+    A = "A",
+    b = "b",
+    camel_case_rules = "camel_case_rules"
 }
 export interface TableWithNoColumns {
 }
@@ -146,7 +146,7 @@ export interface TableWithNumericId$Insert {
     id?: number;
 }
 export const TableWithNumericId$Types = {
-    id: \\"int8\\"
+    id: "int8"
 } as const;
 export interface TableWithCustomTypes {
     enumType: TestEnum;
@@ -161,10 +161,10 @@ export interface TableWithCustomTypes$Insert {
     tableArrayType: TableWithUuidId[];
 }
 export const TableWithCustomTypes$Types = {
-    enumType: \\"test_enum\\",
-    enumArrayType: \\"test_enum\\",
-    tableType: \\"table_with_uuid_id\\",
-    tableArrayType: \\"table_with_uuid_id\\"
+    enumType: "test_enum",
+    enumArrayType: "test_enum",
+    tableType: "table_with_uuid_id",
+    tableArrayType: "table_with_uuid_id"
 } as const;
 export interface TableWithUuidId {
     id: string;
@@ -173,7 +173,7 @@ export interface TableWithUuidId$Insert {
     id?: string;
 }
 export const TableWithUuidId$Types = {
-    id: \\"uuid\\"
+    id: "uuid"
 } as const;
 export interface TableWithNullableFields {
     nullable: string | null;
@@ -188,10 +188,10 @@ export interface TableWithNullableFields$Insert {
     nullableArrayWithDefault?: string[] | null;
 }
 export const TableWithNullableFields$Types = {
-    nullable: \\"text\\",
-    nullableWithDefault: \\"text\\",
-    nullableArray: \\"text\\",
-    nullableArrayWithDefault: \\"text\\"
+    nullable: "text",
+    nullableWithDefault: "text",
+    nullableArray: "text",
+    nullableArrayWithDefault: "text"
 } as const;
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
@@ -202,8 +202,8 @@ export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb
     jsonb?: MapToSerializable<TJsonb> | null;
 }
 export const TableWithJsonJsonb$Types = {
-    json: \\"json\\",
-    jsonb: \\"jsonb\\"
+    json: "json",
+    jsonb: "jsonb"
 } as const;
 "
 `;
@@ -218,9 +218,9 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
 export enum TestEnum {
-    A = \\"A\\",
-    B = \\"b\\",
-    CamelCaseRules = \\"camel_case_rules\\"
+    A = "A",
+    B = "b",
+    CamelCaseRules = "camel_case_rules"
 }
 "
 `;
@@ -274,11 +274,11 @@ export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb
 `;
 
 exports[`Generator with insert types enabled generates insert types 2`] = `
-Array [
-  Array [
+[
+  [
     "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
   ],
-  Array [
+  [
     "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
   ],
 ]
@@ -321,8 +321,8 @@ export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = Seri
 `;
 
 exports[`Generator with tables enabled generates tables 2`] = `
-Array [
-  Array [
+[
+  [
     "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
   ],
 ]
@@ -339,28 +339,28 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 } ? T : never;
 export const TableWithNoColumns$Types = {} as const;
 export const TableWithNumericId$Types = {
-    id: \\"int8\\"
+    id: "int8"
 } as const;
 export const TableWithCustomTypes$Types = {
-    enum_type: \\"test_enum\\",
-    enum_array_type: \\"test_enum\\",
-    table_type: \\"table_with_uuid_id\\",
-    table_array_type: \\"table_with_uuid_id\\"
+    enum_type: "test_enum",
+    enum_array_type: "test_enum",
+    table_type: "table_with_uuid_id",
+    table_array_type: "table_with_uuid_id"
 } as const;
 export const TableWithUuidId$Types = {
-    id: \\"uuid\\"
+    id: "uuid"
 } as const;
 export const TableWithNullableFields$Types = {
-    nullable: \\"text\\",
-    nullable_with_default: \\"text\\",
-    nullable_array: \\"text\\",
-    nullable_array_with_default: \\"text\\"
+    nullable: "text",
+    nullable_with_default: "text",
+    nullable_array: "text",
+    nullable_array_with_default: "text"
 } as const;
 export const TableWithJsonJsonb$Types = {
-    json: \\"json\\",
-    jsonb: \\"jsonb\\"
+    json: "json",
+    jsonb: "jsonb"
 } as const;
 "
 `;
 
-exports[`Generator with type objects enabled generates type objects 2`] = `Array []`;
+exports[`Generator with type objects enabled generates type objects 2`] = `[]`;
