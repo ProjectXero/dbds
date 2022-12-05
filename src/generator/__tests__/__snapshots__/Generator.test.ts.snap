@@ -19,6 +19,7 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 } ? T : never;
 export interface SomehowDuplicatedTypeName {
 }
+export const SomehowDuplicatedTypeName$Schema = z.object({});
 export interface SomehowDuplicatedTypeName {
 }
 "
@@ -51,6 +52,7 @@ export interface TableWithNoColumns {
 export interface TableWithNoColumns$Insert {
 }
 export const TableWithNoColumns$Types = {} as const;
+export const TableWithNoColumns$Schema = z.object({});
 export interface TableWithNumericId {
     id: number;
 }
@@ -60,6 +62,9 @@ export interface TableWithNumericId$Insert {
 export const TableWithNumericId$Types = {
     id: "int8"
 } as const;
+export const TableWithNumericId$Schema = z.object({
+    id: z.number()
+});
 export interface TableWithCustomTypes {
     enum_type: TestEnum;
     enum_array_type: TestEnum[];
@@ -78,6 +83,12 @@ export const TableWithCustomTypes$Types = {
     table_type: "table_with_uuid_id",
     table_array_type: "table_with_uuid_id"
 } as const;
+export const TableWithCustomTypes$Schema = z.object({
+    enum_type: z.nativeEnum(TestEnum),
+    enum_array_type: z.array(z.nativeEnum(TestEnum)),
+    table_type: TableWithUuidId$Schema,
+    table_array_type: z.array(TableWithUuidId$Schema)
+});
 export interface TableWithUuidId {
     id: string;
 }
@@ -87,6 +98,9 @@ export interface TableWithUuidId$Insert {
 export const TableWithUuidId$Types = {
     id: "uuid"
 } as const;
+export const TableWithUuidId$Schema = z.object({
+    id: z.string()
+});
 export interface TableWithNullableFields {
     nullable: string | null;
     nullable_with_default: string | null;
@@ -105,6 +119,12 @@ export const TableWithNullableFields$Types = {
     nullable_array: "text",
     nullable_array_with_default: "text"
 } as const;
+export const TableWithNullableFields$Schema = z.object({
+    nullable: z.string().nullable(),
+    nullable_with_default: z.string().nullable(),
+    nullable_array: z.array(z.string()).nullable(),
+    nullable_array_with_default: z.array(z.string()).nullable()
+});
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
     jsonb: MapToSerializable<TJsonb> | null;
@@ -117,6 +137,10 @@ export const TableWithJsonJsonb$Types = {
     json: "json",
     jsonb: "jsonb"
 } as const;
+export const TableWithJsonJsonb$Schema = z.object({
+    json: z.unknown(),
+    jsonb: z.unknown().nullable()
+});
 "
 `;
 
@@ -139,6 +163,7 @@ export interface TableWithNoColumns {
 export interface TableWithNoColumns$Insert {
 }
 export const TableWithNoColumns$Types = {} as const;
+export const TableWithNoColumns$Schema = z.object({});
 export interface TableWithNumericId {
     id: number;
 }
@@ -148,6 +173,9 @@ export interface TableWithNumericId$Insert {
 export const TableWithNumericId$Types = {
     id: "int8"
 } as const;
+export const TableWithNumericId$Schema = z.object({
+    id: z.number()
+});
 export interface TableWithCustomTypes {
     enumType: TestEnum;
     enumArrayType: TestEnum[];
@@ -166,6 +194,12 @@ export const TableWithCustomTypes$Types = {
     tableType: "table_with_uuid_id",
     tableArrayType: "table_with_uuid_id"
 } as const;
+export const TableWithCustomTypes$Schema = z.object({
+    enumType: z.nativeEnum(TestEnum),
+    enumArrayType: z.array(z.nativeEnum(TestEnum)),
+    tableType: TableWithUuidId$Schema,
+    tableArrayType: z.array(TableWithUuidId$Schema)
+});
 export interface TableWithUuidId {
     id: string;
 }
@@ -175,6 +209,9 @@ export interface TableWithUuidId$Insert {
 export const TableWithUuidId$Types = {
     id: "uuid"
 } as const;
+export const TableWithUuidId$Schema = z.object({
+    id: z.string()
+});
 export interface TableWithNullableFields {
     nullable: string | null;
     nullableWithDefault: string | null;
@@ -193,6 +230,12 @@ export const TableWithNullableFields$Types = {
     nullableArray: "text",
     nullableArrayWithDefault: "text"
 } as const;
+export const TableWithNullableFields$Schema = z.object({
+    nullable: z.string().nullable(),
+    nullableWithDefault: z.string().nullable(),
+    nullableArray: z.array(z.string()).nullable(),
+    nullableArrayWithDefault: z.array(z.string()).nullable()
+});
 export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
     json: MapToSerializable<TJson>;
     jsonb: MapToSerializable<TJsonb> | null;
@@ -205,6 +248,10 @@ export const TableWithJsonJsonb$Types = {
     json: "json",
     jsonb: "jsonb"
 } as const;
+export const TableWithJsonJsonb$Schema = z.object({
+    json: z.unknown(),
+    jsonb: z.unknown().nullable()
+});
 "
 `;
 
@@ -279,6 +326,64 @@ exports[`Generator with insert types enabled generates insert types 2`] = `
     "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
   ],
   [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  [
+    "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
+  ],
+  [
+    "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
+  ],
+]
+`;
+
+exports[`Generator with schema objects enabled generates schema objects 1`] = `
+"export type PrimitiveValueType = string | number | boolean | null;
+export type SimpleValueType = PrimitiveValueType | Date;
+export type SerializableValueType = SimpleValueType | {
+    [key in string]: SerializableValueType | undefined;
+} | Array<SerializableValueType> | ReadonlyArray<SerializableValueType>;
+export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
+    [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
+} ? T : never;
+export const TableWithNoColumns$Schema = z.object({});
+export const TableWithNumericId$Schema = z.object({
+    id: z.number()
+});
+export const TableWithCustomTypes$Schema = z.object({
+    enum_type: z.unknown(),
+    enum_array_type: z.array(z.unknown()),
+    table_type: z.unknown(),
+    table_array_type: z.array(z.unknown())
+});
+export const TableWithUuidId$Schema = z.object({
+    id: z.string()
+});
+export const TableWithNullableFields$Schema = z.object({
+    nullable: z.string().nullable(),
+    nullable_with_default: z.string().nullable(),
+    nullable_array: z.array(z.string()).nullable(),
+    nullable_array_with_default: z.array(z.string()).nullable()
+});
+export const TableWithJsonJsonb$Schema = z.object({
+    json: z.unknown(),
+    jsonb: z.unknown().nullable()
+});
+"
+`;
+
+exports[`Generator with schema objects enabled generates schema objects 2`] = `
+[
+  [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
+  [
+    "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
+  ],
+  [
     "Unknown type detected: 'table_with_uuid_id'. You have either disabled generation of the type or this is a bug.",
   ],
 ]
@@ -322,6 +427,9 @@ export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = Seri
 
 exports[`Generator with tables enabled generates tables 2`] = `
 [
+  [
+    "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
+  ],
   [
     "Unknown type detected: 'test_enum'. You have either disabled generation of the type or this is a bug.",
   ],

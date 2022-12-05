@@ -44,6 +44,7 @@ describe(Generator, () => {
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates nothing', async () => {
@@ -58,6 +59,7 @@ describe(Generator, () => {
       genInsertTypes: false,
       genTables: true,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates tables', async () => {
@@ -73,6 +75,7 @@ describe(Generator, () => {
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates enums', async () => {
@@ -87,6 +90,7 @@ describe(Generator, () => {
       genInsertTypes: true,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates insert types', async () => {
@@ -102,9 +106,26 @@ describe(Generator, () => {
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: true,
+      genSchemaObjects: false,
     })
 
     it('generates type objects', async () => {
+      expect(await instance.build()).toMatchSnapshot()
+      expect(warnSpy.mock.calls).toMatchSnapshot()
+    })
+  })
+
+  describe('with schema objects enabled', () => {
+    const instance = new Generator({
+      schema: dummySchema,
+      genEnums: false,
+      genInsertTypes: false,
+      genTables: false,
+      genTypeObjects: false,
+      genSchemaObjects: true,
+    })
+
+    it('generates schema objects', async () => {
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })

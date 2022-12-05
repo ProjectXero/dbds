@@ -1,4 +1,5 @@
 import { factory, PropertyAssignment } from 'typescript'
+import { z } from 'zod'
 
 import { ColumnInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -9,7 +10,7 @@ export default class ColumnBuilder extends NodeBuilder<PropertyAssignment> {
   public readonly type: string
 
   constructor(
-    options: ColumnInfo,
+    options: z.infer<typeof ColumnInfo>,
     types: TypeRegistry,
     transform: Transformations
   ) {

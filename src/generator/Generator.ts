@@ -15,6 +15,7 @@ import TypeObjectBuilder from './builders/TypeObjectBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 import { CaseFunction, Transformations } from './types'
 import UtilityTypesBuilder from './builders/UtilityTypesBuilder'
+import ZodSchemaBuilder from './builders/ZodSchemaBuilder'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
@@ -22,6 +23,7 @@ export interface GeneratorOptions {
   genInsertTypes?: boolean
   genTables?: boolean
   genTypeObjects?: boolean
+  genSchemaObjects?: boolean
   transformColumns?: Transformations.Column
   transformEnumMembers?: Transformations.EnumMember
   transformTypeNames?: Transformations.TypeName
@@ -39,6 +41,7 @@ export default class Generator {
     insertTypes: boolean
     tables: boolean
     typeObjects: boolean
+    schemaObjects: boolean
   }
 
   public readonly transform: Transformations
@@ -49,6 +52,7 @@ export default class Generator {
     genInsertTypes = true,
     genTables = true,
     genTypeObjects = true,
+    genSchemaObjects = true,
     transformColumns = 'none',
     transformEnumMembers = 'pascal',
     transformTypeNames = 'pascal',
@@ -66,6 +70,7 @@ export default class Generator {
       insertTypes: genInsertTypes,
       tables: genTables,
       typeObjects: genTypeObjects,
+      schemaObjects: genSchemaObjects,
     })
 
     this.transform = Object.freeze({
@@ -112,7 +117,7 @@ export default class Generator {
     enums.forEach((enumInfo) => {
       if (this.generate.enums) {
         const builder = new EnumBuilder(enumInfo, this.types, this.transform)
-        this.types.add(builder.name, builder.typename().text)
+        this.types.add(builder.name, builder.typename().text, 'enum')
         builders.push(builder)
       }
     })
@@ -121,10 +126,12 @@ export default class Generator {
   private async buildTables(builders: NodeBuilder<Statement>[]): Promise<void> {
     const tables = await this.schema.getTables()
 
+    const processedTableNames: string[] = []
+
     tables.forEach((tableInfo) => {
       if (this.generate.tables) {
         const builder = new TableBuilder(tableInfo, this.types, this.transform)
-        this.types.add(builder.name, builder.typename().text)
+        this.types.add(builder.name, builder.typename().text, 'table')
         builders.push(builder)
       }
 
@@ -144,6 +151,21 @@ export default class Generator {
           this.transform
         )
         builders.push(builder)
+      }
+
+      /* since it's generating constants, we need to make SURE that we only
+      generate these once per */
+      if (
+        this.generate.schemaObjects &&
+        !processedTableNames.includes(tableInfo.name)
+      ) {
+        const builder = new ZodSchemaBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        builders.push(builder)
+        processedTableNames.push(tableInfo.name)
       }
     })
   }

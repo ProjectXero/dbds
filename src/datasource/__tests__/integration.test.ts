@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { createPool, DatabasePool, sql, SqlSqlToken } from 'slonik'
+import { createPool, DatabasePool, sql, FragmentSqlToken } from 'slonik'
 import { z, ZodSchema } from 'zod'
 
 import { DBDataSource } from '..'
@@ -8,7 +8,7 @@ interface DummyRowType<TSchema = DefaultJsonbSchema> {
   id: number
   name: string
   code: string
-  withDefault?: string | SqlSqlToken
+  withDefault?: string | FragmentSqlToken
   camelCase: string
   tsTest: Date
   dateTest: Date
@@ -53,7 +53,7 @@ const createRow = <TSchema = DefaultJsonbSchema>(
 beforeAll(async () => {
   assert(process.env.DATABASE_URL, 'DATABASE_URL must be configured')
 
-  pool = createPool(process.env.DATABASE_URL, {
+  pool = await createPool(process.env.DATABASE_URL, {
     captureStackTrace: true,
     maximumPoolSize: 1,
     idleTimeout: 'DISABLE_TIMEOUT',
@@ -61,10 +61,10 @@ beforeAll(async () => {
   })
 
   await pool.transaction(async (connection) => {
-    await connection.query(sql`
+    await connection.query(sql.unsafe`
       CREATE EXTENSION IF NOT EXISTS citext
     `)
-    await connection.query(sql`
+    await connection.query(sql.unsafe`
       CREATE TABLE IF NOT EXISTS "test_table" (
         "id" INTEGER PRIMARY KEY,
         "name" CITEXT NOT NULL,
@@ -86,7 +86,6 @@ afterAll(async () => {
 
 class TestDataSource<TSchema = DefaultJsonbSchema> extends DBDataSource<
   DummyRowType<TSchema>,
-  unknown,
   DummyRowType<TSchema>,
   typeof columnTypes
 > {
@@ -132,7 +131,7 @@ beforeEach(() => {
 })
 
 afterEach(() => {
-  pool.query(sql`TRUNCATE test_table`)
+  pool.query(sql.unsafe`TRUNCATE test_table`)
 })
 
 describe('DBDataSource', () => {
@@ -167,7 +166,7 @@ describe('DBDataSource', () => {
       id: 5,
       code: 'A',
       name: 'abc',
-      withDefault: sql`DEFAULT`,
+      withDefault: sql.fragment`DEFAULT`,
       tsTest: new Date('2020-12-05T00:00:00.001Z'),
       jsonbTest: { a: 1 },
     })

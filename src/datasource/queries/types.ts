@@ -1,4 +1,4 @@
-import { IdentifierSqlToken, SqlSqlToken, SqlToken } from 'slonik'
+import { IdentifierSqlToken, FragmentSqlToken, SqlToken } from 'slonik'
 
 export type { ValueExpression } from 'slonik'
 
@@ -44,12 +44,12 @@ export type UpdateSet<TRowType> = {
   [K in keyof TRowType]?: TRowType[K] | SqlToken
 } & GenericSet
 
-export type ColumnListEntry = string | IdentifierSqlToken | SqlSqlToken
+export type ColumnListEntry = string | IdentifierSqlToken | FragmentSqlToken
 export type ColumnList = ValueOrArray<ColumnListEntry>
 
 export type OrderTuple =
   | [ColumnListEntry]
-  | [ColumnListEntry, 'ASC' | 'DESC' | undefined | SqlSqlToken]
+  | [ColumnListEntry, 'ASC' | 'DESC' | undefined | FragmentSqlToken]
 export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>
 
 export type AllowSql<T> = {
@@ -63,5 +63,5 @@ export interface CountQueryRowType {
 export type LimitClause =
   | number
   | 'ALL'
-  | SqlSqlToken
+  | FragmentSqlToken
   | [number | 'ALL', number]

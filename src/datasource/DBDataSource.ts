@@ -3,7 +3,6 @@ import DataLoader from 'dataloader'
 import {
   sql,
   DatabasePool,
-  TaggedTemplateLiteralInvocation,
   IdentifierNormalizer,
   DatabaseTransactionConnection,
 } from 'slonik'
@@ -22,8 +21,9 @@ import {
   ValueOrArray,
 } from './queries/types'
 import { AsyncLocalStorage } from 'async_hooks'
-import type { ZodSchema } from 'zod'
+import type { z, ZodSchema } from 'zod'
 import { isSqlToken } from './queries/utils'
+import { TypedSqlQuery } from '../types'
 
 export interface QueryOptions<TRowType, TResultType = TRowType>
   extends BuilderOptions<TRowType> {
@@ -426,23 +426,23 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options: QueryOptions<TData> & { expected?: 'any' | 'many' }
   ): Promise<readonly TData[]>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options: QueryOptions<TData> & { expected: 'one' }
   ): Promise<TData>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options: QueryOptions<TData> & { expected: 'maybeOne' }
   ): Promise<TData | null>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<TData | null | readonly TData[]>
   protected async query<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<TData | null | readonly TData[]> {
     switch (options?.expected || 'any') {
@@ -458,7 +458,7 @@ export default class DBDataSource<
   }
 
   private async any<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
     const results = (await this.connection.any(query)).map((row) =>
@@ -469,7 +469,7 @@ export default class DBDataSource<
   }
 
   private async many<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<readonly TData[]> {
     const results = (await this.connection.many(query)).map((row) =>
@@ -480,7 +480,7 @@ export default class DBDataSource<
   }
 
   private async one<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<TData> {
     const result = this.transformResult<TData, TData>(
@@ -491,7 +491,7 @@ export default class DBDataSource<
   }
 
   private async maybeOne<TData>(
-    query: TaggedTemplateLiteralInvocation<TData>,
+    query: TypedSqlQuery<z.ZodAny>,
     options?: QueryOptions<TData>
   ): Promise<TData | null> {
     let result = await this.connection.maybeOne(query)
@@ -538,7 +538,7 @@ export default class DBDataSource<
       ...options,
       expected: 'any',
       where: {
-        [column]: sql`= ${this.builder.any(
+        [column]: sql.fragment`= ${this.builder.any(
           [...args] as unknown as (string | number | boolean | Date | null)[],
           type
         )}`,

@@ -1,4 +1,5 @@
 import { factory, EnumDeclaration, EnumMember, Identifier } from 'typescript'
+import { z } from 'zod'
 
 import { EnumInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -10,7 +11,7 @@ export default class EnumBuilder extends TypeBuilder<EnumDeclaration> {
   public readonly values: readonly string[]
 
   constructor(
-    options: EnumInfo,
+    options: z.infer<typeof EnumInfo>,
     types: TypeRegistry,
     transform: Transformations
   ) {
@@ -36,7 +37,6 @@ export default class EnumBuilder extends TypeBuilder<EnumDeclaration> {
     const members = this.buildMemberNodes()
 
     return factory.createEnumDeclaration(
-      undefined,
       [ExportKeyword],
       this.typename(),
       members

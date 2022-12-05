@@ -12,17 +12,17 @@ const SCHEMA = 'generator'
 beforeAll(async () => {
   assert(process.env.DATABASE_URL, 'DATABASE_URL must be configured')
 
-  pool = createPool(process.env.DATABASE_URL, {
+  pool = await createPool(process.env.DATABASE_URL, {
     captureStackTrace: true,
     maximumPoolSize: 1,
     idleTimeout: 'DISABLE_TIMEOUT',
     idleInTransactionSessionTimeout: 'DISABLE_TIMEOUT',
   })
 
-  await pool.query(sql`CREATE SCHEMA ${sql.identifier([SCHEMA])}`)
-  await pool.query(sql`SET search_path TO ${raw(SCHEMA)}`)
+  await pool.query(sql.unsafe`CREATE SCHEMA ${sql.identifier([SCHEMA])}`)
+  await pool.query(sql.unsafe`SET search_path TO ${raw(SCHEMA)}`)
 
-  await pool.query(sql`
+  await pool.query(sql.unsafe`
     CREATE TYPE "test_type_enum" AS ENUM (
       'aa',
       'bb',
@@ -30,10 +30,10 @@ beforeAll(async () => {
       'cc'
     )
   `)
-  await pool.query(sql`
+  await pool.query(sql.unsafe`
     CREATE DOMAIN "test_type_domain" AS text
   `)
-  await pool.query(sql`
+  await pool.query(sql.unsafe`
     CREATE TABLE "test_table_standard" (
       id SERIAL NOT NULL,
       arr_test TEXT[],
@@ -45,14 +45,14 @@ beforeAll(async () => {
       "caseTest_upper" TEXT
     )
   `)
-  await pool.query(sql`
+  await pool.query(sql.unsafe`
     CREATE TABLE "test_table_types" (
       id UUID NOT NULL,
       table_test TEST_TABLE_STANDARD,
       table_arr_test TEST_TABLE_STANDARD[] DEFAULT '{}' NOT NULL
     )
   `)
-  await pool.query(sql`
+  await pool.query(sql.unsafe`
     CREATE TABLE "test_table_order" (
       subsequent_table_type TEST_TABLE_STANDARD
     )

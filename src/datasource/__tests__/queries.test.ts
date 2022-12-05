@@ -53,12 +53,16 @@ describe(QueryBuilder, () => {
       })
 
       it('lets you pass in a raw expression', () => {
-        expect(builder.where(sql`true`)).toMatchSnapshot()
+        expect(builder.where(sql.fragment`true`)).toMatchSnapshot()
       })
 
       it('accepts a list of expressions', () => {
         expect(
-          builder.where([sql`true`, sql`false`, sql`more raw expressions etc.`])
+          builder.where([
+            sql.fragment`true`,
+            sql.fragment`false`,
+            sql.fragment`more raw expressions etc.`,
+          ])
         ).toMatchSnapshot()
       })
 
@@ -72,7 +76,7 @@ describe(QueryBuilder, () => {
       })
 
       it('enables custom operators through use of sql tokens', () => {
-        expect(builder.where({ id: sql`> 1` })).toMatchSnapshot()
+        expect(builder.where({ id: sql.fragment`> 1` })).toMatchSnapshot()
       })
 
       it('produces a valid clause with no conditions', () => {
@@ -105,7 +109,9 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts a single column name as arbitrary sql', () => {
-        expect(builder.orderBy(sql`anything i want!`)).toMatchSnapshot()
+        expect(
+          builder.orderBy(sql.fragment`anything i want!`)
+        ).toMatchSnapshot()
       })
 
       it('accepts a mix of different types', () => {
@@ -113,17 +119,17 @@ describe(QueryBuilder, () => {
           builder.orderBy([
             'a',
             sql.identifier(['b']),
-            sql`c`,
+            sql.fragment`c`,
             'd',
             sql.identifier(['e']),
-            sql`f`,
+            sql.fragment`f`,
           ])
         ).toMatchSnapshot()
       })
 
       it('can use order tuples', () => {
         expect(
-          builder.orderBy([['a', 'DESC'], 'b', [sql`c`, 'ASC']])
+          builder.orderBy([['a', 'DESC'], 'b', [sql.fragment`c`, 'ASC']])
         ).toMatchSnapshot()
       })
     })
@@ -142,7 +148,9 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts a single column name as arbitrary sql', () => {
-        expect(builder.groupBy(sql`anything i want!`)).toMatchSnapshot()
+        expect(
+          builder.groupBy(sql.fragment`anything i want!`)
+        ).toMatchSnapshot()
       })
 
       it('accepts a mix of different types', () => {
@@ -150,10 +158,10 @@ describe(QueryBuilder, () => {
           builder.groupBy([
             'a',
             sql.identifier(['b']),
-            sql`c`,
+            sql.fragment`c`,
             'd',
             sql.identifier(['e']),
-            sql`f`,
+            sql.fragment`f`,
           ])
         ).toMatchSnapshot()
       })
@@ -173,15 +181,15 @@ describe(QueryBuilder, () => {
       })
 
       it('lets you pass in a raw expression', () => {
-        expect(builder.having(sql`true`)).toMatchSnapshot()
+        expect(builder.having(sql.fragment`true`)).toMatchSnapshot()
       })
 
       it('accepts a list of expressions', () => {
         expect(
           builder.having([
-            sql`true`,
-            sql`false`,
-            sql`more raw expressions etc.`,
+            sql.fragment`true`,
+            sql.fragment`false`,
+            sql.fragment`more raw expressions etc.`,
           ])
         ).toMatchSnapshot()
       })
@@ -216,7 +224,7 @@ describe(QueryBuilder, () => {
       })
 
       it('can accept arbitrary sql', () => {
-        expect(builder.limit(sql`anything, thanks`)).toMatchSnapshot()
+        expect(builder.limit(sql.fragment`anything, thanks`)).toMatchSnapshot()
       })
     })
   })
@@ -329,7 +337,7 @@ describe(QueryBuilder, () => {
         expect(
           builder.insert({
             id: 1,
-            name: sql`DEFAULT`,
+            name: sql.fragment`DEFAULT`,
           })
         ).toMatchSnapshot()
       })
@@ -339,11 +347,11 @@ describe(QueryBuilder, () => {
           builder.insert([
             {
               id: 1,
-              name: sql`DEFAULT`,
+              name: sql.fragment`DEFAULT`,
             },
             {
               id: 2,
-              name: sql`DEFAULT`,
+              name: sql.fragment`DEFAULT`,
             },
           ])
         ).toMatchSnapshot()
@@ -358,7 +366,7 @@ describe(QueryBuilder, () => {
             },
             {
               id: 2,
-              name: sql`DEFAULT`,
+              name: sql.fragment`DEFAULT`,
             },
           ])
         ).toMatchSnapshot()
@@ -380,7 +388,9 @@ describe(QueryBuilder, () => {
       })
 
       it('accepts raw sql values', () => {
-        expect(builder.update({ name: sql`anything i want` })).toMatchSnapshot()
+        expect(
+          builder.update({ name: sql.fragment`anything i want` })
+        ).toMatchSnapshot()
       })
 
       it('correctly updates Date objects as ISO8601 strings', () => {

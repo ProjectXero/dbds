@@ -22,7 +22,6 @@ export default class UtilityTypesBuilder {
     ])
 
     return factory.createTypeAliasDeclaration(
-      undefined,
       [ExportKeyword],
       PrimitiveValueType,
       undefined,
@@ -39,7 +38,6 @@ export default class UtilityTypesBuilder {
     ])
 
     return factory.createTypeAliasDeclaration(
-      undefined,
       [ExportKeyword],
       SimpleValueType,
       undefined,
@@ -54,6 +52,7 @@ export default class UtilityTypesBuilder {
     const typename = factory.createTypeReferenceNode(SerializableValueType)
 
     const mappedKey = factory.createTypeParameterDeclaration(
+      undefined,
       'key',
       factory.createTypeReferenceNode('string'),
       undefined
@@ -80,7 +79,6 @@ export default class UtilityTypesBuilder {
     const type: TypeNode = factory.createUnionTypeNode(types)
 
     return factory.createTypeAliasDeclaration(
-      undefined,
       [ExportKeyword],
       SerializableValueType,
       undefined,
@@ -100,7 +98,7 @@ export default class UtilityTypesBuilder {
     const never = factory.createKeywordTypeNode(SyntaxKind.NeverKeyword)
 
     const inferU = factory.createInferTypeNode(
-      factory.createTypeParameterDeclaration(uParam)
+      factory.createTypeParameterDeclaration(undefined, uParam)
     )
 
     const simple = factory.createTypeReferenceNode(SimpleValueType)
@@ -130,6 +128,7 @@ export default class UtilityTypesBuilder {
     const mappedObjectType = factory.createMappedTypeNode(
       undefined,
       factory.createTypeParameterDeclaration(
+        undefined,
         kParam,
         factory.createTypeOperatorNode(SyntaxKind.KeyOfKeyword, T),
         undefined
@@ -173,10 +172,14 @@ export default class UtilityTypesBuilder {
     )
 
     const typeParameters = [
-      factory.createTypeParameterDeclaration(tParam, undefined, undefined),
+      factory.createTypeParameterDeclaration(
+        undefined,
+        tParam,
+        undefined,
+        undefined
+      ),
     ]
     return factory.createTypeAliasDeclaration(
-      undefined,
       [ExportKeyword],
       MapToSerializable,
       typeParameters,

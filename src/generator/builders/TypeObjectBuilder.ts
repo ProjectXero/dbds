@@ -8,8 +8,9 @@ import {
   KeywordTypeSyntaxKind,
   AsExpression,
 } from 'typescript'
+import { z } from 'zod'
 
-import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
+import { ColumnInfo, TableInfoWithColumns, TypeRegistry } from '../database'
 import { Transformations } from '../types'
 
 import ColumnTypeBuilder from './ColumnTypeBuilder'
@@ -18,10 +19,10 @@ import TypeBuilder from './TypeBuilder'
 
 export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
   public readonly canInsert: boolean
-  public readonly columns: readonly ColumnInfo[]
+  public readonly columns: readonly z.infer<typeof ColumnInfo>[]
 
   constructor(
-    options: TableInfo,
+    options: z.infer<typeof TableInfoWithColumns>,
     types: TypeRegistry,
     transform: Transformations
   ) {

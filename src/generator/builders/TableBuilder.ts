@@ -5,24 +5,25 @@ import {
   TypeParameterDeclaration,
 } from 'typescript'
 
-import { ColumnInfo, TableInfo, TypeRegistry } from '../database'
+import { ColumnInfo, TableInfoWithColumns, TypeRegistry } from '../database'
 import { Transformations } from '../types'
 
 import { ExportKeyword } from './NodeBuilder'
 import ColumnBuilder from './ColumnBuilder'
 import TypeBuilder from './TypeBuilder'
 import { SerializableValueType } from './UtilityTypesBuilder'
+import { z } from 'zod'
 
 const parameterTypes = ['json', 'jsonb']
 
 export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
   public readonly canInsert: boolean
-  public readonly columns: readonly ColumnInfo[]
+  public readonly columns: readonly z.infer<typeof ColumnInfo>[]
 
   private typeParameters: Set<string> = new Set()
 
   constructor(
-    options: TableInfo,
+    options: z.infer<typeof TableInfoWithColumns>,
     types: TypeRegistry,
     transform: Transformations
   ) {
@@ -56,6 +57,7 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
     return Array.from(this.typeParameters).map<TypeParameterDeclaration>(
       (name) => {
         return factory.createTypeParameterDeclaration(
+          undefined,
           name,
           undefined,
           serializable
@@ -68,7 +70,6 @@ export default class TableBuilder extends TypeBuilder<InterfaceDeclaration> {
     const members = this.buildMemberNodes()
     const typeParameters = this.buildTypeParams()
     return factory.createInterfaceDeclaration(
-      undefined,
       [ExportKeyword],
       this.typename(),
       typeParameters,

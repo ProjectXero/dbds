@@ -24,6 +24,9 @@ export interface TestTableOrder$Insert {
 export const TestTableOrder$Types = {
     subsequent_table_type: "test_table_standard"
 } as const;
+export const TestTableOrder$Schema = z.object({
+    subsequent_table_type: TestTableStandard$Schema.nullable()
+});
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
     caseTest_upper: string | null;
@@ -54,6 +57,16 @@ export const TestTableStandard$Types = {
     id: "int4",
     jsonb_test: "jsonb"
 } as const;
+export const TestTableStandard$Schema = z.object({
+    arr_test: z.array(z.string()).nullable(),
+    caseTest_upper: z.string().nullable(),
+    casetest_lower: z.string().nullable(),
+    domain_test: z.string().nullable(),
+    enum_arr_test: z.array(z.nativeEnum(TestTypeEnum)).nullable(),
+    enum_test: z.nativeEnum(TestTypeEnum),
+    id: z.number(),
+    jsonb_test: z.unknown().nullable()
+});
 export interface TestTableTypes {
     id: string;
     table_arr_test: TestTableStandard[];
@@ -69,5 +82,10 @@ export const TestTableTypes$Types = {
     table_arr_test: "test_table_standard",
     table_test: "test_table_standard"
 } as const;
+export const TestTableTypes$Schema = z.object({
+    id: z.string(),
+    table_arr_test: z.array(TestTableStandard$Schema),
+    table_test: TestTableStandard$Schema.nullable()
+});
 "
 `;

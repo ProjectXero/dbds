@@ -117,7 +117,7 @@ export const handler = async (
       )
     }
 
-    const schemaInfo = new SchemaInfo(createPool(dbUrl), String(schema))
+    const schemaInfo = new SchemaInfo(await createPool(dbUrl), String(schema))
 
     const generator = new Generator({
       schema: schemaInfo,
