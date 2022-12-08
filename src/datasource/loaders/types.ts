@@ -1,5 +1,6 @@
 import type DataLoader from 'dataloader'
 import type { QueryOptions } from '../queries/QueryBuilder'
+import { TableMetadata } from '../types'
 
 export type SearchableKeys<T, SearchableType = string | number | null> = {
   [K in keyof T]?: T extends { [_ in K]?: SearchableType } ? K : never
@@ -31,10 +32,10 @@ export interface GetDataMultiFunction<TRowType> {
   ): readonly TRowType[] | Promise<readonly TRowType[]>
 }
 
-export interface LoaderFactoryOptions<TRowType> {
+export interface LoaderFactoryOptions<Schema> {
   columnToKey?: (column: string) => string
   keyToColumn?: (column: string) => string
-  columnTypes: Record<keyof TRowType, string>
+  metadata: TableMetadata<string & keyof Schema>
 }
 
 export type ExtendedDataLoader<

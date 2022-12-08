@@ -2,8 +2,8 @@ import DataLoader from 'dataloader'
 
 import { FinderOptions, ExtendedDataLoader } from './types'
 
-export interface FinderFunction<TInput, TRowType> {
-  (value: TInput): Promise<TRowType>
+export interface FinderFunction<Input, Result> {
+  (value: Input): Promise<Result>
 }
 
 export const isExtendedDataLoader = <M extends boolean, K, V, C>(
@@ -16,29 +16,29 @@ export const isExtendedDataLoader = <M extends boolean, K, V, C>(
   )
 }
 
-export default class FinderFactory<TRowType> {
+export default class FinderFactory<Schema> {
   public create<TInput>(
-    loader: ExtendedDataLoader<true, TInput, TRowType[]>,
+    loader: ExtendedDataLoader<true, TInput, Schema[]>,
     options?: FinderOptions
-  ): FinderFunction<TInput, TRowType[]>
+  ): FinderFunction<TInput, Schema[]>
   public create<TInput>(
-    loader: ExtendedDataLoader<false, TInput, TRowType | undefined>,
+    loader: ExtendedDataLoader<false, TInput, Schema | undefined>,
     options?: FinderOptions & { multi?: false }
-  ): FinderFunction<TInput, TRowType | null>
+  ): FinderFunction<TInput, Schema | null>
   public create<TInput>(
-    loader: DataLoader<TInput, TRowType[]>,
+    loader: DataLoader<TInput, Schema[]>,
     options: FinderOptions & { multi: true }
-  ): FinderFunction<TInput, TRowType[]>
+  ): FinderFunction<TInput, Schema[]>
   public create<TInput>(
-    loader: DataLoader<TInput, TRowType | undefined>,
+    loader: DataLoader<TInput, Schema | undefined>,
     options?: FinderOptions & { multi?: false }
-  ): FinderFunction<TInput, TRowType | null>
+  ): FinderFunction<TInput, Schema | null>
   public create<TInput>(
     loader:
-      | ExtendedDataLoader<boolean, TInput, TRowType | TRowType[] | undefined>
-      | DataLoader<TInput, TRowType | TRowType[] | undefined>,
+      | ExtendedDataLoader<boolean, TInput, Schema | Schema[] | undefined>
+      | DataLoader<TInput, Schema | Schema[] | undefined>,
     options: FinderOptions = {}
-  ): FinderFunction<TInput, TRowType[] | TRowType | null> {
+  ): FinderFunction<TInput, Schema[] | Schema | null> {
     if (isExtendedDataLoader(loader)) {
       options.multi = loader.isMultiLoader
     }
@@ -46,19 +46,19 @@ export default class FinderFactory<TRowType> {
     const { multi = false } = options
 
     if (multi === true) {
-      return async (value: TInput): Promise<TRowType[]> => {
+      return async (value: TInput): Promise<Schema[]> => {
         const result = await loader.load(value)
         if (!result) {
           return []
         }
-        if (!Array.isArray(result)) {
-          return [result]
+        if (Array.isArray(result)) {
+          return result
         }
-        return result
+        return [result]
       }
     }
 
-    return async (value: TInput): Promise<TRowType | null> => {
+    return async (value: TInput): Promise<Schema | null> => {
       const result = await loader.load(value)
       if (!result) {
         return null

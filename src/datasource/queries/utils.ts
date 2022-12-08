@@ -8,7 +8,11 @@ import { FragmentToken } from 'slonik/dist/src/tokens'
 import { OrderTuple } from './types'
 
 export const isSqlToken = (subject: unknown): subject is SqlToken => {
-  return isSlonikToken(subject)
+  try {
+    return isSlonikToken(subject)
+  } catch {
+    return false
+  }
 }
 
 export const isFragmentSqlToken = (v: unknown): v is FragmentSqlToken => {

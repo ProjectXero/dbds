@@ -1,19 +1,11 @@
-import { camel, snake } from 'case'
+import { camel } from 'case'
 import DataLoader from 'dataloader'
-import {
-  sql,
-  DatabasePool,
-  IdentifierNormalizer,
-  DatabaseTransactionConnection,
-} from 'slonik'
+import { sql, DatabasePool, DatabaseTransactionConnection } from 'slonik'
 
 export type { DatabasePool } from 'slonik'
 
 import { FinderFactory, LoaderFactory } from './loaders'
-import QueryBuilder, {
-  QueryOptions as BuilderOptions,
-  SelectOptions,
-} from './queries/QueryBuilder'
+import QueryBuilder, { SelectOptions } from './queries/QueryBuilder'
 import {
   AllowSql,
   CountQueryRowType,
@@ -21,80 +13,144 @@ import {
   ValueOrArray,
 } from './queries/types'
 import { AsyncLocalStorage } from 'async_hooks'
-import type { z, ZodSchema } from 'zod'
-import { isSqlToken } from './queries/utils'
+import { z } from 'zod'
 import { TypedSqlQuery } from '../types'
-
-export interface QueryOptions<TRowType, TResultType = TRowType>
-  extends BuilderOptions<TRowType> {
-  eachResult?: LoaderCallback<TResultType>
-  expected?: 'one' | 'many' | 'maybeOne' | 'any'
-}
-
-export interface KeyNormalizers {
-  keyToColumn: IdentifierNormalizer
-  columnToKey: IdentifierNormalizer
-}
+import {
+  ExtendedDatabasePool,
+  QueryOptions,
+  TableMetadata,
+  TableSchema,
+} from './types'
 
 export { DataLoader, sql }
-
-export type LoaderCallback<TResultType> = (
-  value: TResultType,
-  index: number,
-  array: readonly TResultType[]
-) => void
 
 const parseTS = (value: number | string): Date | null =>
   value === null ? null : new Date(value)
 
-const isArray = <T extends unknown[] | readonly unknown[], U>(
-  value: T | U
-): value is T => Array.isArray(value)
+// class NewDBDataSource<
+//   Metadata extends TableMetadata,
+//   SelectSchema extends TableSchema<string & keyof Metadata>,
+//   InsertSchema extends TableSchema<string & keyof Metadata>
+// > {
+//   constructor(
+//     pool: DatabasePool,
+//     protected readonly table: string,
+//     protected readonly metadata: Metadata,
+//     protected readonly selectSchema: SelectSchema,
+//     protected readonly insertSchema: InsertSchema
+//   ) {
+//     this.pool = pool as ExtendedDatabasePool<SelectSchema>
+//     this.pool.async ||= new AsyncLocalStorage()
+//   }
 
-interface AsyncStorage<TRowType> {
-  transaction: DatabaseTransactionConnection
-  loaderLookups: Array<[Loader<TRowType>, readonly unknown[]]>
-}
+//   protected defaultOptions: QueryOptions<z.infer<SelectSchema>> = {}
+//   protected readonly pool: ExtendedDatabasePool<SelectSchema>
 
-type Loader<TRowType> = DataLoader<unknown, TRowType[] | (TRowType | undefined)>
+//   private _loaderFactory?: LoaderFactory<z.infer<SelectSchema>>
+//   protected get loaderFactory(): LoaderFactory<z.infer<SelectSchema>> {
+//     this._loaderFactory ||= new LoaderFactory(
+//       this.getDataByColumn.bind(this),
+//       this.getDataByMultipleColumns.bind(this),
+//       {
+//         ...this.normalizers,
+//         columnTypes: this.columnTypes,
+//       }
+//     )
 
-interface ExtendedDatabasePool<TRowType> extends DatabasePool {
-  async: AsyncLocalStorage<AsyncStorage<TRowType>>
-}
+//     return this._loaderFactory
+//   }
+
+//   private finderFactory?: FinderFactory<z.infer<SelectSchema>>
+//   protected get finders(): FinderFactory<z.infer<SelectSchema>> {
+//     this.finderFactory ||= new FinderFactory()
+//     return this.finderFactory
+//   }
+
+//   private _queryBuilder?: QueryBuilder<Metadata, SelectSchema>
+//   protected get queryBuilder(): QueryBuilder<Metadata, SelectSchema> {
+//     if (!this._queryBuilder) {
+//       this._queryBuilder = new QueryBuilder<Metadata, SelectSchema>(
+//         this.table,
+//         this.metadata,
+//         this.selectSchema,
+//         this.defaultOptions
+//       )
+//     }
+
+//     return this._queryBuilder
+//   }
+
+//   protected async getDataByMultipleColumns<
+//     TColumnNames extends Array<string & keyof z.infer<SelectSchema>>,
+//     TArgs extends { [K in TColumnNames[0]]: z.infer<SelectSchema>[K] }
+//   >(
+//     args: ReadonlyArray<TArgs>,
+//     columns: TColumnNames,
+//     types: string[],
+//     loader: DataLoader<
+//       TArgs,
+//       z.infer<SelectSchema>[] | z.infer<SelectSchema> | undefined
+//     >,
+//     options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
+//   ): Promise<readonly z.infer<SelectSchema>[]> {
+//     const store = this.pool.async.getStore()
+//     if (store) {
+//       store.loaderLookups.push([loader, args])
+//     }
+
+//     return await this.query(
+//       this.queryBuilder.multiColumnBatchGet(args, columns, types, options),
+//       { expected: 'any' }
+//     )
+//   }
+// }
+
+// const DEFAULT = Symbol('DEFAULT')
+
+// const BlahSchema = z.object({
+//   id: z.string(),
+//   name: z.string(),
+// })
+
+// const BlahMetadata: TableMetadata<'id' | 'name'> = {
+//   id: {
+//     nativeName: 'id',
+//     nativeType: 'int8',
+//   },
+//   name: {
+//     nativeName: 'name',
+//     nativeType: 'text',
+//   },
+// }
+
+// const ds = new NewDBDataSource(BlahMetadata, BlahSchema, BlahSchema)
 
 export default class DBDataSource<
-  TRowType,
-  TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType,
-  TColumnTypes extends Record<keyof TRowType, string> = Record<
-    keyof TRowType,
-    string
-  >
+  Metadata extends TableMetadata,
+  SelectSchema extends TableSchema<string & keyof Metadata>,
+  InsertSchema extends TableSchema<string & keyof Metadata>
 > {
-  protected normalizers: KeyNormalizers = {
+  protected normalizers = {
     columnToKey: camel,
-    keyToColumn: snake,
-  }
+  } as const
 
-  protected defaultOptions: QueryOptions<TRowType> = {}
+  protected defaultOptions: QueryOptions<z.infer<SelectSchema>> = {}
 
-  private _loaders?: LoaderFactory<TRowType>
-  protected get loaders(): LoaderFactory<TRowType> {
+  private _loaders?: LoaderFactory<z.infer<SelectSchema>>
+  protected get loaders(): LoaderFactory<z.infer<SelectSchema>> {
     if (!this._loaders) {
       this._loaders = new LoaderFactory(
         this.getDataByColumn.bind(this),
         this.getDataByMultipleColumns.bind(this),
-        {
-          ...this.normalizers,
-          columnTypes: this.columnTypes,
-        }
+        this.metadata
       )
     }
 
     return this._loaders
   }
 
-  private _finders?: FinderFactory<TRowType>
-  protected get finders(): FinderFactory<TRowType> {
+  private _finders?: FinderFactory<z.infer<SelectSchema>>
+  protected get finders(): FinderFactory<z.infer<SelectSchema>> {
     if (!this._finders) {
       this._finders = new FinderFactory()
     }
@@ -102,13 +158,13 @@ export default class DBDataSource<
     return this._finders
   }
 
-  private _builder?: QueryBuilder<TRowType, TInsertType>
-  protected get builder(): QueryBuilder<TRowType, TInsertType> {
+  private _builder?: QueryBuilder<Metadata, SelectSchema>
+  protected get builder(): QueryBuilder<Metadata, SelectSchema> {
     if (!this._builder) {
       this._builder = new QueryBuilder(
         this.table,
-        this.columnTypes,
-        this.normalizers.keyToColumn,
+        this.metadata,
+        this.selectSchema,
         this.defaultOptions
       )
     }
@@ -116,25 +172,16 @@ export default class DBDataSource<
     return this._builder
   }
 
-  protected readonly pool: ExtendedDatabasePool<TRowType>
+  protected readonly pool: ExtendedDatabasePool<z.infer<SelectSchema>>
 
   constructor(
     pool: DatabasePool,
     protected readonly table: string,
-    /**
-     * Types of the columns in the database.
-     * Used to map values for insert and lookups on multiple values.
-     *
-     * EVERY DATASOURCE MUST PROVIDE THIS AS STUFF WILL BREAK OTHERWISE. SORRY.
-     */
-    protected readonly columnTypes: TColumnTypes,
-    protected readonly columnSchemas?: {
-      [K in keyof TRowType as TColumnTypes[K] extends 'json' | 'jsonb'
-        ? K
-        : never]?: ZodSchema
-    }
+    protected readonly metadata: Metadata,
+    protected readonly selectSchema: SelectSchema,
+    protected readonly insertSchema: InsertSchema
   ) {
-    this.pool = pool as ExtendedDatabasePool<TRowType>
+    this.pool = pool as ExtendedDatabasePool<z.infer<SelectSchema>>
     this.pool.async ||= new AsyncLocalStorage()
   }
 
@@ -178,8 +225,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options: QueryOptions<TRowType> & SelectOptions & { expected: 'one' }
-  ): Promise<TRowType>
+    options: QueryOptions<z.infer<SelectSchema>> &
+      SelectOptions & { expected: 'one' }
+  ): Promise<z.infer<SelectSchema>>
 
   /**
    * Possibly find a single row
@@ -187,8 +235,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options: QueryOptions<TRowType> & SelectOptions & { expected: 'maybeOne' }
-  ): Promise<TRowType | null>
+    options: QueryOptions<z.infer<SelectSchema>> &
+      SelectOptions & { expected: 'maybeOne' }
+  ): Promise<z.infer<SelectSchema> | null>
 
   /**
    * Find multiple rows
@@ -196,21 +245,21 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options?: QueryOptions<TRowType> &
+    options?: QueryOptions<z.infer<SelectSchema>> &
       SelectOptions & { expected?: 'any' | 'many' }
-  ): Promise<readonly TRowType[]>
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   protected async get(
-    options?: QueryOptions<TRowType> & SelectOptions
-  ): Promise<TRowType | readonly TRowType[] | null> {
+    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
+  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
     const query = this.builder.select(options)
 
-    return await this.query(query, options)
+    return await this.query<SelectSchema>(query, options)
   }
 
   protected async count(
     options?: Omit<
-      QueryOptions<TRowType, CountQueryRowType>,
+      QueryOptions<z.infer<SelectSchema>, CountQueryRowType>,
       'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
     >
   ): Promise<number> {
@@ -222,17 +271,26 @@ export default class DBDataSource<
     return result.count
   }
 
-  protected async countGroup<TGroup extends Array<string & keyof TRowType>>(
-    groupColumns: TGroup & Array<keyof TRowType>,
+  protected async countGroup<
+    TGroup extends Array<string & keyof z.infer<SelectSchema>>
+  >(
+    groupColumns: TGroup & Array<keyof z.infer<SelectSchema>>,
     options?: Omit<
-      QueryOptions<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>,
+      QueryOptions<
+        CountQueryRowType & { [K in TGroup[0]]: z.infer<SelectSchema>[K] }
+      >,
       'orderBy' | 'groupBy' | 'limit' | 'having' | 'expected'
     >
   ): Promise<
-    ReadonlyArray<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>
+    ReadonlyArray<
+      CountQueryRowType & { [K in TGroup[0]]: z.infer<SelectSchema>[K] }
+    >
   > {
     const query = this.builder.countGroup(groupColumns, options)
-    const result = await this.query(query, {
+    const parser = query.parser
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore i promise
+    const result = await this.query<z.infer<typeof parser>>(query, {
       ...options,
       expected: 'any',
     })
@@ -245,9 +303,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: AllowSql<TInsertType>,
-    options?: QueryOptions<TRowType> & { expected?: undefined }
-  ): Promise<TRowType>
+    rows: AllowSql<z.infer<InsertSchema>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & { expected?: undefined }
+  ): Promise<z.infer<SelectSchema>>
 
   /**
    * Insert multiple rows
@@ -255,9 +313,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: Array<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType> & { expected?: undefined }
-  ): Promise<readonly TRowType[]>
+    rows: Array<AllowSql<z.infer<InsertSchema>>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & { expected?: undefined }
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   /**
    * Expect a single row to be inserted from the given data
@@ -265,9 +323,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType> & { expected: 'one' }
-  ): Promise<TRowType>
+    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
+  ): Promise<z.infer<SelectSchema>>
 
   /**
    * Expect zero or one rows to be inserted from the given data
@@ -275,9 +333,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType> & { expected: 'maybeOne' }
-  ): Promise<TRowType | null>
+    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
+  ): Promise<z.infer<SelectSchema> | null>
 
   /**
    * Insert multiple rows
@@ -285,22 +343,20 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType> & { expected: 'any' | 'many' }
-  ): Promise<readonly TRowType[]>
+    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'any' | 'many' }
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   /**
    * Implementation
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
-    options: QueryOptions<TRowType> = {}
-  ): Promise<TRowType | readonly TRowType[] | null> {
-    if (!options.expected) {
-      options.expected = !isArray(rows) ? 'one' : 'many'
-    }
+    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
+    options: QueryOptions<z.infer<SelectSchema>> = {}
+  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
+    options.expected ||= !Array.isArray(rows) ? 'one' : 'many'
 
-    if (isArray(rows) && rows.length === 0) {
+    if (Array.isArray(rows) && rows.length === 0) {
       switch (options.expected) {
         case 'one': // we should really raise here, strictly speaking
         case 'maybeOne':
@@ -310,15 +366,13 @@ export default class DBDataSource<
           return []
       }
     }
-
-    if (isArray(rows)) {
-      rows.map((row) => this.parseColumnSchemas(row))
-    } else {
-      rows = this.parseColumnSchemas(rows)
-    }
+    rows = Array.isArray(rows) ? rows : [rows]
+    rows = rows.map((row) => this.insertSchema.parse(row)) as AllowSql<
+      z.infer<InsertSchema>
+    >[]
 
     const query = this.builder.insert(rows, options)
-    return await this.query(query, options)
+    return await this.query<SelectSchema>(query, options)
   }
 
   /**
@@ -328,9 +382,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<TRowType>,
-    options: QueryOptions<TRowType> & { expected: 'one' }
-  ): Promise<TRowType>
+    data: UpdateSet<z.infer<SelectSchema>>,
+    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
+  ): Promise<z.infer<SelectSchema>>
 
   /**
    * Update a zero or one rows
@@ -339,9 +393,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<TRowType>,
-    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
-  ): Promise<TRowType | null>
+    data: UpdateSet<z.infer<SelectSchema>>,
+    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
+  ): Promise<z.infer<SelectSchema> | null>
 
   /**
    * Update multiple rows
@@ -350,20 +404,33 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<TRowType>,
-    options?: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
-  ): Promise<readonly TRowType[]>
+    data: UpdateSet<z.infer<SelectSchema>>,
+    options?: QueryOptions<z.infer<SelectSchema>> & {
+      expected?: 'any' | 'many'
+    }
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   /**
    * Implementation
    */
   protected async update(
-    data: UpdateSet<TRowType>,
-    options?: QueryOptions<TRowType>
-  ): Promise<TRowType | readonly TRowType[] | null> {
-    data = this.parseColumnSchemas(data)
-    const query = this.builder.update(data, options)
-    return await this.query(query, options)
+    data: UpdateSet<z.infer<SelectSchema>>,
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
+    const mask = Object.keys(data).reduce(
+      (res, key) => ({
+        ...res,
+        [key]: true,
+      }),
+      {} as Record<keyof z.infer<SelectSchema>, true>
+    )
+    const query = this.builder.update(
+      this.insertSchema.pick(mask).parse(data) as UpdateSet<
+        z.infer<SelectSchema>
+      >,
+      options
+    )
+    return await this.query<SelectSchema>(query, options)
   }
 
   /**
@@ -373,8 +440,8 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<TRowType> & { expected: 'one' }
-  ): Promise<TRowType>
+    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
+  ): Promise<z.infer<SelectSchema>>
 
   /**
    * Update a zero or one rows
@@ -383,8 +450,8 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<TRowType> & { expected: 'maybeOne' }
-  ): Promise<TRowType | null>
+    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
+  ): Promise<z.infer<SelectSchema> | null>
 
   /**
    * Update multiple rows
@@ -393,8 +460,8 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<TRowType> & { expected?: 'any' | 'many' }
-  ): Promise<readonly TRowType[]>
+    options: QueryOptions<z.infer<SelectSchema>> & { expected?: 'any' | 'many' }
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   /**
    * Delete every row in the table
@@ -402,16 +469,21 @@ export default class DBDataSource<
    * @param data Update expression
    * @param options Query options
    */
-  protected async delete(options: true): Promise<readonly TRowType[]>
+  protected async delete(
+    options: true
+  ): Promise<readonly z.infer<SelectSchema>[]>
 
   /**
    * Implementation
    */
   protected async delete(
-    options: QueryOptions<TRowType> | true
-  ): Promise<TRowType | readonly TRowType[] | null> {
+    options: QueryOptions<z.infer<SelectSchema>> | true
+  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
     const query = this.builder.delete(options)
-    return await this.query(query, options === true ? undefined : options)
+    return await this.query<SelectSchema>(
+      query,
+      options === true ? undefined : options
+    )
   }
 
   /**
@@ -425,26 +497,26 @@ export default class DBDataSource<
    * @param query Executable query
    * @param options Query options
    */
-  protected async query<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options: QueryOptions<TData> & { expected?: 'any' | 'many' }
-  ): Promise<readonly TData[]>
-  protected async query<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options: QueryOptions<TData> & { expected: 'one' }
-  ): Promise<TData>
-  protected async query<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options: QueryOptions<TData> & { expected: 'maybeOne' }
-  ): Promise<TData | null>
-  protected async query<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<TData | null | readonly TData[]>
-  protected async query<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<TData | null | readonly TData[]> {
+  protected async query<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options: QueryOptions<z.infer<TData>> & { expected?: 'any' | 'many' }
+  ): Promise<readonly z.infer<TData>[]>
+  protected async query<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options: QueryOptions<z.infer<TData>> & { expected: 'one' }
+  ): Promise<z.infer<TData>>
+  protected async query<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options: QueryOptions<z.infer<TData>> & { expected: 'maybeOne' }
+  ): Promise<z.infer<TData> | null>
+  protected async query<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<z.infer<TData> | null | readonly z.infer<TData>[]>
+  protected async query<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<z.infer<TData> | null | readonly z.infer<TData>[]> {
     switch (options?.expected || 'any') {
       case 'one':
         return await this.one(query, options)
@@ -457,43 +529,43 @@ export default class DBDataSource<
     }
   }
 
-  private async any<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<readonly TData[]> {
+  private async any<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<readonly z.infer<TData>[]> {
     const results = (await this.connection.any(query)).map((row) =>
-      this.transformResult<TData, TData>(row)
+      this.transformResult<z.infer<TData>, z.infer<TData>>(row)
     )
     this.eachResult(results, options)
     return results
   }
 
-  private async many<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<readonly TData[]> {
+  private async many<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<readonly z.infer<TData>[]> {
     const results = (await this.connection.many(query)).map((row) =>
-      this.transformResult<TData, TData>(row)
+      this.transformResult<z.infer<TData>, z.infer<TData>>(row)
     )
-    this.eachResult(results, options)
+    this.eachResult<z.infer<TData>>(results, options)
     return results
   }
 
-  private async one<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<TData> {
-    const result = this.transformResult<TData, TData>(
+  private async one<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<z.infer<TData>> {
+    const result = this.transformResult<z.infer<TData>, z.infer<TData>>(
       await this.connection.one(query)
     )
     this.eachResult(result, options)
     return result
   }
 
-  private async maybeOne<TData>(
-    query: TypedSqlQuery<z.ZodAny>,
-    options?: QueryOptions<TData>
-  ): Promise<TData | null> {
+  private async maybeOne<TData extends z.AnyZodObject>(
+    query: TypedSqlQuery<TData>,
+    options?: QueryOptions<z.infer<TData>>
+  ): Promise<z.infer<TData> | null> {
     let result = await this.connection.maybeOne(query)
     if (result) {
       result = this.transformResult(result)
@@ -511,24 +583,22 @@ export default class DBDataSource<
     if (!eachResult) {
       return
     }
-
-    if (!isArray(results)) {
-      results = [results]
-    }
-
-    results.filter((val): val is TData => val !== null).forEach(eachResult)
+    const arrayResults = Array.isArray(results) ? results : [results]
+    arrayResults.filter((val): val is TData => val !== null).forEach(eachResult)
   }
 
-  private async getDataByColumn<TColumnName extends keyof TRowType & string>(
-    args: ReadonlyArray<TRowType[TColumnName]>,
+  private async getDataByColumn<
+    TColumnName extends keyof z.infer<SelectSchema> & string
+  >(
+    args: ReadonlyArray<z.infer<SelectSchema>[TColumnName]>,
     column: TColumnName,
     type: string,
     loader: DataLoader<
-      TRowType[TColumnName] & (string | number),
-      TRowType[] | TRowType | undefined
+      z.infer<SelectSchema>[TColumnName] & (string | number),
+      z.infer<SelectSchema>[] | z.infer<SelectSchema> | undefined
     >,
-    options?: Omit<QueryOptions<TRowType>, 'expected'>
-  ): Promise<readonly TRowType[]> {
+    options?: Omit<QueryOptions<z.infer<SelectSchema>>, 'expected'>
+  ): Promise<readonly z.infer<SelectSchema>[]> {
     const store = this.pool.async.getStore()
     if (store) {
       store.loaderLookups.push([loader, args])
@@ -548,15 +618,18 @@ export default class DBDataSource<
   }
 
   protected async getDataByMultipleColumns<
-    TColumnNames extends Array<keyof TRowType & string>,
-    TArgs extends { [K in TColumnNames[0]]: TRowType[K] }
+    TColumnNames extends Array<keyof z.infer<SelectSchema> & string>,
+    TArgs extends { [K in TColumnNames[0]]: z.infer<SelectSchema>[K] }
   >(
     args: ReadonlyArray<TArgs>,
     columns: TColumnNames,
     types: string[],
-    loader: DataLoader<TArgs, TRowType[] | TRowType | undefined>,
-    options?: QueryOptions<TRowType> & SelectOptions
-  ): Promise<readonly TRowType[]> {
+    loader: DataLoader<
+      TArgs,
+      z.infer<SelectSchema>[] | z.infer<SelectSchema> | undefined
+    >,
+    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
+  ): Promise<readonly z.infer<SelectSchema>[]> {
     const store = this.pool.async.getStore()
     if (store) {
       store.loaderLookups.push([loader, args])
@@ -568,33 +641,15 @@ export default class DBDataSource<
     )
   }
 
-  protected parseColumnSchemas<TRow extends AllowSql<TRowType | TInsertType>>(
-    row: TRow
-  ): TRow {
-    if (!this.columnSchemas) {
-      return row
-    }
-    const keys = Object.keys(
-      this.columnSchemas
-    ) as (keyof typeof this.columnSchemas)[]
-    for (const column of keys) {
-      const schema = this.columnSchemas[column]
-      if (!schema || isSqlToken(row[column])) {
-        continue
-      }
-
-      row[column] = schema.parse(row[column])
-    }
-    return row
-  }
-
-  private transformResult<TInput, TOutput>(input: TInput): TOutput {
+  private transformResult<TInput extends object, TOutput>(
+    input: TInput
+  ): TOutput {
     const transform = this.normalizers.columnToKey
 
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
       const column = transform(key)
       const type: string | undefined =
-        this.columnTypes[column as keyof TRowType]
+        this.metadata[column as keyof z.infer<SelectSchema>]?.nativeType
       const value = this.mapTypeValue(
         column,
         type,

@@ -1,9 +1,12 @@
 import {
   factory,
   Identifier,
+  NodeFlags,
+  Statement,
   SyntaxKind,
   TypeAliasDeclaration,
   TypeNode,
+  VariableStatement,
 } from 'typescript'
 import { ExportKeyword } from './NodeBuilder'
 
@@ -187,11 +190,38 @@ export default class UtilityTypesBuilder {
     )
   }
 
-  public buildNodes(): TypeAliasDeclaration[] {
+  private buildDefault(): VariableStatement {
+    const declaration = factory.createVariableDeclaration(
+      'DEFAULT',
+      undefined,
+      undefined,
+      factory.createCallExpression(
+        factory.createIdentifier('Symbol'),
+        undefined,
+        [factory.createStringLiteral('DEFAULT')]
+      )
+    )
+
+    const declarationList = factory.createVariableDeclarationList(
+      [declaration],
+      NodeFlags.Const
+    )
+
+    return factory.createVariableStatement([ExportKeyword], declarationList)
+  }
+
+  public buildNodes(): Statement[] {
     const primitiveType = this.buildPrimitiveValueType()
     const simpleType = this.buildSimpleValueType(primitiveType.name)
     const serialzableType = this.buildSerializableValueType(simpleType.name)
     const mapToSerialize = this.buildMapToSerializable()
-    return [primitiveType, simpleType, serialzableType, mapToSerialize]
+    const defaultSymbol = this.buildDefault()
+    return [
+      primitiveType,
+      simpleType,
+      serialzableType,
+      mapToSerialize,
+      defaultSymbol,
+    ]
   }
 }

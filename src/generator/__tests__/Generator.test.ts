@@ -32,7 +32,7 @@ describe(Generator, () => {
       schema: dummySchema,
     })
 
-    it('generates everything', async () => {
+    it('generates metadata and select/insert schemas', async () => {
       expect(await instance.build()).toMatchSnapshot()
     })
   })
@@ -40,6 +40,9 @@ describe(Generator, () => {
   describe('with everything disabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
@@ -55,6 +58,9 @@ describe(Generator, () => {
   describe('with tables enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: true,
@@ -71,6 +77,9 @@ describe(Generator, () => {
   describe('with enums enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: true,
       genInsertTypes: false,
       genTables: false,
@@ -86,6 +95,9 @@ describe(Generator, () => {
   describe('with insert types enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: true,
       genTables: false,
@@ -102,6 +114,9 @@ describe(Generator, () => {
   describe('with type objects enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
@@ -118,6 +133,9 @@ describe(Generator, () => {
   describe('with schema objects enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
@@ -177,16 +195,16 @@ describe(Generator, () => {
     const instance = new Generator({
       schema: dummySchema,
     })
-    const buildTablesSpy = jest.spyOn(instance, 'buildTables' as never)
+    const tableBuildersSpy = jest.spyOn(instance, 'tableBuilders' as never)
 
     beforeEach(() => {
-      buildTablesSpy.mockImplementation(() => {
+      tableBuildersSpy.mockImplementation(() => {
         throw new Error('testing error handling')
       })
     })
 
     afterEach(() => {
-      buildTablesSpy.mockReset()
+      tableBuildersSpy.mockReset()
     })
 
     describe('when builders throw an error', () => {

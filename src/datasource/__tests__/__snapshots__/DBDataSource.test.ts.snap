@@ -1,8 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DBDataSource defaultOptions uses the default options 1`] = `
-{
-  "sql": "
+"
       SELECT *
       FROM "any_table"
       
@@ -10,8 +9,5 @@ exports[`DBDataSource defaultOptions uses the default options 1`] = `
       ORDER BY "any_table"."id"
       
       
-    ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": [],
-}
+    "
 `;

@@ -14,3 +14,19 @@ export default abstract class NodeBuilder<T extends Node> {
 
   public abstract buildNode(): T
 }
+
+export interface SingleBuildable<T extends Node> {
+  buildNode(): T
+}
+
+export interface MultiBuildable<T extends Node> {
+  buildNodes(): T[]
+}
+
+export type Buildable<T extends Node> = SingleBuildable<T> | MultiBuildable<T>
+
+export function isMultiBuildable<T extends Node>(
+  builder: Buildable<T>
+): builder is MultiBuildable<T> {
+  return Reflect.has(builder, 'buildNodes')
+}

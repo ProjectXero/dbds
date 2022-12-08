@@ -9,7 +9,8 @@ exports[`Generator build when builders throw an error logs the error and rethrow
 `;
 
 exports[`Generator when re-registering an already-registered type outputs a warning 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"import { z } from zod;
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -17,8 +18,9 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
-export interface SomehowDuplicatedTypeName {
-}
+export const DEFAULT = Symbol("DEFAULT");
+export const SomehowDuplicatedTypeName$Metadata = {} as const;
+export const SomehowDuplicatedTypeName$Schema = z.object({});
 export const SomehowDuplicatedTypeName$Schema = z.object({});
 export interface SomehowDuplicatedTypeName {
 }
@@ -28,13 +30,14 @@ export interface SomehowDuplicatedTypeName {
 exports[`Generator when re-registering an already-registered type outputs a warning 2`] = `
 [
   [
-    "Re-registering known type 'somehow_duplicated_type_name': SomehowDuplicatedTypeName => SomehowDuplicatedTypeName",
+    "Duplicate table name detected: somehow_duplicated_type_name. This is not supported, skipping.",
   ],
 ]
 `;
 
-exports[`Generator with default options generates everything 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+exports[`Generator with default options generates metadata and select/insert schemas 1`] = `
+"import { z } from zod;
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -42,82 +45,81 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
-export enum TestEnum {
-    A = "A",
-    B = "b",
-    CamelCaseRules = "camel_case_rules"
-}
-export interface TableWithNoColumns {
-}
-export interface TableWithNoColumns$Insert {
-}
-export const TableWithNoColumns$Types = {} as const;
+export const DEFAULT = Symbol("DEFAULT");
+export const TableWithNoColumns$Metadata = {} as const;
 export const TableWithNoColumns$Schema = z.object({});
-export interface TableWithNumericId {
-    id: number;
-}
-export interface TableWithNumericId$Insert {
-    id?: number;
-}
-export const TableWithNumericId$Types = {
-    id: "int8"
+export const TableWithNoColumns$Schema = z.object({});
+export const TableWithNumericId$Metadata = {
+    id: {
+        nativeName: "id",
+        nativeType: "int8"
+    }
 } as const;
 export const TableWithNumericId$Schema = z.object({
     id: z.number()
 });
-export interface TableWithCustomTypes {
-    enum_type: TestEnum;
-    enum_array_type: TestEnum[];
-    table_type: TableWithUuidId;
-    table_array_type: TableWithUuidId[];
-}
-export interface TableWithCustomTypes$Insert {
-    enum_type: TestEnum;
-    enum_array_type: TestEnum[];
-    table_type: TableWithUuidId;
-    table_array_type: TableWithUuidId[];
-}
-export const TableWithCustomTypes$Types = {
-    enum_type: "test_enum",
-    enum_array_type: "test_enum",
-    table_type: "table_with_uuid_id",
-    table_array_type: "table_with_uuid_id"
+export const TableWithNumericId$Schema = z.object({
+    id: z.number().optional().or(DEFAULT)
+});
+export const TableWithCustomTypes$Metadata = {
+    enum_type: {
+        nativeName: "enum_type",
+        nativeType: "test_enum"
+    },
+    enum_array_type: {
+        nativeName: "enum_array_type",
+        nativeType: "test_enum"
+    },
+    table_type: {
+        nativeName: "table_type",
+        nativeType: "table_with_uuid_id"
+    },
+    table_array_type: {
+        nativeName: "table_array_type",
+        nativeType: "table_with_uuid_id"
+    }
 } as const;
 export const TableWithCustomTypes$Schema = z.object({
-    enum_type: z.nativeEnum(TestEnum),
-    enum_array_type: z.array(z.nativeEnum(TestEnum)),
-    table_type: TableWithUuidId$Schema,
-    table_array_type: z.array(TableWithUuidId$Schema)
+    enum_type: z.unknown(),
+    enum_array_type: z.array(z.unknown()),
+    table_type: z.unknown(),
+    table_array_type: z.array(z.unknown())
 });
-export interface TableWithUuidId {
-    id: string;
-}
-export interface TableWithUuidId$Insert {
-    id?: string;
-}
-export const TableWithUuidId$Types = {
-    id: "uuid"
+export const TableWithCustomTypes$Schema = z.object({
+    enum_type: z.unknown(),
+    enum_array_type: z.array(z.unknown()),
+    table_type: z.unknown(),
+    table_array_type: z.array(z.unknown())
+});
+export const TableWithUuidId$Metadata = {
+    id: {
+        nativeName: "id",
+        nativeType: "uuid"
+    }
 } as const;
 export const TableWithUuidId$Schema = z.object({
     id: z.string()
 });
-export interface TableWithNullableFields {
-    nullable: string | null;
-    nullable_with_default: string | null;
-    nullable_array: string[] | null;
-    nullable_array_with_default: string[] | null;
-}
-export interface TableWithNullableFields$Insert {
-    nullable?: string | null;
-    nullable_with_default?: string | null;
-    nullable_array?: string[] | null;
-    nullable_array_with_default?: string[] | null;
-}
-export const TableWithNullableFields$Types = {
-    nullable: "text",
-    nullable_with_default: "text",
-    nullable_array: "text",
-    nullable_array_with_default: "text"
+export const TableWithUuidId$Schema = z.object({
+    id: z.string().optional().or(DEFAULT)
+});
+export const TableWithNullableFields$Metadata = {
+    nullable: {
+        nativeName: "nullable",
+        nativeType: "text"
+    },
+    nullable_with_default: {
+        nativeName: "nullable_with_default",
+        nativeType: "text"
+    },
+    nullable_array: {
+        nativeName: "nullable_array",
+        nativeType: "text"
+    },
+    nullable_array_with_default: {
+        nativeName: "nullable_array_with_default",
+        nativeType: "text"
+    }
 } as const;
 export const TableWithNullableFields$Schema = z.object({
     nullable: z.string().nullable(),
@@ -125,27 +127,36 @@ export const TableWithNullableFields$Schema = z.object({
     nullable_array: z.array(z.string()).nullable(),
     nullable_array_with_default: z.array(z.string()).nullable()
 });
-export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
-    json: MapToSerializable<TJson>;
-    jsonb: MapToSerializable<TJsonb> | null;
-}
-export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb = SerializableValueType> {
-    json: MapToSerializable<TJson>;
-    jsonb?: MapToSerializable<TJsonb> | null;
-}
-export const TableWithJsonJsonb$Types = {
-    json: "json",
-    jsonb: "jsonb"
+export const TableWithNullableFields$Schema = z.object({
+    nullable: z.string().nullable(),
+    nullable_with_default: z.string().nullable().optional().or(DEFAULT),
+    nullable_array: z.array(z.string()).nullable(),
+    nullable_array_with_default: z.array(z.string()).nullable().optional().or(DEFAULT)
+});
+export const TableWithJsonJsonb$Metadata = {
+    json: {
+        nativeName: "json",
+        nativeType: "json"
+    },
+    jsonb: {
+        nativeName: "jsonb",
+        nativeType: "jsonb"
+    }
 } as const;
 export const TableWithJsonJsonb$Schema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable()
 });
+export const TableWithJsonJsonb$Schema = z.object({
+    json: z.unknown(),
+    jsonb: z.unknown().nullable().optional().or(DEFAULT)
+});
 "
 `;
 
 exports[`Generator with different case conversions properly cases members 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"import { z } from zod;
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -153,82 +164,81 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
-export enum TestEnum {
-    A = "A",
-    b = "b",
-    camel_case_rules = "camel_case_rules"
-}
-export interface TableWithNoColumns {
-}
-export interface TableWithNoColumns$Insert {
-}
-export const TableWithNoColumns$Types = {} as const;
+export const DEFAULT = Symbol("DEFAULT");
+export const TableWithNoColumns$Metadata = {} as const;
 export const TableWithNoColumns$Schema = z.object({});
-export interface TableWithNumericId {
-    id: number;
-}
-export interface TableWithNumericId$Insert {
-    id?: number;
-}
-export const TableWithNumericId$Types = {
-    id: "int8"
+export const TableWithNoColumns$Schema = z.object({});
+export const TableWithNumericId$Metadata = {
+    id: {
+        nativeName: "id",
+        nativeType: "int8"
+    }
 } as const;
 export const TableWithNumericId$Schema = z.object({
     id: z.number()
 });
-export interface TableWithCustomTypes {
-    enumType: TestEnum;
-    enumArrayType: TestEnum[];
-    tableType: TableWithUuidId;
-    tableArrayType: TableWithUuidId[];
-}
-export interface TableWithCustomTypes$Insert {
-    enumType: TestEnum;
-    enumArrayType: TestEnum[];
-    tableType: TableWithUuidId;
-    tableArrayType: TableWithUuidId[];
-}
-export const TableWithCustomTypes$Types = {
-    enumType: "test_enum",
-    enumArrayType: "test_enum",
-    tableType: "table_with_uuid_id",
-    tableArrayType: "table_with_uuid_id"
+export const TableWithNumericId$Schema = z.object({
+    id: z.number().optional().or(DEFAULT)
+});
+export const TableWithCustomTypes$Metadata = {
+    enumType: {
+        nativeName: "enum_type",
+        nativeType: "test_enum"
+    },
+    enumArrayType: {
+        nativeName: "enum_array_type",
+        nativeType: "test_enum"
+    },
+    tableType: {
+        nativeName: "table_type",
+        nativeType: "table_with_uuid_id"
+    },
+    tableArrayType: {
+        nativeName: "table_array_type",
+        nativeType: "table_with_uuid_id"
+    }
 } as const;
 export const TableWithCustomTypes$Schema = z.object({
-    enumType: z.nativeEnum(TestEnum),
-    enumArrayType: z.array(z.nativeEnum(TestEnum)),
-    tableType: TableWithUuidId$Schema,
-    tableArrayType: z.array(TableWithUuidId$Schema)
+    enumType: z.unknown(),
+    enumArrayType: z.array(z.unknown()),
+    tableType: z.unknown(),
+    tableArrayType: z.array(z.unknown())
 });
-export interface TableWithUuidId {
-    id: string;
-}
-export interface TableWithUuidId$Insert {
-    id?: string;
-}
-export const TableWithUuidId$Types = {
-    id: "uuid"
+export const TableWithCustomTypes$Schema = z.object({
+    enumType: z.unknown(),
+    enumArrayType: z.array(z.unknown()),
+    tableType: z.unknown(),
+    tableArrayType: z.array(z.unknown())
+});
+export const TableWithUuidId$Metadata = {
+    id: {
+        nativeName: "id",
+        nativeType: "uuid"
+    }
 } as const;
 export const TableWithUuidId$Schema = z.object({
     id: z.string()
 });
-export interface TableWithNullableFields {
-    nullable: string | null;
-    nullableWithDefault: string | null;
-    nullableArray: string[] | null;
-    nullableArrayWithDefault: string[] | null;
-}
-export interface TableWithNullableFields$Insert {
-    nullable?: string | null;
-    nullableWithDefault?: string | null;
-    nullableArray?: string[] | null;
-    nullableArrayWithDefault?: string[] | null;
-}
-export const TableWithNullableFields$Types = {
-    nullable: "text",
-    nullableWithDefault: "text",
-    nullableArray: "text",
-    nullableArrayWithDefault: "text"
+export const TableWithUuidId$Schema = z.object({
+    id: z.string().optional().or(DEFAULT)
+});
+export const TableWithNullableFields$Metadata = {
+    nullable: {
+        nativeName: "nullable",
+        nativeType: "text"
+    },
+    nullableWithDefault: {
+        nativeName: "nullable_with_default",
+        nativeType: "text"
+    },
+    nullableArray: {
+        nativeName: "nullable_array",
+        nativeType: "text"
+    },
+    nullableArrayWithDefault: {
+        nativeName: "nullable_array_with_default",
+        nativeType: "text"
+    }
 } as const;
 export const TableWithNullableFields$Schema = z.object({
     nullable: z.string().nullable(),
@@ -236,21 +246,29 @@ export const TableWithNullableFields$Schema = z.object({
     nullableArray: z.array(z.string()).nullable(),
     nullableArrayWithDefault: z.array(z.string()).nullable()
 });
-export interface TableWithJsonJsonb<TJson = SerializableValueType, TJsonb = SerializableValueType> {
-    json: MapToSerializable<TJson>;
-    jsonb: MapToSerializable<TJsonb> | null;
-}
-export interface TableWithJsonJsonb$Insert<TJson = SerializableValueType, TJsonb = SerializableValueType> {
-    json: MapToSerializable<TJson>;
-    jsonb?: MapToSerializable<TJsonb> | null;
-}
-export const TableWithJsonJsonb$Types = {
-    json: "json",
-    jsonb: "jsonb"
+export const TableWithNullableFields$Schema = z.object({
+    nullable: z.string().nullable(),
+    nullableWithDefault: z.string().nullable().optional().or(DEFAULT),
+    nullableArray: z.array(z.string()).nullable(),
+    nullableArrayWithDefault: z.array(z.string()).nullable().optional().or(DEFAULT)
+});
+export const TableWithJsonJsonb$Metadata = {
+    json: {
+        nativeName: "json",
+        nativeType: "json"
+    },
+    jsonb: {
+        nativeName: "jsonb",
+        nativeType: "jsonb"
+    }
 } as const;
 export const TableWithJsonJsonb$Schema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable()
+});
+export const TableWithJsonJsonb$Schema = z.object({
+    json: z.unknown(),
+    jsonb: z.unknown().nullable().optional().or(DEFAULT)
 });
 "
 `;
@@ -264,6 +282,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export enum TestEnum {
     A = "A",
     B = "b",
@@ -281,6 +300,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 "
 `;
 
@@ -293,6 +313,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export interface TableWithNoColumns$Insert {
 }
 export interface TableWithNumericId$Insert {
@@ -338,7 +359,8 @@ exports[`Generator with insert types enabled generates insert types 2`] = `
 `;
 
 exports[`Generator with schema objects enabled generates schema objects 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"import { z } from zod;
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -346,6 +368,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Schema = z.object({});
 export const TableWithNumericId$Schema = z.object({
     id: z.number()
@@ -398,6 +421,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export interface TableWithNoColumns {
 }
 export interface TableWithNumericId {
@@ -445,6 +469,7 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Types = {} as const;
 export const TableWithNumericId$Types = {
     id: "int8"

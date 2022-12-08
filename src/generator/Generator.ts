@@ -9,20 +9,36 @@ import {
 } from 'typescript'
 import * as Case from 'case'
 
-import { EnumBuilder, InsertTypeBuilder, TableBuilder } from './builders'
-import NodeBuilder from './builders/NodeBuilder'
+import {
+  EnumBuilder,
+  InsertSchemaBuilder,
+  InsertTypeBuilder,
+  SelectSchemaBuilder,
+  TableBuilder,
+  TableMetadataBuilder,
+} from './builders'
+import { Buildable, isMultiBuildable } from './builders/NodeBuilder'
 import TypeObjectBuilder from './builders/TypeObjectBuilder'
 import { SchemaInfo, TypeRegistry } from './database'
 import { CaseFunction, Transformations } from './types'
 import UtilityTypesBuilder from './builders/UtilityTypesBuilder'
 import ZodSchemaBuilder from './builders/ZodSchemaBuilder'
+import SingleNamedImportBuilder from './builders/SingleNamedImportBuilder'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
+  genSelectSchemas?: boolean
+  genInsertSchemas?: boolean
+  genTableMetadata?: boolean
+  /** @deprecated */
   genEnums?: boolean
+  /** @deprecated */
   genInsertTypes?: boolean
+  /** @deprecated */
   genTables?: boolean
+  /** @deprecated */
   genTypeObjects?: boolean
+  /** @deprecated */
   genSchemaObjects?: boolean
   transformColumns?: Transformations.Column
   transformEnumMembers?: Transformations.EnumMember
@@ -37,10 +53,18 @@ export default class Generator {
   private types: TypeRegistry
 
   public readonly generate: {
+    selectSchemas: boolean
+    insertSchemas: boolean
+    tableMetadata: boolean
+    /** @deprecated */
     enums: boolean
+    /** @deprecated */
     insertTypes: boolean
+    /** @deprecated */
     tables: boolean
+    /** @deprecated */
     typeObjects: boolean
+    /** @deprecated */
     schemaObjects: boolean
   }
 
@@ -48,11 +72,14 @@ export default class Generator {
 
   constructor({
     schema,
-    genEnums = true,
-    genInsertTypes = true,
-    genTables = true,
-    genTypeObjects = true,
-    genSchemaObjects = true,
+    genSelectSchemas: selectSchemas = true,
+    genInsertSchemas: insertSchemas = true,
+    genTableMetadata: tableMetadata = true,
+    genEnums = false,
+    genInsertTypes = false,
+    genTables = false,
+    genTypeObjects = false,
+    genSchemaObjects = false,
     transformColumns = 'none',
     transformEnumMembers = 'pascal',
     transformTypeNames = 'pascal',
@@ -66,6 +93,9 @@ export default class Generator {
     this.types = new TypeRegistry()
 
     this.generate = Object.freeze({
+      selectSchemas,
+      insertSchemas,
+      tableMetadata,
       enums: genEnums,
       insertTypes: genInsertTypes,
       tables: genTables,
@@ -86,11 +116,11 @@ export default class Generator {
   }
 
   public async build(): Promise<string> {
-    const statementBuilders: NodeBuilder<Statement>[] = []
+    const statementBuilders: Buildable<Statement>[] = []
 
     try {
-      await this.buildEnums(statementBuilders)
-      await this.buildTables(statementBuilders)
+      statementBuilders.push(...(await this.enumBuilders()))
+      statementBuilders.push(...(await this.tableBuilders()))
     } catch (error) {
       if (error instanceof Error) {
         console.error(error.message)
@@ -98,12 +128,15 @@ export default class Generator {
       throw error
     }
 
-    const statements = statementBuilders.map<Statement>((builder) =>
-      builder.buildNode()
+    statementBuilders.unshift(new UtilityTypesBuilder())
+    statementBuilders.unshift(...(await this.importBuilders()))
+
+    const statements = statementBuilders.flatMap<Statement>((builder) =>
+      isMultiBuildable(builder) ? builder.buildNodes() : builder.buildNode()
     )
 
     const sourceFile = factory.createSourceFile(
-      [...new UtilityTypesBuilder().buildNodes(), ...statements],
+      statements,
       factory.createToken(SyntaxKind.EndOfFileToken),
       NodeFlags.None
     )
@@ -111,8 +144,28 @@ export default class Generator {
     return this.printer.printFile(sourceFile)
   }
 
-  private async buildEnums(builders: NodeBuilder<Statement>[]): Promise<void> {
+  private async importBuilders(): Promise<Buildable<Statement>[]> {
+    const builders: Buildable<Statement>[] = []
+    if (
+      this.generate.selectSchemas ||
+      this.generate.insertSchemas ||
+      this.generate.schemaObjects
+    ) {
+      builders.unshift(
+        new SingleNamedImportBuilder(
+          { name: 'z', source: 'zod' },
+          this.types,
+          this.transform
+        )
+      )
+    }
+    return builders
+  }
+
+  private async enumBuilders(): Promise<Buildable<Statement>[]> {
     const enums = await this.schema.getEnums()
+
+    const builders: Buildable<Statement>[] = []
 
     enums.forEach((enumInfo) => {
       if (this.generate.enums) {
@@ -121,14 +174,54 @@ export default class Generator {
         builders.push(builder)
       }
     })
+
+    return builders
   }
 
-  private async buildTables(builders: NodeBuilder<Statement>[]): Promise<void> {
+  private async tableBuilders(): Promise<Buildable<Statement>[]> {
     const tables = await this.schema.getTables()
+
+    const builders: Buildable<Statement>[] = []
 
     const processedTableNames: string[] = []
 
     tables.forEach((tableInfo) => {
+      if (processedTableNames.includes(tableInfo.name)) {
+        console.warn(
+          `Duplicate table name detected: ${tableInfo.name}. ` +
+            `This is not supported, skipping.`
+        )
+        return
+      }
+
+      if (this.generate.tableMetadata) {
+        const builder = new TableMetadataBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        processedTableNames.push(tableInfo.name)
+        builders.push(builder)
+      }
+
+      if (this.generate.selectSchemas) {
+        const builder = new SelectSchemaBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        builders.push(builder)
+      }
+
+      if (this.generate.insertSchemas) {
+        const builder = new InsertSchemaBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        builders.push(builder)
+      }
+
       if (this.generate.tables) {
         const builder = new TableBuilder(tableInfo, this.types, this.transform)
         this.types.add(builder.name, builder.typename().text, 'table')
@@ -168,5 +261,7 @@ export default class Generator {
         processedTableNames.push(tableInfo.name)
       }
     })
+
+    return builders
   }
 }

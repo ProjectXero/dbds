@@ -1,36 +1,51 @@
-import { snake } from 'case'
 import { sql } from 'slonik'
+import { z } from 'zod'
 
 import { QueryBuilder } from '../queries'
 
-interface DummyRowType {
-  id: number
-  name: string
-  optional?: string
-  nullable: string | null
-  optionallyNullable?: string | null
-  // i think this is a nonsense type but i needed to test the type system...
-  stringOrNumber: string | number | null
-  date?: Date
-}
-
-const DummyRowColumnTypes = Object.freeze({
-  id: 'these',
-  name: 'types',
-  optional: 'do',
-  nullable: 'not',
-  optionallyNullable: 'matter',
-  stringOrNumber: 'here',
-  date: 'date',
+const DummyRowType = z.object({
+  id: z.number(),
+  name: z.string(),
+  optional: z.string().optional(),
+  nullable: z.string().nullable(),
+  optionallyNullable: z.string().nullish(),
+  stringOrNumber: z.string().or(z.number()).nullable(),
+  date: z.date().nullable(),
 })
 
+const DummyMetadata = {
+  id: {
+    nativeType: 'these',
+    nativeName: 'id',
+  },
+  name: {
+    nativeType: 'types',
+    nativeName: 'name',
+  },
+  optional: {
+    nativeType: 'do',
+    nativeName: 'optional',
+  },
+  nullable: {
+    nativeType: 'not',
+    nativeName: 'nullable',
+  },
+  optionallyNullable: {
+    nativeType: 'matter',
+    nativeName: 'optionally_nullable',
+  },
+  stringOrNumber: {
+    nativeType: 'here',
+    nativeName: 'string_or_number',
+  },
+  date: {
+    nativeType: 'date',
+    nativeName: 'date',
+  },
+}
+
 describe(QueryBuilder, () => {
-  const builder = new QueryBuilder<DummyRowType>(
-    'any_table',
-    DummyRowColumnTypes,
-    snake,
-    {}
-  )
+  const builder = new QueryBuilder('any_table', DummyMetadata, DummyRowType, {})
 
   describe('clause generators', () => {
     describe('where', () => {
@@ -232,7 +247,10 @@ describe(QueryBuilder, () => {
   describe('core query builders', () => {
     describe('select', () => {
       it('selects everything by default', () => {
-        expect(builder.select()).toMatchSnapshot()
+        expect(builder.select()).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('supports limits', () => {
@@ -240,7 +258,10 @@ describe(QueryBuilder, () => {
           builder.select({
             limit: 10,
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('can select for update', () => {
@@ -248,7 +269,10 @@ describe(QueryBuilder, () => {
           builder.select({
             forUpdate: true,
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('can select for update of another table', () => {
@@ -256,7 +280,10 @@ describe(QueryBuilder, () => {
           builder.select({
             forUpdate: 'another_table',
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('can select for update of multiple other tables', () => {
@@ -264,29 +291,44 @@ describe(QueryBuilder, () => {
           builder.select({
             forUpdate: ['table', 'another_table', 'more_tables'],
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
     describe('count', () => {
       it('creates a count query', () => {
-        expect(builder.count()).toMatchSnapshot()
+        expect(builder.count()).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('can use where clauses', () => {
-        expect(builder.count({ where: { id: 1 } })).toMatchSnapshot()
+        expect(builder.count({ where: { id: 1 } })).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
     describe('countGroup', () => {
       it('creates a count query with a groupBy clause', () => {
-        expect(builder.countGroup(['name'])).toMatchSnapshot()
+        expect(builder.countGroup(['name'])).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('can use where clauses', () => {
         expect(
           builder.countGroup(['nullable', 'optional'], { where: { id: 1 } })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
@@ -299,7 +341,10 @@ describe(QueryBuilder, () => {
             nullable: null,
             stringOrNumber: 1,
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('accepts many basic objects', () => {
@@ -318,7 +363,10 @@ describe(QueryBuilder, () => {
               nullable: 'hi',
             },
           ])
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('correctly inserts Date objects as ISO8601 strings', () => {
@@ -330,7 +378,10 @@ describe(QueryBuilder, () => {
             stringOrNumber: 1,
             date: new Date('2020-11-30T00:00:00.000-0500'),
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('allows a single object with raw SQL values', () => {
@@ -339,7 +390,10 @@ describe(QueryBuilder, () => {
             id: 1,
             name: sql.fragment`DEFAULT`,
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('allows multiple objects with raw SQL values', () => {
@@ -354,7 +408,10 @@ describe(QueryBuilder, () => {
               name: sql.fragment`DEFAULT`,
             },
           ])
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('allows multiple objects with a mix of value types', () => {
@@ -369,7 +426,10 @@ describe(QueryBuilder, () => {
               name: sql.fragment`DEFAULT`,
             },
           ])
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
@@ -384,19 +444,28 @@ describe(QueryBuilder, () => {
             optionallyNullable: null,
             stringOrNumber: 5,
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('accepts raw sql values', () => {
         expect(
           builder.update({ name: sql.fragment`anything i want` })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('correctly updates Date objects as ISO8601 strings', () => {
         expect(
           builder.update({ date: new Date('2020-11-30T00:00:00.000-0500') })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
@@ -407,7 +476,10 @@ describe(QueryBuilder, () => {
       })
 
       it('can be forced to delete everything', () => {
-        expect(builder.delete(true)).toMatchSnapshot()
+        expect(builder.delete(true)).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('builds clauses correctly', () => {
@@ -418,7 +490,10 @@ describe(QueryBuilder, () => {
             orderBy: 'id',
             having: { id: 1 },
           })
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
 
@@ -433,7 +508,10 @@ describe(QueryBuilder, () => {
             ['id', 'name'],
             ['integer', 'text']
           )
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
 
       it('respects casing for column names', () => {
@@ -443,7 +521,10 @@ describe(QueryBuilder, () => {
             ['optionallyNullable', 'stringOrNumber'],
             ['any', 'thing']
           )
-        ).toMatchSnapshot()
+        ).toMatchSnapshot({
+          parser: expect.anything(),
+          type: expect.any(String),
+        })
       })
     })
   })
