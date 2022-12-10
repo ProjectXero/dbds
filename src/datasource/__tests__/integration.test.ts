@@ -113,10 +113,6 @@ beforeAll(async () => {
   })
 })
 
-afterAll(async () => {
-  await pool.end()
-})
-
 class TestDataSource<TSchema extends z.ZodType> extends DBDataSource<
   typeof DummyMetadata,
   z.ZodObject<
@@ -171,8 +167,12 @@ beforeEach(() => {
   ds = new TestDataSource(DefaultJsonbSchema)
 })
 
-afterEach(() => {
-  pool.query(sql.unsafe`TRUNCATE test_table`)
+afterEach(async () => {
+  await pool.query(sql.unsafe`TRUNCATE test_table`)
+})
+
+afterAll(async () => {
+  await pool.end()
 })
 
 describe('DBDataSource', () => {
