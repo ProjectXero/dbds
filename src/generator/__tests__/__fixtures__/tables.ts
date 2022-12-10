@@ -18,6 +18,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 1,
         type: 'int8',
+        updatable: true,
       },
     ],
   },
@@ -32,6 +33,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 1,
         type: 'test_enum',
+        updatable: true,
       },
       {
         name: 'enum_array_type',
@@ -40,6 +42,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 2,
         type: 'test_enum',
+        updatable: true,
       },
       {
         name: 'table_type',
@@ -48,6 +51,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 3,
         type: 'table_with_uuid_id',
+        updatable: true,
       },
       {
         name: 'table_array_type',
@@ -56,6 +60,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 4,
         type: 'table_with_uuid_id',
+        updatable: true,
       },
     ],
   },
@@ -70,6 +75,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 1,
         type: 'uuid',
+        updatable: true,
       },
     ],
   },
@@ -84,6 +90,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: true,
         order: 1,
         type: 'text',
+        updatable: true,
       },
       {
         name: 'nullable_with_default',
@@ -92,6 +99,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: true,
         order: 2,
         type: 'text',
+        updatable: true,
       },
       {
         name: 'nullable_array',
@@ -100,6 +108,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: true,
         order: 3,
         type: 'text',
+        updatable: true,
       },
       {
         name: 'nullable_array_with_default',
@@ -108,6 +117,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: true,
         order: 4,
         type: 'text',
+        updatable: true,
       },
     ],
   },
@@ -122,6 +132,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: false,
         order: 1,
         type: 'json',
+        updatable: true,
       },
       {
         name: 'jsonb',
@@ -130,6 +141,7 @@ const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
         nullable: true,
         order: 2,
         type: 'jsonb',
+        updatable: true,
       },
     ],
   },
