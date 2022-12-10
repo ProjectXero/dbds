@@ -64,7 +64,7 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
 
     if (columnInfo.nullable) {
       value = factory.createCallExpression(
-        factory.createPropertyAccessExpression(value, 'nullish'),
+        factory.createPropertyAccessExpression(value, 'nullable'),
         undefined,
         undefined
       )
