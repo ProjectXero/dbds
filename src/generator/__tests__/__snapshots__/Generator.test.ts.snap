@@ -9,7 +9,7 @@ exports[`Generator build when builders throw an error logs the error and rethrow
 `;
 
 exports[`Generator when re-registering an already-registered type outputs a warning 1`] = `
-"import { z } from zod;
+"import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -36,7 +36,7 @@ exports[`Generator when re-registering an already-registered type outputs a warn
 `;
 
 exports[`Generator with default options generates metadata and select/insert schemas 1`] = `
-"import { z } from zod;
+"import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -155,7 +155,7 @@ export const TableWithJsonJsonb$InsertSchema = z.object({
 `;
 
 exports[`Generator with different case conversions properly cases members 1`] = `
-"import { z } from zod;
+"import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -359,7 +359,7 @@ exports[`Generator with insert types enabled generates insert types 2`] = `
 `;
 
 exports[`Generator with schema objects enabled generates schema objects 1`] = `
-"import { z } from zod;
+"import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {

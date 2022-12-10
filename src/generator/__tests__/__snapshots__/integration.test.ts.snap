@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator generates the correct types 1`] = `
-"import { z } from zod;
+"import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {

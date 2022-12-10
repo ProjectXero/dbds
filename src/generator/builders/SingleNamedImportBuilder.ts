@@ -32,7 +32,7 @@ export default class SingleNamedImportBuilder extends TypeBuilder<ImportDeclarat
     return factory.createImportDeclaration(
       undefined,
       importClause,
-      factory.createIdentifier(this.options.source)
+      factory.createStringLiteral(this.options.source)
     )
   }
 }
