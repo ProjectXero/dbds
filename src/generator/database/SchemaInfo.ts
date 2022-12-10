@@ -49,7 +49,8 @@ export default class SchemaInfo {
            , (c.is_nullable = 'YES') AS "nullable"
            , (
               c.column_default IS NOT NULL OR
-              c.identity_generation IS NOT NULL
+              c.identity_generation IS NOT NULL OR
+              c.is_generated != 'NEVER'
              ) AS "hasDefault"
            , c.ordinal_position AS "order"
            , COALESCE(
