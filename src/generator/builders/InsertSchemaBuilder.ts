@@ -11,7 +11,7 @@ export default class InsertSchemaBuilder extends SelectSchemaBuilder {
     const [name, origValue, type] = super.buildSinglePropertyEntry(columnInfo)
     let value = origValue
 
-    if (columnInfo.hasDefault && !columnInfo.nullable) {
+    if (columnInfo.hasDefault || columnInfo.nullable) {
       value = factory.createCallExpression(
         factory.createPropertyAccessExpression(value, 'optional'),
         undefined,
