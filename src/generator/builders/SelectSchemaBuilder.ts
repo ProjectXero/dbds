@@ -55,7 +55,7 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
         factory.createIdentifier(nativeType)
       )
     } else {
-      value = this.buildZodFunctionCall(nativeType)
+      value = this.buildZodFunctionCall(nativeType.toLowerCase())
     }
 
     if (columnInfo.isArray) {

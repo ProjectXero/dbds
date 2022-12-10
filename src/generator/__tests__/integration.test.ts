@@ -42,7 +42,8 @@ beforeAll(async () => {
       enum_arr_test TEST_TYPE_ENUM[],
       jsonb_test JSONB,
       "casetest_lower" TEXT,
-      "caseTest_upper" TEXT
+      "caseTest_upper" TEXT,
+      "created_at" TIMESTAMP NOT NULL DEFAULT NOW()
     )
   `)
   await pool.query(sql.unsafe`
