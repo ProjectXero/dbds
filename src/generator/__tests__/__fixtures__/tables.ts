@@ -1,6 +1,7 @@
-import { TableInfo } from '../../database'
+import { z } from 'zod'
+import { TableInfoWithColumns } from '../../database'
 
-const mockTables: TableInfo[] = [
+const mockTables: z.infer<typeof TableInfoWithColumns>[] = [
   {
     name: 'table_with_no_columns',
     canInsert: true,

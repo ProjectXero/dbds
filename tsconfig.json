@@ -14,6 +14,7 @@
     "allowJs": false,
     "checkJs": false,
     "strict": true,
+    "noErrorTruncation": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,

@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`LoaderFactory create multi: false returns the first matching result 1`] = `
-Object {
+{
   "code": "abc",
   "id": 1,
   "name": "aaa",
@@ -9,13 +9,13 @@ Object {
 `;
 
 exports[`LoaderFactory create multi: true gets all matching results 1`] = `
-Array [
-  Object {
+[
+  {
     "code": "abc",
     "id": 1,
     "name": "aaa",
   },
-  Object {
+  {
     "code": "abc",
     "id": 7,
     "name": "AAA",
@@ -24,13 +24,13 @@ Array [
 `;
 
 exports[`LoaderFactory create when inferring multi from an extended loader gets all matching results 1`] = `
-Array [
-  Object {
+[
+  {
     "code": "abc",
     "id": 1,
     "name": "aaa",
   },
-  Object {
+  {
     "code": "abc",
     "id": 7,
     "name": "AAA",
@@ -39,7 +39,7 @@ Array [
 `;
 
 exports[`LoaderFactory create with a multi-column loader multi: false gets all matching results 1`] = `
-Object {
+{
   "code": "abc",
   "id": 1,
   "name": "aaa",
@@ -47,8 +47,8 @@ Object {
 `;
 
 exports[`LoaderFactory create with a multi-column loader multi: true gets all matching results 1`] = `
-Array [
-  Object {
+[
+  {
     "code": "abc",
     "id": 1,
     "name": "aaa",
@@ -57,7 +57,7 @@ Array [
 `;
 
 exports[`LoaderFactory create with a multi-column loader with a callback function gets all matching results 1`] = `
-Object {
+{
   "code": "abc",
   "id": 1,
   "name": "aaa",

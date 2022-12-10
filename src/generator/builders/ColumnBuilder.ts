@@ -1,4 +1,5 @@
 import { factory, PropertySignature, SyntaxKind, TypeNode } from 'typescript'
+import { z } from 'zod'
 
 import { ColumnInfo, TypeRegistry } from '../database'
 import { Transformations } from '../types'
@@ -7,7 +8,7 @@ import NodeBuilder from './NodeBuilder'
 
 export default class ColumnBuilder
   extends NodeBuilder<PropertySignature>
-  implements ColumnInfo
+  implements z.infer<typeof ColumnInfo>
 {
   public readonly nullable: boolean
   public readonly hasDefault: boolean
@@ -18,7 +19,7 @@ export default class ColumnBuilder
   public overrideType?: TypeNode
 
   constructor(
-    options: ColumnInfo,
+    options: z.infer<typeof ColumnInfo>,
     types: TypeRegistry,
     transform: Transformations
   ) {

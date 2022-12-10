@@ -1,21 +1,31 @@
+import { z } from 'zod'
 import { DBDataSource } from '..'
 import { createMockPool } from '../../testing'
 import { LoaderFactory } from '../loaders'
 
-interface DummyRowType {
-  id: number
-  name: string
-  code: string
+const DummyMetadata = {
+  id: {
+    nativeType: 'anything',
+    nativeName: 'id',
+  },
+  name: {
+    nativeType: 'anything',
+    nativeName: 'name',
+  },
+  code: {
+    nativeType: 'anything',
+    nativeName: 'code',
+  },
 }
 
-const columnTypes: Record<keyof DummyRowType, string> = {
-  id: 'anything',
-  name: 'anything',
-  code: 'anything',
-}
+const DummyRowType = z.object({
+  id: z.number(),
+  name: z.string(),
+  code: z.string(),
+})
 
 describe(DBDataSource, () => {
-  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
+  const dummyBatchFn = async (): Promise<z.infer<typeof DummyRowType>[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -33,17 +43,21 @@ describe(DBDataSource, () => {
     ]
   }
 
-  const factory = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
-    columnTypes,
-  })
+  const factory = new LoaderFactory(dummyBatchFn, dummyBatchFn, DummyMetadata)
 
-  class DummyDBDataSource extends DBDataSource<DummyRowType> {
+  class DummyDBDataSource extends DBDataSource<
+    typeof DummyMetadata,
+    typeof DummyRowType,
+    typeof DummyRowType
+  > {
     constructor() {
-      super(createMockPool(), 'any_table', {
-        id: 'any',
-        name: 'any',
-        code: 'any',
-      })
+      super(
+        createMockPool(),
+        'any_table',
+        DummyMetadata,
+        DummyRowType /* select */,
+        DummyRowType /* insert */
+      )
     }
 
     protected get loaders() {
@@ -66,7 +80,7 @@ describe(DBDataSource, () => {
     const dataSource = new TestDataSource()
 
     it('uses the default options', () => {
-      expect(dataSource.testBuilder.select()).toMatchSnapshot()
+      expect(dataSource.testBuilder.select().sql).toMatchSnapshot()
     })
   })
 })

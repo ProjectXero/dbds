@@ -1,19 +1,29 @@
+import { z } from 'zod'
 import { FinderFactory, LoaderFactory } from '../loaders'
 
-interface DummyRowType {
-  id: number
-  name: string
-  code: string
+const DummyMetadata = {
+  id: {
+    nativeType: 'anything',
+    nativeName: 'id',
+  },
+  name: {
+    nativeType: 'anything',
+    nativeName: 'name',
+  },
+  code: {
+    nativeType: 'anything',
+    nativeName: 'code',
+  },
 }
 
-const columnTypes: Record<keyof DummyRowType, string> = {
-  id: 'anything',
-  name: 'anything',
-  code: 'anything',
-}
+const DummyRowType = z.object({
+  id: z.number(),
+  name: z.string(),
+  code: z.string(),
+})
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn = async (): Promise<DummyRowType[]> => {
+  const dummyBatchFn = async (): Promise<z.infer<typeof DummyRowType>[]> => {
     return [
       { id: 1, name: 'aaa', code: 'abc' },
       { id: 2, name: 'bbb', code: 'def' },
@@ -31,10 +41,8 @@ describe(LoaderFactory, () => {
     ]
   }
 
-  const loaders = new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
-    columnTypes,
-  })
-  const finders = new FinderFactory<DummyRowType>()
+  const loaders = new LoaderFactory(dummyBatchFn, dummyBatchFn, DummyMetadata)
+  const finders = new FinderFactory<z.infer<typeof DummyRowType>>()
 
   describe('create', () => {
     describe('multi: false', () => {

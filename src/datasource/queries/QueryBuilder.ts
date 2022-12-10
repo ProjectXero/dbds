@@ -2,17 +2,19 @@ import {
   IdentifierSqlToken,
   SerializableValue,
   sql,
-  SqlSqlToken,
+  FragmentSqlToken,
   SqlToken,
-  TaggedTemplateLiteralInvocation,
 } from 'slonik'
 import { raw } from 'slonik-sql-tag-raw'
+import { z } from 'zod'
+import { TypedSqlQuery } from '../../types'
+import { TableMetadata, TableSchema } from '../types'
 
 import {
   AllowSql,
   ColumnList,
   Conditions,
-  CountQueryRowType,
+  // CountQueryRowType,
   GenericConditions,
   LimitClause,
   OrderColumnList,
@@ -21,13 +23,13 @@ import {
   UpdateSet,
   ValueOrArray,
 } from './types'
-import { isOrderTuple, isSqlSqlToken, isSqlToken } from './utils'
+import { isOrderTuple, isFragmentSqlToken, isSqlToken } from './utils'
 
-export interface QueryOptions<TRowType> {
-  where?: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
+export interface QueryOptions<Schema> {
+  where?: Conditions<Schema> | FragmentSqlToken[] | FragmentSqlToken
   groupBy?: ColumnList
   orderBy?: OrderColumnList
-  having?: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
+  having?: Conditions<Schema> | FragmentSqlToken[] | FragmentSqlToken
   limit?: LimitClause
 }
 
@@ -35,26 +37,38 @@ export interface SelectOptions {
   forUpdate?: boolean | string | string[]
 }
 
-const EMPTY = sql``
-const noop = (v: string): string => v
+const EMPTY = sql.fragment``
 const CONDITIONS_TABLE = 'conditions'
+const COUNT_SCHEMA = z.object({ count: z.number() })
+
+function isColumn<T extends string>(
+  column: string | undefined,
+  metadata: TableMetadata<T>
+): column is keyof typeof metadata {
+  if (!column) {
+    return false
+  }
+  return Object.keys(metadata).includes(column)
+}
 
 export default class QueryBuilder<
-  TRowType,
-  TInsertType extends { [K in keyof TRowType]?: unknown } = TRowType
+  Metadata extends TableMetadata<TableColumns$$private>,
+  SelectSchema extends TableSchema<TableColumns$$private>,
+  TableColumns$$private extends string & keyof Metadata = string &
+    keyof Metadata
 > {
   constructor(
     public readonly table: string,
-    protected readonly columnTypes: Record<keyof TRowType, string>,
-    protected readonly columnCase: (value: string) => string = noop,
-    protected readonly defaultOptions: QueryOptions<TRowType>
+    protected readonly metadata: Metadata,
+    protected readonly selectSchema: SelectSchema,
+    protected readonly defaultOptions: QueryOptions<z.infer<SelectSchema>>
   ) {
     this.value = this.value.bind(this)
   }
 
   protected getOptions(
-    options?: QueryOptions<TRowType>
-  ): QueryOptions<TRowType> {
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ): QueryOptions<z.infer<SelectSchema>> {
     return {
       ...this.defaultOptions,
       ...options,
@@ -72,23 +86,27 @@ export default class QueryBuilder<
     } else if (includeTable) {
       names.push(this.table)
     }
-    column !== undefined && names.push(this.columnCase(column))
+    if (isColumn(column, this.metadata)) {
+      names.push(this.metadata[column].nativeName)
+    } else if (column) {
+      names.push(column)
+    }
 
     return sql.identifier(names)
   }
 
-  public jsonIdentifier(name: string): SqlSqlToken {
+  public jsonIdentifier(name: string): FragmentSqlToken {
     return raw(`'${name}'`)
   }
 
   /* Public core query builders */
 
   public select(
-    options?: QueryOptions<TRowType> & SelectOptions
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
+  ): TypedSqlQuery<SelectSchema> {
     options = this.getOptions(options)
 
-    return sql<TRowType>`
+    return sql.type(this.selectSchema)`
       SELECT *
       FROM ${this.identifier()}
       ${options.where ? this.where(options.where) : EMPTY}
@@ -100,9 +118,9 @@ export default class QueryBuilder<
   }
 
   public insert(
-    rows: ValueOrArray<AllowSql<TInsertType>>,
-    options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    rows: ValueOrArray<AllowSql<z.infer<SelectSchema>>>,
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ) {
     options = this.getOptions(options)
 
     // special case: we're given a single empty row...
@@ -112,39 +130,37 @@ export default class QueryBuilder<
       return this.insertDefaultValues(options)
     }
 
-    if (!Array.isArray(rows)) {
-      rows = [rows]
-    }
+    const rowsArray = Array.isArray(rows) ? rows : [rows]
 
-    if (rows.length === 0) {
+    if (rowsArray.length === 0) {
       throw new Error('insert requires at least one row')
     }
 
-    if (this.isUniformRowset(rows)) {
-      return this.insertUniform(rows, options)
+    if (this.isUniformRowset(rowsArray)) {
+      return this.insertUniform(rowsArray, options)
     }
 
-    return this.insertNonUniform(rows, options)
+    return this.insertNonUniform(rowsArray, options)
   }
 
   public update(
-    values: UpdateSet<TRowType>,
-    options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    values: UpdateSet<z.infer<SelectSchema>>,
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ): TypedSqlQuery<SelectSchema> {
     options = this.getOptions(options)
 
-    const updateQuery = sql<TRowType>`
+    const updateQuery = sql.type(this.selectSchema)`
       UPDATE ${this.identifier()}
       ${this.set(values)}
       ${options.where ? this.where(options.where) : EMPTY}
       RETURNING *
     `
-    return this.wrapCte('update', updateQuery, options)
+    return this.wrapCte('update', updateQuery, options, this.selectSchema)
   }
 
   public delete(
-    options: QueryOptions<TRowType> | true
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    options: QueryOptions<z.infer<SelectSchema>> | true
+  ): TypedSqlQuery<SelectSchema> {
     const force = options === true
     options = this.getOptions(options === true ? {} : options)
 
@@ -155,44 +171,47 @@ export default class QueryBuilder<
       )
     }
 
-    const deleteQuery = sql<TRowType>`
+    const deleteQuery = sql.type(this.selectSchema)`
       DELETE FROM ${this.identifier()}
       ${options.where ? this.where(options.where) : EMPTY}
       RETURNING *
     `
-    return this.wrapCte('delete', deleteQuery, options)
+    return this.wrapCte('delete', deleteQuery, options, this.selectSchema)
   }
 
   public count(
     options?: Omit<
-      QueryOptions<TRowType>,
+      QueryOptions<z.infer<SelectSchema>>,
       'orderBy' | 'groupBy' | 'limit' | 'having'
     >
-  ): TaggedTemplateLiteralInvocation<CountQueryRowType> {
+  ) {
     options = this.getOptions(options)
 
-    return sql<CountQueryRowType>`
+    return sql.type(COUNT_SCHEMA)`
       SELECT COUNT(*)
       FROM ${this.identifier()}
       ${options.where ? this.where(options.where) : EMPTY}
     `
   }
 
-  public countGroup<TGroup extends Array<string & keyof TRowType>>(
-    groupColumns: TGroup & Array<keyof TRowType>,
+  public countGroup<TGroup extends Array<string & keyof z.infer<SelectSchema>>>(
+    groupColumns: TGroup & Array<keyof z.infer<SelectSchema>>,
     options?: Omit<
-      QueryOptions<TRowType>,
+      QueryOptions<z.infer<SelectSchema>>,
       'orderBy' | 'groupBy' | 'limit' | 'having'
     >
-  ): TaggedTemplateLiteralInvocation<
-    CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }
-  > {
+  ) {
     options = this.getOptions(options)
+
+    const mask = groupColumns.reduce(
+      (res, key) => ({ ...res, [key]: true }),
+      {} as Record<TableColumns$$private, true>
+    )
 
     const columns = this.columnList(groupColumns)
 
-    return sql<CountQueryRowType & { [K in TGroup[0]]: TRowType[K] }>`
-      SELECT ${sql.join(columns, sql`, `)}, COUNT(*)
+    return sql.type(COUNT_SCHEMA.merge(this.selectSchema.pick(mask)))`
+      SELECT ${sql.join(columns, sql.fragment`, `)}, COUNT(*)
       FROM ${this.identifier()}
       ${options.where ? this.where(options.where) : EMPTY}
       ${this.groupBy(groupColumns)}
@@ -206,16 +225,19 @@ export default class QueryBuilder<
    * @param rawConditions Conditions expression
    */
   public where(
-    rawConditions: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
-  ): SqlSqlToken {
-    const conditions = isSqlSqlToken(rawConditions)
+    rawConditions:
+      | Conditions<z.infer<SelectSchema>>
+      | FragmentSqlToken[]
+      | FragmentSqlToken
+  ): FragmentSqlToken {
+    const conditions = isFragmentSqlToken(rawConditions)
       ? rawConditions
       : this.and(rawConditions)
 
-    return sql`WHERE ${conditions}`
+    return sql.fragment`WHERE ${conditions}`
   }
 
-  public orderBy(columns: OrderColumnList): SqlSqlToken {
+  public orderBy(columns: OrderColumnList): FragmentSqlToken {
     if (
       typeof columns === 'string' ||
       isOrderTuple(columns) ||
@@ -243,16 +265,16 @@ export default class QueryBuilder<
       column = this.convertColumnEntry(column)
 
       if (!direction) {
-        return sql`${column}`
+        return sql.fragment`${column}`
       }
 
       if (typeof direction !== 'object') {
         switch (direction) {
           case 'ASC':
-            direction = sql`ASC`
+            direction = sql.fragment`ASC`
             break
           case 'DESC':
-            direction = sql`DESC`
+            direction = sql.fragment`DESC`
             break
           default:
             // this shouldn't happen, but just in case
@@ -260,49 +282,52 @@ export default class QueryBuilder<
         }
       }
 
-      return sql`${column} ${direction}`
+      return sql.fragment`${column} ${direction}`
     })
 
-    return sql`ORDER BY ${sql.join(list, sql`, `)}`
+    return sql.fragment`ORDER BY ${sql.join(list, sql.fragment`, `)}`
   }
 
-  public groupBy(columns: ColumnList): SqlSqlToken {
+  public groupBy(columns: ColumnList): FragmentSqlToken {
     if (!Array.isArray(columns)) {
       columns = [columns]
     }
 
     const list = this.columnList(...columns)
 
-    return sql`GROUP BY ${sql.join(list, sql`, `)}`
+    return sql.fragment`GROUP BY ${sql.join(list, sql.fragment`, `)}`
   }
 
   public having(
-    rawConditions: Conditions<TRowType> | SqlSqlToken[] | SqlSqlToken
-  ): SqlSqlToken {
-    const conditions = isSqlSqlToken(rawConditions)
+    rawConditions:
+      | Conditions<z.infer<SelectSchema>>
+      | FragmentSqlToken[]
+      | FragmentSqlToken
+  ): FragmentSqlToken {
+    const conditions = isFragmentSqlToken(rawConditions)
       ? rawConditions
       : this.and(rawConditions)
 
-    return sql`HAVING ${conditions}`
+    return sql.fragment`HAVING ${conditions}`
   }
 
-  public limit(limit: LimitClause): SqlSqlToken {
-    let offset: SqlSqlToken = sql``
+  public limit(limit: LimitClause): FragmentSqlToken {
+    let offset: FragmentSqlToken = sql.fragment``
 
     if (Array.isArray(limit)) {
-      offset = sql` OFFSET ${limit[1]}`
+      offset = sql.fragment` OFFSET ${limit[1]}`
       limit = limit[0]
     }
 
     if (limit === 'ALL') {
-      limit = sql`ALL`
+      limit = sql.fragment`ALL`
     }
 
-    return sql`LIMIT ${limit}${offset}`
+    return sql.fragment`LIMIT ${limit}${offset}`
   }
 
-  public forUpdate(forUpdate: true | string | string[]): SqlSqlToken {
-    const FOR_UPDATE = sql`FOR UPDATE`
+  public forUpdate(forUpdate: true | string | string[]): FragmentSqlToken {
+    const FOR_UPDATE = sql.fragment`FOR UPDATE`
 
     if (forUpdate === true) {
       return FOR_UPDATE
@@ -314,48 +339,59 @@ export default class QueryBuilder<
 
     const updateOf = forUpdate.map((table) => sql.identifier([table]))
 
-    return sql`${FOR_UPDATE} OF ${sql.join(updateOf, sql`, `)}`
+    return sql.fragment`${FOR_UPDATE} OF ${sql.join(
+      updateOf,
+      sql.fragment`, `
+    )}`
   }
 
   /* Public query-building utilities */
 
-  public and(rawConditions: Conditions<TRowType> | SqlSqlToken[]): SqlSqlToken {
+  public and(
+    rawConditions: Conditions<z.infer<SelectSchema>> | FragmentSqlToken[]
+  ): FragmentSqlToken {
     const conditions = this.conditions(rawConditions)
 
     if (conditions.length == 0) {
-      return sql`true`
+      return sql.fragment`true`
     }
 
-    return sql`(${sql.join(conditions, sql` AND `)})`
+    return sql.fragment`(${sql.join(conditions, sql.fragment` AND `)})`
   }
 
-  public or(rawConditions: Conditions<TRowType> | SqlSqlToken[]): SqlSqlToken {
+  public or(
+    rawConditions: Conditions<z.infer<SelectSchema>> | FragmentSqlToken[]
+  ): FragmentSqlToken {
     const conditions = this.conditions(rawConditions)
 
     if (conditions.length == 0) {
-      return sql`true`
+      return sql.fragment`true`
     }
 
-    return sql`(${sql.join(conditions, sql` OR `)})`
+    return sql.fragment`(${sql.join(conditions, sql.fragment` OR `)})`
   }
 
   public any(
     values: Array<string | number | boolean | Date | null>,
     type: string
-  ): SqlSqlToken {
-    return sql`ANY(${sql.array(values.map(this.value), sql`${raw(type)}[]`)})`
+  ): FragmentSqlToken {
+    return sql.fragment`ANY(${sql.array(
+      values.map(this.value),
+      sql.fragment`${raw(type)}[]`
+    )})`
   }
 
   /* Protected query-building utilities */
 
-  protected wrapCte(
+  protected wrapCte<QuerySchema extends z.ZodSchema>(
     queryName: string,
-    query: TaggedTemplateLiteralInvocation<TRowType>,
-    options: Omit<QueryOptions<TRowType>, 'where'>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    query: TypedSqlQuery<QuerySchema>,
+    options: Omit<QueryOptions<z.infer<SelectSchema>>, 'where'>,
+    schema: QuerySchema
+  ): TypedSqlQuery<QuerySchema> {
     const queryId = this.identifier(queryName + '_rows', false)
 
-    return sql<TRowType>`
+    return sql.type(schema)`
       WITH ${queryId} AS (
         ${query}
       ) SELECT *
@@ -367,91 +403,91 @@ export default class QueryBuilder<
     `
   }
 
-  protected insertDefaultValues(
-    options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+  protected insertDefaultValues(options?: QueryOptions<z.infer<SelectSchema>>) {
     options = this.getOptions(options)
 
-    const insertQuery = sql<TRowType>`
+    const insertQuery = sql.type(this.selectSchema)`
       INSERT INTO ${this.identifier()}
       DEFAULT VALUES
       RETURNING *
     `
 
-    return this.wrapCte('insert', insertQuery, options)
+    return this.wrapCte('insert', insertQuery, options, this.selectSchema)
   }
 
   protected insertUniform(
-    rows: TInsertType[],
-    options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    rows: z.infer<SelectSchema>[],
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ) {
     options = this.getOptions(options)
 
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(
       columns.map((c) => this.identifier(c, false)),
-      sql`, `
+      sql.fragment`, `
     )
 
-    const tableExpression = columns.map<SqlSqlToken>((column) => {
-      return sql`${sql.identifier([column])} ${raw(this.columnTypes[column])}`
+    const tableExpression = columns.map<FragmentSqlToken>((column) => {
+      return sql.fragment`${sql.identifier([column])} ${raw(
+        this.metadata[column].nativeType
+      )}`
     })
 
-    const insertQuery = sql<TRowType>`
+    const insertQuery = sql.type(this.selectSchema)`
       INSERT INTO ${this.identifier()} (${columnExpression})
       SELECT *
-      FROM jsonb_to_recordset(${JSON.stringify(rows)}) AS (${sql.join(
+      FROM json_to_recordset(${sql.json(rows)}) AS (${sql.join(
       tableExpression,
-      sql`, `
+      sql.fragment`, `
     )})
       RETURNING *
     `
 
-    return this.wrapCte('insert', insertQuery, options)
+    return this.wrapCte('insert', insertQuery, options, this.selectSchema)
   }
 
   protected insertNonUniform(
-    rows: AllowSql<TInsertType>[],
-    options?: QueryOptions<TRowType>
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    rows: AllowSql<z.infer<SelectSchema>>[],
+    options?: QueryOptions<z.infer<SelectSchema>>
+  ) {
     options = this.getOptions(options)
 
     const columns = this.rowsetKeys(rows)
     const columnExpression = sql.join(
       columns.map((c) => this.identifier(c, false)),
-      sql`, `
+      sql.fragment`, `
     )
 
-    const rowExpressions = rows.map<SqlSqlToken>(({ ...row }) => {
-      const values = columns.map<SqlSqlToken>((column) => {
+    const rowExpressions = rows.map<FragmentSqlToken>(({ ...row }) => {
+      const values = columns.map<FragmentSqlToken>((column) => {
         if (row[column] === undefined) {
-          return sql`DEFAULT`
+          return sql.fragment`DEFAULT`
         }
         return this.valueToSql(row[column] as PrimitiveValueType | SqlToken)
       })
-      return sql`(${sql.join(values, sql`, `)})`
+      return sql.fragment`(${sql.join(values, sql.fragment`, `)})`
     })
 
-    const insertQuery = sql<TRowType>`
+    const insertQuery = sql.type(this.selectSchema)`
       INSERT INTO ${this.identifier()} (${columnExpression})
-      VALUES ${sql.join(rowExpressions, sql`, `)}
+      VALUES ${sql.join(rowExpressions, sql.fragment`, `)}
       RETURNING *
     `
 
-    return this.wrapCte('insert', insertQuery, options)
+    return this.wrapCte('insert', insertQuery, options, this.selectSchema)
   }
 
   protected conditions(
-    conditions: Conditions<TRowType> | SqlSqlToken[]
-  ): SqlSqlToken[] {
-    if (Array.isArray(conditions)) {
+    conditions: Conditions<z.infer<SelectSchema>> | FragmentSqlToken[]
+  ): FragmentSqlToken[] {
+    if (conditions.constructor === Array) {
       return conditions
     }
 
     return Object.entries(conditions as GenericConditions)
       .filter(([column, value]) => column !== undefined && value !== undefined)
-      .map<SqlSqlToken>(([column, value]) => {
-        const isNull = sql`${this.identifier(column)} IS NULL`
+      .map<FragmentSqlToken>(([column, value]) => {
+        const isNull = sql.fragment`${this.identifier(column)} IS NULL`
 
         if (value === null) {
           return isNull
@@ -460,7 +496,7 @@ export default class QueryBuilder<
           // like a normal value and ORed with `IS NULL`
           // we only need to use `any` if there are >= 2 actual, non-null values
 
-          let sqlValue: SqlSqlToken
+          let sqlValue: FragmentSqlToken
           const nullable = this.isNullable(value)
           const nonNullValues = [...value].filter(
             <V>(v: V | null): v is V => v !== null
@@ -473,38 +509,45 @@ export default class QueryBuilder<
           } else {
             sqlValue = this.any(
               nonNullValues,
-              this.columnTypes[column as keyof TRowType]
+              this.metadata[column as keyof z.infer<SelectSchema>].nativeType
             )
           }
 
-          const condition = sql`${this.identifier(column)} = ${sqlValue}`
+          const condition = sql.fragment`${this.identifier(
+            column
+          )} = ${sqlValue}`
 
           if (nullable) {
             return this.or([condition, isNull])
           } else {
             return condition
           }
-        } else if (isSqlSqlToken(value) && value !== undefined) {
-          return sql`${this.identifier(column)} ${value}`
+        } else if (isFragmentSqlToken(value) && value !== undefined) {
+          return sql.fragment`${this.identifier(column)} ${value}`
         }
 
         // We've already filtered out value === undefined above
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return sql`${this.identifier(column)} = ${this.valueToSql(value!)}`
+        return sql.fragment`${this.identifier(column)} = ${this.valueToSql(
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          value!
+        )}`
       })
   }
 
-  protected set(values: UpdateSet<TRowType>): SqlSqlToken {
+  protected set(values: UpdateSet<z.infer<SelectSchema>>): FragmentSqlToken {
     const pairs = Object.entries(values)
       .filter(([column, value]) => column !== undefined && value !== undefined)
-      .map<SqlSqlToken>(([column, value]) => {
-        return sql`${this.identifier(column, false)} = ${this.valueToSql(
+      .map<FragmentSqlToken>(([column, value]) => {
+        return sql.fragment`${this.identifier(
+          column,
+          false
+        )} = ${this.valueToSql(
           // We've already filtered out value === undefined above
           // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           value!
         )}`
       })
-    return sql`SET ${sql.join(pairs, sql`, `)}`
+    return sql.fragment`SET ${sql.join(pairs, sql.fragment`, `)}`
   }
 
   protected columnList(...columns: Array<ColumnList>): SqlToken[] {
@@ -517,20 +560,22 @@ export default class QueryBuilder<
   }
 
   public multiColumnBatchGet<
-    TColumnNames extends Array<keyof TRowType & string>
+    TColumnNames extends Array<keyof z.infer<SelectSchema> & string>
   >(
-    args: ReadonlyArray<Record<TColumnNames[0], TRowType[TColumnNames[0]]>>,
+    args: ReadonlyArray<
+      Record<TColumnNames[0], z.infer<SelectSchema>[TColumnNames[0]]>
+    >,
     columns: TColumnNames,
     types: string[],
-    options?: QueryOptions<TRowType> & SelectOptions
-  ): TaggedTemplateLiteralInvocation<TRowType> {
+    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
+  ) {
     options = this.getOptions(options)
     const typedColumns = this.jsonTypedColumns(columns, types)
-    return sql`
+    return sql.type(this.selectSchema)`
       SELECT ${this.identifier()}.*
       FROM ${this.identifier()},
       ${this.jsonRowComparison(
-        args as ReadonlyArray<Partial<TRowType>>,
+        args as ReadonlyArray<Partial<z.infer<SelectSchema>>>,
         typedColumns
       )}
       WHERE ${this.columnConditionsMap(columns, types)}
@@ -541,50 +586,50 @@ export default class QueryBuilder<
     `
   }
 
-  private jsonTypedColumns<TColumnNames extends Array<keyof TRowType & string>>(
-    columns: TColumnNames,
-    types: string[]
-  ): SqlSqlToken {
-    return sql`${sql.join(
+  private jsonTypedColumns<
+    TColumnNames extends Array<keyof z.infer<SelectSchema> & string>
+  >(columns: TColumnNames, types: string[]): FragmentSqlToken {
+    return sql.fragment`${sql.join(
       columns.map((columnName, idx) => {
-        const column = this.columnCase(columnName)
+        const column = this.metadata[columnName].nativeName
         const type = types[idx]
-        return sql`(conditions->>${this.jsonIdentifier(
+        return sql.fragment`(conditions->>${this.jsonIdentifier(
           column
         )})::${this.identifier(type, false)} AS ${this.identifier(
           column,
           false
         )}`
       }),
-      sql`, `
+      sql.fragment`, `
     )}`
   }
 
   private jsonRowComparison(
-    args: ReadonlyArray<Partial<TRowType>>,
-    typedColumns: SqlSqlToken
-  ): SqlSqlToken {
+    args: ReadonlyArray<Partial<z.infer<SelectSchema>>>,
+    typedColumns: FragmentSqlToken
+  ) {
     const jsonObject: SerializableValue[] = args.map((entry) =>
       Object.entries(entry).reduce((result, [key, value]) => {
         return {
           ...result,
-          [this.columnCase(key)]: value as SerializableValue,
+          [this.metadata[key as TableColumns$$private].nativeName]:
+            value as SerializableValue,
         }
       }, {} as object & SerializableValue)
     )
-    return sql`
+    return sql.fragment`
       (
         SELECT ${typedColumns}
-        FROM jsonb_array_elements(${sql.json(jsonObject)}) AS conditions
+        FROM json_array_elements(${sql.json(jsonObject)}) AS conditions
       ) AS ${this.identifier(`${this.table}_${CONDITIONS_TABLE}`, false)}
     `
   }
 
   private columnConditionsMap(
-    columns: Array<keyof TRowType & string>,
+    columns: Array<keyof z.infer<SelectSchema> & string>,
     types: string[]
-  ): SqlSqlToken {
-    return sql`${sql.join(
+  ): FragmentSqlToken {
+    return sql.fragment`${sql.join(
       columns.map((columnName, idx) => {
         const tableColumn = this.identifier(columnName)
         const conditionsColumn = this.identifier(
@@ -593,15 +638,16 @@ export default class QueryBuilder<
         )
         const type = this.identifier(types[idx], false)
 
-        return sql`${tableColumn}::${type} = ${conditionsColumn}::${type}`
+        // eslint-disable-next-line max-len
+        return sql.fragment`${tableColumn}::${type} = ${conditionsColumn}::${type}`
       }),
-      sql` AND `
+      sql.fragment` AND `
     )}`
   }
 
   private convertColumnEntry(
-    column: string | IdentifierSqlToken | SqlSqlToken
-  ): IdentifierSqlToken | SqlSqlToken {
+    column: string | IdentifierSqlToken | FragmentSqlToken
+  ): IdentifierSqlToken | FragmentSqlToken {
     if (typeof column === 'object') {
       return column
     }
@@ -613,11 +659,13 @@ export default class QueryBuilder<
     return array.some((v): v is null => v === null)
   }
 
-  private valueToSql(rawValue: SerializableValueType | SqlToken): SqlSqlToken {
+  private valueToSql(
+    rawValue: SerializableValueType | SqlToken
+  ): FragmentSqlToken {
     if (isSqlToken(rawValue)) {
-      return sql`${rawValue}`
+      return sql.fragment`${rawValue}`
     }
-    return sql`${this.value(rawValue)}`
+    return sql.fragment`${this.value(rawValue)}`
   }
 
   private value(rawValue: SerializableValueType): PrimitiveValueType {
@@ -647,11 +695,11 @@ export default class QueryBuilder<
   }
 
   private rowsetKeys(
-    rows: AllowSql<TInsertType>[]
-  ): Array<keyof TInsertType & keyof TRowType & string> {
+    rows: AllowSql<z.infer<SelectSchema>>[]
+  ): Array<keyof z.infer<SelectSchema> & keyof z.infer<SelectSchema> & string> {
     const allKeys = rows.map(Object.keys)
     const keySet = new Set(...allKeys) as Set<
-      keyof TInsertType & keyof TRowType & string
+      keyof z.infer<SelectSchema> & keyof z.infer<SelectSchema> & string
     >
     return Array.from(keySet)
   }
@@ -672,8 +720,8 @@ export default class QueryBuilder<
    * single parameter and only non-uniform rows spread out as normal.
    */
   private isUniformRowset(
-    rowset: AllowSql<TInsertType>[]
-  ): rowset is TInsertType[] {
+    rowset: AllowSql<z.infer<SelectSchema>>[]
+  ): rowset is z.infer<SelectSchema>[] {
     // we can only parameterize the entire row if every row has only values that
     // are either primitive values (e.g. string, number) or are convertable
     // to primitive values (e.g. Date)

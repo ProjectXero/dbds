@@ -13,7 +13,7 @@ import { z } from 'zod'
 import { ColumnInfo, TableInfoWithColumns, TypeRegistry } from '../database'
 import { Transformations } from '../types'
 
-import ColumnTypeBuilder from './ColumnTypeBuilder'
+import { ColumnMetadataBuilder } from './ColumnMetadataBuilder'
 import { ExportKeyword } from './NodeBuilder'
 import TypeBuilder from './TypeBuilder'
 
@@ -31,14 +31,28 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
     this.columns = options.columns
   }
 
+  protected buildSingleProperty(
+    name: string,
+    value: string
+  ): PropertyAssignment {
+    return factory.createPropertyAssignment(
+      factory.createIdentifier(name),
+      factory.createStringLiteral(value)
+    )
+  }
+
   protected buildProperties(): PropertyAssignment[] {
     return this.columns.map<PropertyAssignment>((columnInfo) => {
-      const builder = new ColumnTypeBuilder(
+      const builder = new ColumnMetadataBuilder(
         columnInfo,
         this.types,
         this.transform
       )
-      return builder.buildNode()
+      const metadataNode = builder.buildNode()
+      return factory.createPropertyAssignment(
+        this.transform.columns(columnInfo.name),
+        metadataNode
+      )
     })
   }
 
@@ -54,7 +68,7 @@ export default class TypeObjectBuilder extends TypeBuilder<VariableStatement> {
   }
 
   public typename(name: string = this.name): Identifier {
-    return this.createIdentifier(super.typename(name).text + '$Types')
+    return this.createIdentifier(super.typename(name).text + '$Metadata')
   }
 
   public buildNode(): VariableStatement {

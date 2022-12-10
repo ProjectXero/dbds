@@ -1,42 +1,75 @@
 import assert from 'assert'
-import { createPool, DatabasePool, sql, SqlSqlToken } from 'slonik'
-import { z, ZodSchema } from 'zod'
+import { createPool, DatabasePool, sql, FragmentSqlToken } from 'slonik'
+import { z } from 'zod'
 
 import { DBDataSource } from '..'
 
-interface DummyRowType<TSchema = DefaultJsonbSchema> {
-  id: number
-  name: string
-  code: string
-  withDefault?: string | SqlSqlToken
-  camelCase: string
-  tsTest: Date
-  dateTest: Date
-  jsonbTest: TSchema
-  nullable?: string | null
+const FragmentSqlToken = z.object({
+  sql: z.string(),
+  type: z.literal('SLONIK_TOKEN_FRAGMENT'),
+  values: z.array(z.any()),
+})
+
+const DummyMetadata = {
+  id: {
+    nativeType: 'int8',
+    nativeName: 'id',
+  },
+  name: {
+    nativeType: 'citext',
+    nativeName: 'name',
+  },
+  code: {
+    nativeType: 'text',
+    nativeName: 'code',
+  },
+  withDefault: {
+    nativeType: 'text',
+    nativeName: 'with_default',
+  },
+  camelCase: {
+    nativeType: 'text',
+    nativeName: 'camel_case',
+  },
+  tsTest: {
+    nativeType: 'timestamptz',
+    nativeName: 'ts_test',
+  },
+  dateTest: {
+    nativeType: 'date',
+    nativeName: 'date_test',
+  },
+  jsonbTest: {
+    nativeType: 'jsonb',
+    nativeName: 'jsonb_test',
+  },
+  nullable: {
+    nativeType: 'text',
+    nativeName: 'nullable',
+  },
 }
 
-interface DefaultJsonbSchema {
-  a: number
-}
+const DummyRowType = z.object({
+  id: z.number(),
+  name: z.string(),
+  code: z.string(),
+  withDefault: z.string().or(FragmentSqlToken).optional(),
+  camelCase: z.string(),
+  tsTest: z.date(),
+  dateTest: z.date(),
+  jsonbTest: z.any(),
+  nullable: z.string().nullish(),
+})
 
-const columnTypes = {
-  id: 'int8',
-  name: 'citext',
-  code: 'text',
-  withDefault: 'text',
-  camelCase: 'text',
-  tsTest: 'timestamptz',
-  dateTest: 'date',
-  jsonbTest: 'jsonb',
-  nullable: 'text',
-} as const
+const DefaultJsonbSchema = z.object({
+  a: z.number(),
+})
 
 let pool: DatabasePool
 
-const createRow = <TSchema = DefaultJsonbSchema>(
-  values: Partial<DummyRowType<TSchema>>
-): DummyRowType<TSchema> => {
+const createRow = (
+  values: Partial<z.infer<typeof DummyRowType>>
+): z.infer<typeof DummyRowType> => {
   return {
     id: 1,
     code: '',
@@ -44,7 +77,7 @@ const createRow = <TSchema = DefaultJsonbSchema>(
     camelCase: '',
     tsTest: new Date('2020-12-05T00:00:00.000Z'),
     dateTest: new Date('2021-04-19'),
-    jsonbTest: { a: 1 } as unknown as TSchema,
+    jsonbTest: { a: 1 },
     nullable: null,
     ...values,
   }
@@ -53,7 +86,7 @@ const createRow = <TSchema = DefaultJsonbSchema>(
 beforeAll(async () => {
   assert(process.env.DATABASE_URL, 'DATABASE_URL must be configured')
 
-  pool = createPool(process.env.DATABASE_URL, {
+  pool = await createPool(process.env.DATABASE_URL, {
     captureStackTrace: true,
     maximumPoolSize: 1,
     idleTimeout: 'DISABLE_TIMEOUT',
@@ -61,10 +94,10 @@ beforeAll(async () => {
   })
 
   await pool.transaction(async (connection) => {
-    await connection.query(sql`
+    await connection.query(sql.unsafe`
       CREATE EXTENSION IF NOT EXISTS citext
     `)
-    await connection.query(sql`
+    await connection.query(sql.unsafe`
       CREATE TABLE IF NOT EXISTS "test_table" (
         "id" INTEGER PRIMARY KEY,
         "name" CITEXT NOT NULL,
@@ -80,31 +113,34 @@ beforeAll(async () => {
   })
 })
 
-afterAll(async () => {
-  await pool.end()
-})
-
-class TestDataSource<TSchema = DefaultJsonbSchema> extends DBDataSource<
-  DummyRowType<TSchema>,
-  unknown,
-  DummyRowType<TSchema>,
-  typeof columnTypes
+class TestDataSource<TSchema extends z.ZodType> extends DBDataSource<
+  typeof DummyMetadata,
+  z.ZodObject<
+    z.extendShape<typeof DummyRowType['shape'], { jsonbTest: TSchema }>,
+    'strip',
+    z.ZodTypeAny
+  >,
+  z.ZodObject<
+    z.extendShape<typeof DummyRowType['shape'], { jsonbTest: TSchema }>,
+    'strip',
+    z.ZodTypeAny
+  >
 > {
-  constructor(columnSchemas?: {
-    [K in keyof DummyRowType<TSchema> as typeof columnTypes[K] extends
-      | 'json'
-      | 'jsonb'
-      ? K
-      : never]?: ZodSchema
-  }) {
-    super(pool, 'test_table', columnTypes, columnSchemas)
+  constructor(jsonbSchema: TSchema) {
+    const schema = DummyRowType.extend({ jsonbTest: jsonbSchema })
+
+    super(pool, 'test_table', DummyMetadata, schema, schema)
   }
 
   public idLoader = this.loaders.create('id')
+  public a = this.loaders.create('dateTest')
   public codeLoader = this.loaders.create('code', {
     multi: true,
     orderBy: ['id', 'DESC'],
   })
+  /*
+
+  */
 
   public idAndCodeLoader = this.loaders.createMulti(['name', 'code'], {
     multi: true,
@@ -125,14 +161,18 @@ class TestDataSource<TSchema = DefaultJsonbSchema> extends DBDataSource<
   public testDelete: TestDataSource<TSchema>['delete'] = this.delete
 }
 
-let ds: TestDataSource
+let ds: TestDataSource<typeof DefaultJsonbSchema>
 
 beforeEach(() => {
-  ds = new TestDataSource()
+  ds = new TestDataSource(DefaultJsonbSchema)
 })
 
-afterEach(() => {
-  pool.query(sql`TRUNCATE test_table`)
+afterEach(async () => {
+  await pool.query(sql.unsafe`TRUNCATE test_table`)
+})
+
+afterAll(async () => {
+  await pool.end()
 })
 
 describe('DBDataSource', () => {
@@ -149,7 +189,7 @@ describe('DBDataSource', () => {
     })
 
     it('can insert new rows', async () => {
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 2,
         code: 'CODE',
         name: 'Test Row',
@@ -163,15 +203,15 @@ describe('DBDataSource', () => {
   })
 
   it('can insert rows with raw sql and without', async () => {
-    const row1: DummyRowType = createRow({
+    const row1: z.infer<typeof DummyRowType> = createRow({
       id: 5,
       code: 'A',
       name: 'abc',
-      withDefault: sql`DEFAULT`,
+      withDefault: sql.fragment`DEFAULT`,
       tsTest: new Date('2020-12-05T00:00:00.001Z'),
       jsonbTest: { a: 1 },
     })
-    const row2: DummyRowType = createRow({
+    const row2: z.infer<typeof DummyRowType> = createRow({
       id: 6,
       code: 'B',
       name: 'def',
@@ -179,7 +219,7 @@ describe('DBDataSource', () => {
       tsTest: new Date('2020-12-05T00:00:00.002Z'),
       jsonbTest: { a: 2 },
     })
-    const row3: DummyRowType = createRow({
+    const row3: z.infer<typeof DummyRowType> = createRow({
       id: 7,
       code: 'C',
       name: 'ghi',
@@ -202,7 +242,7 @@ describe('DBDataSource', () => {
 
   describe('when given an array with one input', () => {
     it('returns an array of results', async () => {
-      const row1: DummyRowType = createRow({
+      const row1: z.infer<typeof DummyRowType> = createRow({
         id: 99,
         code: 'A',
         name: 'abc',
@@ -216,7 +256,7 @@ describe('DBDataSource', () => {
   })
 
   it('can insert rows with columns of arbitrary case', async () => {
-    const row: DummyRowType = createRow({
+    const row: z.infer<typeof DummyRowType> = createRow({
       id: 8,
       code: 'D',
       name: 'jkl',
@@ -230,7 +270,7 @@ describe('DBDataSource', () => {
   })
 
   describe('when there is data in the table', () => {
-    const row: DummyRowType = createRow({
+    const row: z.infer<typeof DummyRowType> = createRow({
       id: 2,
       code: 'CODE',
       name: 'Test Row',
@@ -274,7 +314,7 @@ describe('DBDataSource', () => {
     it('can insert more rows', async () => {
       await ds.testInsert(row)
 
-      const newRow1: DummyRowType = createRow({
+      const newRow1: z.infer<typeof DummyRowType> = createRow({
         id: 10,
         code: 'any',
         name: 'any',
@@ -282,7 +322,7 @@ describe('DBDataSource', () => {
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
       })
-      const newRow2: DummyRowType = createRow({
+      const newRow2: z.infer<typeof DummyRowType> = createRow({
         id: 11,
         code: 'more',
         name: 'values',
@@ -296,7 +336,7 @@ describe('DBDataSource', () => {
     })
 
     it('can update rows', async () => {
-      const newRow1: DummyRowType = createRow({
+      const newRow1: z.infer<typeof DummyRowType> = createRow({
         id: 10,
         code: 'any',
         name: 'any',
@@ -304,7 +344,7 @@ describe('DBDataSource', () => {
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
       })
-      const newRow2: DummyRowType = createRow({
+      const newRow2: z.infer<typeof DummyRowType> = createRow({
         id: 11,
         code: 'more',
         name: 'values',
@@ -334,7 +374,7 @@ describe('DBDataSource', () => {
     })
 
     it('can delete rows', async () => {
-      const newRow1: DummyRowType = createRow({
+      const newRow1: z.infer<typeof DummyRowType> = createRow({
         id: 10,
         code: 'any',
         name: 'any',
@@ -342,7 +382,7 @@ describe('DBDataSource', () => {
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
       })
-      const newRow2: DummyRowType = createRow({
+      const newRow2: z.infer<typeof DummyRowType> = createRow({
         id: 11,
         code: 'more',
         name: 'values',
@@ -368,7 +408,7 @@ describe('DBDataSource', () => {
     })
 
     it('can use loaders to lookup rows', async () => {
-      const newRow1: DummyRowType = createRow({
+      const newRow1: z.infer<typeof DummyRowType> = createRow({
         id: 10,
         code: 'any',
         name: 'any',
@@ -376,7 +416,7 @@ describe('DBDataSource', () => {
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
       })
-      const newRow2: DummyRowType = createRow({
+      const newRow2: z.infer<typeof DummyRowType> = createRow({
         id: 11,
         code: 'more',
         name: 'values',
@@ -392,7 +432,7 @@ describe('DBDataSource', () => {
     })
 
     it('can set query options on a loader', async () => {
-      const row1: DummyRowType = createRow({
+      const row1: z.infer<typeof DummyRowType> = createRow({
         id: 19,
         code: 'any',
         name: 'any',
@@ -400,7 +440,7 @@ describe('DBDataSource', () => {
         tsTest: new Date('2020-12-05T00:00:00.001Z'),
         jsonbTest: { a: 1 },
       })
-      const row2: DummyRowType = createRow({
+      const row2: z.infer<typeof DummyRowType> = createRow({
         id: 20,
         code: 'any',
         name: 'any',
@@ -416,7 +456,7 @@ describe('DBDataSource', () => {
     })
 
     it('can lookup rows by null values', async () => {
-      const row1: DummyRowType = createRow({
+      const row1: z.infer<typeof DummyRowType> = createRow({
         id: 19,
         code: 'any',
         name: 'any',
@@ -425,7 +465,7 @@ describe('DBDataSource', () => {
         jsonbTest: { a: 1 },
         nullable: 'not null',
       })
-      const row2: DummyRowType = createRow({
+      const row2: z.infer<typeof DummyRowType> = createRow({
         id: 20,
         code: 'any',
         name: 'any',
@@ -445,7 +485,7 @@ describe('DBDataSource', () => {
     })
 
     it('can lookup rows by one of multiple values including null', async () => {
-      const row1: DummyRowType = createRow({
+      const row1: z.infer<typeof DummyRowType> = createRow({
         id: 19,
         code: 'any',
         name: 'any',
@@ -454,7 +494,7 @@ describe('DBDataSource', () => {
         jsonbTest: { a: 1 },
         nullable: 'not null',
       })
-      const row2: DummyRowType = createRow({
+      const row2: z.infer<typeof DummyRowType> = createRow({
         id: 20,
         code: 'any',
         name: 'any',
@@ -476,7 +516,7 @@ describe('DBDataSource', () => {
 
   describe('counting rows', () => {
     it('can count all rows in the table', async () => {
-      const rows: DummyRowType[] = [
+      const rows = [
         createRow({ id: 21 }),
         createRow({ id: 22 }),
         createRow({ id: 23 }),
@@ -488,7 +528,7 @@ describe('DBDataSource', () => {
     })
 
     it('can count rows in groups', async () => {
-      const rows: DummyRowType[] = [
+      const rows = [
         createRow({ id: 24, code: 'ONE' }),
         createRow({ id: 25, code: 'TWO' }),
         createRow({ id: 26, code: 'TWO' }),
@@ -511,7 +551,7 @@ describe('DBDataSource', () => {
 
   describe('multi-column loader', () => {
     it('can query data successfully', async () => {
-      const rows: DummyRowType[] = [
+      const rows = [
         createRow({ id: 30, name: 'hello', code: 'secret' }),
         createRow({ id: 31, name: 'noway', code: 'secret' }),
       ]
@@ -523,7 +563,10 @@ describe('DBDataSource', () => {
     })
 
     it('can query data correctly with casing differences', async () => {
-      const row: DummyRowType = createRow({ id: 32, camelCase: 'value1' })
+      const row: z.infer<typeof DummyRowType> = createRow({
+        id: 32,
+        camelCase: 'value1',
+      })
       await ds.testInsert(row)
 
       expect(
@@ -532,7 +575,7 @@ describe('DBDataSource', () => {
     })
 
     it('can cast values correctly', async () => {
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 33,
         name: '7963ad1f-3289-4a50-860a-56e3571d27db',
       })
@@ -550,7 +593,7 @@ describe('DBDataSource', () => {
 
   describe('transaction support', () => {
     it('can use transactions successfully', async () => {
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 34,
       })
 
@@ -571,7 +614,7 @@ describe('DBDataSource', () => {
     })
 
     it('handles loader cache clearing correctly', async () => {
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 35,
       })
 
@@ -588,7 +631,7 @@ describe('DBDataSource', () => {
     })
 
     it("doesn't clear already-cached loader items", async () => {
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 36,
       })
       await ds.testInsert(row)
@@ -605,9 +648,9 @@ describe('DBDataSource', () => {
     })
 
     it('uses transactions cross-datasource', async () => {
-      const ds2 = new TestDataSource()
+      const ds2 = new TestDataSource(DefaultJsonbSchema)
 
-      const row: DummyRowType = createRow({
+      const row: z.infer<typeof DummyRowType> = createRow({
         id: 37,
       })
 
@@ -629,12 +672,14 @@ describe('DBDataSource', () => {
   })
 
   describe('json column schemas', () => {
-    let ds: TestDataSource
+    const schema = z.object({
+      a: z.number(),
+    })
+
+    let ds: TestDataSource<typeof schema>
 
     beforeEach(() => {
-      ds = new TestDataSource({
-        jsonbTest: z.object({ a: z.number() }),
-      })
+      ds = new TestDataSource(schema)
     })
 
     describe('when inserting', () => {
@@ -657,7 +702,6 @@ describe('DBDataSource', () => {
         describe('with an invalid schema (invalid value)', () => {
           it('throws an error', async () => {
             await expect(
-              // @ts-expect-error testing schema parsing
               ds.testInsert(createRow({ id: 36, jsonbTest: { a: 'asdf' } }))
             ).rejects.toThrowError('Expected number, received string')
           })
@@ -665,7 +709,6 @@ describe('DBDataSource', () => {
           it("doesn't insert the row", async () => {
             try {
               await ds.testInsert(
-                // @ts-expect-error testing schema parsing
                 createRow({ id: 36, jsonbTest: { a: 'asdf' } })
               )
             } catch {
@@ -679,17 +722,13 @@ describe('DBDataSource', () => {
         describe('with an invalid schema (missing key)', () => {
           it('throws an error', async () => {
             await expect(
-              // @ts-expect-error testing schema parsing
               ds.testInsert(createRow({ id: 36, jsonbTest: {} }))
             ).rejects.toThrowError('Required')
           })
 
           it("doesn't insert the row", async () => {
             try {
-              await ds.testInsert(
-                // @ts-expect-error testing schema parsing
-                createRow({ id: 36, jsonbTest: {} })
-              )
+              await ds.testInsert(createRow({ id: 36, jsonbTest: {} }))
             } catch {
               // swallow the error
             }
@@ -705,19 +744,6 @@ describe('DBDataSource', () => {
             )
             // @ts-expect-error testing types
             expect(result.jsonbTest.extra).toBeUndefined()
-          })
-
-          it("doesn't insert the row", async () => {
-            try {
-              await ds.testInsert(
-                // @ts-expect-error testing schema parsing
-                createRow({ id: 36, jsonbTest: { a: 'asdf' } })
-              )
-            } catch {
-              // swallow the error
-            }
-            const result = await ds.testGet()
-            expect(result.length).toEqual(0)
           })
         })
       })
@@ -751,7 +777,6 @@ describe('DBDataSource', () => {
           it('throws an error', async () => {
             await expect(
               ds.testInsert([
-                // @ts-expect-error testing schema parsing
                 createRow({ id: 41, jsonbTest: { a: 'asdf' } }),
                 createRow({ id: 42, jsonbTest: { a: 2223 } }),
               ])
@@ -761,7 +786,6 @@ describe('DBDataSource', () => {
           it('inserts no rows', async () => {
             try {
               await ds.testInsert([
-                // @ts-expect-error testing schema parsing
                 createRow({ id: 43, jsonbTest: { a: 'asdf' } }),
                 createRow({ id: 44, jsonbTest: { a: 2223 } }),
               ])
@@ -837,28 +861,29 @@ describe('DBDataSource', () => {
         type: z.literal('type1'),
         someKey: z.string(),
       })
-      type Schema1 = z.infer<typeof schema1>
 
       const schema2 = z.object({
         type: z.literal('type2'),
         someOtherKey: z.number(),
       })
-      type Schema2 = z.infer<typeof schema2>
 
-      const schemaCombo = z.union([schema1, schema2])
-      type SchemaCombo = z.infer<typeof schemaCombo>
+      const schema = z.discriminatedUnion('type', [schema1, schema2])
 
-      let ds: TestDataSource<SchemaCombo>
+      let ds: TestDataSource<typeof schema>
 
       beforeEach(() => {
-        ds = new TestDataSource<SchemaCombo>({
-          jsonbTest: schemaCombo,
-        })
+        ds = new TestDataSource(schema)
       })
 
       it('can process any of the given union schemas', async () => {
-        const rowData1: Schema1 = { type: 'type1', someKey: 'any string' }
-        const rowData2: Schema2 = { type: 'type2', someOtherKey: 1234 }
+        const rowData1 = {
+          type: 'type1',
+          someKey: 'any string',
+        }
+        const rowData2 = {
+          type: 'type2',
+          someOtherKey: 1234,
+        }
         const result = await ds.testInsert([
           createRow({ id: 50, jsonbTest: rowData1 }),
           createRow({ id: 51, jsonbTest: rowData2 }),

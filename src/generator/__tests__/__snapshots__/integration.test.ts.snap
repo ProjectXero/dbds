@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator generates the correct types 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"import { z } from "zod";
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -9,12 +10,25 @@ export type SerializableValueType = SimpleValueType | {
 export type MapToSerializable<T> = T extends SerializableValueType ? T : T extends Array<infer U> ? Array<MapToSerializable<U>> : T extends ReadonlyArray<infer U> ? ReadonlyArray<MapToSerializable<U>> : T extends {
     [K in keyof T]: K extends string ? T[K] extends SimpleValueType ? T[K] : T[K] extends Function ? never : MapToSerializable<T[K]> : never;
 } ? T : never;
+export const DEFAULT = Symbol("DEFAULT");
 export enum TestTypeEnum {
-    Aa = \\"aa\\",
-    Bb = \\"bb\\",
-    Cc = \\"cc\\",
-    Zzzz = \\"zzzz\\"
+    Aa = "aa",
+    Bb = "bb",
+    Cc = "cc",
+    Zzzz = "zzzz"
 }
+export const TestTableOrder$Metadata = {
+    subsequent_table_type: {
+        nativeName: "subsequent_table_type",
+        nativeType: "test_table_standard"
+    }
+} as const;
+export const TestTableOrder$SelectSchema = z.object({
+    subsequent_table_type: z.lazy(() => TestTableStandard$SelectSchema.nullable())
+});
+export const TestTableOrder$InsertSchema = z.object({
+    subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullable())
+});
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
 }
@@ -22,8 +36,62 @@ export interface TestTableOrder$Insert {
     subsequent_table_type?: TestTableStandard | null;
 }
 export const TestTableOrder$Types = {
-    subsequent_table_type: \\"test_table_standard\\"
+    subsequent_table_type: "test_table_standard"
 } as const;
+export const TestTableStandard$Metadata = {
+    arr_test: {
+        nativeName: "arr_test",
+        nativeType: "text"
+    },
+    caseTest_upper: {
+        nativeName: "caseTest_upper",
+        nativeType: "text"
+    },
+    casetest_lower: {
+        nativeName: "casetest_lower",
+        nativeType: "text"
+    },
+    domain_test: {
+        nativeName: "domain_test",
+        nativeType: "text"
+    },
+    enum_arr_test: {
+        nativeName: "enum_arr_test",
+        nativeType: "test_type_enum"
+    },
+    enum_test: {
+        nativeName: "enum_test",
+        nativeType: "test_type_enum"
+    },
+    id: {
+        nativeName: "id",
+        nativeType: "int4"
+    },
+    jsonb_test: {
+        nativeName: "jsonb_test",
+        nativeType: "jsonb"
+    }
+} as const;
+export const TestTableStandard$SelectSchema = z.object({
+    arr_test: z.array(z.string()).nullable(),
+    caseTest_upper: z.string().nullable(),
+    casetest_lower: z.string().nullable(),
+    domain_test: z.string().nullable(),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
+    id: z.number(),
+    jsonb_test: z.unknown().nullable()
+});
+export const TestTableStandard$InsertSchema = z.object({
+    arr_test: z.array(z.string()).nullable(),
+    caseTest_upper: z.string().nullable(),
+    casetest_lower: z.string().nullable(),
+    domain_test: z.string().nullable(),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
+    id: z.number().optional().or(z.literal(DEFAULT)),
+    jsonb_test: z.unknown().nullable()
+});
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
     caseTest_upper: string | null;
@@ -45,15 +113,39 @@ export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
     jsonb_test?: MapToSerializable<TJsonbTest> | null;
 }
 export const TestTableStandard$Types = {
-    arr_test: \\"text\\",
-    caseTest_upper: \\"text\\",
-    casetest_lower: \\"text\\",
-    domain_test: \\"text\\",
-    enum_arr_test: \\"test_type_enum\\",
-    enum_test: \\"test_type_enum\\",
-    id: \\"int4\\",
-    jsonb_test: \\"jsonb\\"
+    arr_test: "text",
+    caseTest_upper: "text",
+    casetest_lower: "text",
+    domain_test: "text",
+    enum_arr_test: "test_type_enum",
+    enum_test: "test_type_enum",
+    id: "int4",
+    jsonb_test: "jsonb"
 } as const;
+export const TestTableTypes$Metadata = {
+    id: {
+        nativeName: "id",
+        nativeType: "uuid"
+    },
+    table_arr_test: {
+        nativeName: "table_arr_test",
+        nativeType: "test_table_standard"
+    },
+    table_test: {
+        nativeName: "table_test",
+        nativeType: "test_table_standard"
+    }
+} as const;
+export const TestTableTypes$SelectSchema = z.object({
+    id: z.string(),
+    table_arr_test: z.lazy(() => z.array(TestTableStandard$SelectSchema)),
+    table_test: z.lazy(() => TestTableStandard$SelectSchema.nullable())
+});
+export const TestTableTypes$InsertSchema = z.object({
+    id: z.string(),
+    table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(z.literal(DEFAULT))),
+    table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable())
+});
 export interface TestTableTypes {
     id: string;
     table_arr_test: TestTableStandard[];
@@ -65,9 +157,9 @@ export interface TestTableTypes$Insert {
     table_test?: TestTableStandard | null;
 }
 export const TestTableTypes$Types = {
-    id: \\"uuid\\",
-    table_arr_test: \\"test_table_standard\\",
-    table_test: \\"test_table_standard\\"
+    id: "uuid",
+    table_arr_test: "test_table_standard",
+    table_test: "test_table_standard"
 } as const;
 "
 `;

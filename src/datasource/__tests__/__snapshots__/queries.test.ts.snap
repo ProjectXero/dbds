@@ -1,69 +1,69 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`QueryBuilder clause generators groupBy accepts a list of column names as an array of strings 1`] = `
-Object {
-  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "GROUP BY "any_table"."a", "any_table"."b", "any_table"."c"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators groupBy accepts a mix of different types 1`] = `
-Object {
-  "sql": "GROUP BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "GROUP BY "any_table"."a", "b", c, "any_table"."d", "e", f",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators groupBy accepts a single column name as a string 1`] = `
-Object {
-  "sql": "GROUP BY \\"any_table\\".\\"a\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "GROUP BY "any_table"."a"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators groupBy accepts a single column name as an identifier 1`] = `
-Object {
-  "sql": "GROUP BY \\"column\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "GROUP BY "column"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators groupBy accepts a single column name as arbitrary sql 1`] = `
-Object {
+{
   "sql": "GROUP BY anything i want!",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators having accepts a list of expressions 1`] = `
-Object {
+{
   "sql": "HAVING (true AND false AND more raw expressions etc.)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators having accepts a simple object 1`] = `
-Object {
-  "sql": "HAVING (\\"any_table\\".\\"id\\" = $1)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "HAVING ("any_table"."id" = $1)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder clause generators having handles multiple values for a column 1`] = `
-Object {
-  "sql": "HAVING (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    Array [
+{
+  "sql": "HAVING ("any_table"."id" = ANY($1::these[]))",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
+    [
       1,
       2,
       3,
@@ -73,34 +73,34 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators having lets you pass in a raw expression 1`] = `
-Object {
+{
   "sql": "HAVING true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators having produces a valid clause with no conditions 1`] = `
-Object {
+{
   "sql": "HAVING true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators having produces a valid clause with no conditions 2`] = `
-Object {
+{
   "sql": "HAVING true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators having sanely handles output from the \`and\` and \`or\` utilities 1`] = `
-Object {
-  "sql": "HAVING ((\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2) OR (\\"any_table\\".\\"id\\" = $3 AND \\"any_table\\".\\"name\\" = $4))",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "HAVING (("any_table"."id" = $1 AND "any_table"."name" = $2) OR ("any_table"."id" = $3 AND "any_table"."name" = $4))",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     "asdf",
     2,
@@ -110,10 +110,10 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators having uses AND for multiple columns in a simple object 1`] = `
-Object {
-  "sql": "HAVING (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "HAVING ("any_table"."id" = $1 AND "any_table"."name" = $2)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     "Bob",
   ],
@@ -121,36 +121,36 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators limit can accept arbitrary sql 1`] = `
-Object {
+{
   "sql": "LIMIT anything, thanks",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators limit can create a LIMIT <number> clause 1`] = `
-Object {
+{
   "sql": "LIMIT $1",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder clause generators limit can create a LIMIT ALL clause 1`] = `
-Object {
+{
   "sql": "LIMIT ALL",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators limit can create an offset clause with limit 1`] = `
-Object {
+{
   "sql": "LIMIT $1 OFFSET $2",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     1,
   ],
@@ -158,86 +158,86 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators limit can create an offset clause with limit 2`] = `
-Object {
+{
   "sql": "LIMIT ALL OFFSET $1",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy accepts a list of column names as an array of strings 1`] = `
-Object {
-  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"any_table\\".\\"b\\", \\"any_table\\".\\"c\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "ORDER BY "any_table"."a", "any_table"."b", "any_table"."c"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy accepts a mix of different types 1`] = `
-Object {
-  "sql": "ORDER BY \\"any_table\\".\\"a\\", \\"b\\", c, \\"any_table\\".\\"d\\", \\"e\\", f",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "ORDER BY "any_table"."a", "b", c, "any_table"."d", "e", f",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy accepts a single column name as a string 1`] = `
-Object {
-  "sql": "ORDER BY \\"any_table\\".\\"a\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "ORDER BY "any_table"."a"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy accepts a single column name as an identifier 1`] = `
-Object {
-  "sql": "ORDER BY \\"column\\"",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "ORDER BY "column"",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy accepts a single column name as arbitrary sql 1`] = `
-Object {
+{
   "sql": "ORDER BY anything i want!",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators orderBy can use order tuples 1`] = `
-Object {
-  "sql": "ORDER BY \\"any_table\\".\\"a\\" DESC, \\"any_table\\".\\"b\\", c ASC",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "ORDER BY "any_table"."a" DESC, "any_table"."b", c ASC",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where accepts a list of expressions 1`] = `
-Object {
+{
   "sql": "WHERE (true AND false AND more raw expressions etc.)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where accepts a simple object 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "WHERE ("any_table"."id" = $1)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder clause generators where accepts complex conditions 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"nullable\\" IS NULL AND (\\"any_table\\".\\"string_or_number\\" = $2 OR \\"any_table\\".\\"string_or_number\\" IS NULL))",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "WHERE ("any_table"."id" = $1 AND "any_table"."nullable" IS NULL AND ("any_table"."string_or_number" = $2 OR "any_table"."string_or_number" IS NULL))",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     "a",
   ],
@@ -245,29 +245,29 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators where correctly handles Date objects 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"date\\" = $1)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "WHERE ("any_table"."date" = $1)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     "2020-11-30T05:00:00.000Z",
   ],
 }
 `;
 
 exports[`QueryBuilder clause generators where enables custom operators through use of sql tokens 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" > 1)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "WHERE ("any_table"."id" > 1)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where handles multiple values for a column 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = ANY($1::these[]))",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    Array [
+{
+  "sql": "WHERE ("any_table"."id" = ANY($1::these[]))",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
+    [
       1,
       2,
       3,
@@ -277,42 +277,42 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators where handles null lookups correctly 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"nullable\\" IS NULL)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+{
+  "sql": "WHERE ("any_table"."nullable" IS NULL)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where lets you pass in a raw expression 1`] = `
-Object {
+{
   "sql": "WHERE true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where produces a valid clause with no conditions 1`] = `
-Object {
+{
   "sql": "WHERE true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where produces a valid clause with no conditions 2`] = `
-Object {
+{
   "sql": "WHERE true",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder clause generators where sanely handles output from the \`and\` and \`or\` utilities 1`] = `
-Object {
-  "sql": "WHERE ((\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2) OR (\\"any_table\\".\\"id\\" = $3 AND \\"any_table\\".\\"name\\" = $4))",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "WHERE (("any_table"."id" = $1 AND "any_table"."name" = $2) OR ("any_table"."id" = $3 AND "any_table"."name" = $4))",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     "asdf",
     2,
@@ -322,10 +322,10 @@ Object {
 `;
 
 exports[`QueryBuilder clause generators where uses AND for multiple columns in a simple object 1`] = `
-Object {
-  "sql": "WHERE (\\"any_table\\".\\"id\\" = $1 AND \\"any_table\\".\\"name\\" = $2)",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+{
+  "sql": "WHERE ("any_table"."id" = $1 AND "any_table"."name" = $2)",
+  "type": "SLONIK_TOKEN_FRAGMENT",
+  "values": [
     1,
     "Bob",
   ],
@@ -333,77 +333,82 @@ Object {
 `;
 
 exports[`QueryBuilder core query builders count can use where clauses 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT COUNT(*)
-      FROM \\"any_table\\"
-      WHERE (\\"any_table\\".\\"id\\" = $1)
+      FROM "any_table"
+      WHERE ("any_table"."id" = $1)
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders count creates a count query 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT COUNT(*)
-      FROM \\"any_table\\"
+      FROM "any_table"
       
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders countGroup can use where clauses 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      SELECT \\"any_table\\".\\"nullable\\", \\"any_table\\".\\"optional\\", COUNT(*)
-      FROM \\"any_table\\"
-      WHERE (\\"any_table\\".\\"id\\" = $1)
-      GROUP BY \\"any_table\\".\\"nullable\\", \\"any_table\\".\\"optional\\"
+      SELECT "any_table"."nullable", "any_table"."optional", COUNT(*)
+      FROM "any_table"
+      WHERE ("any_table"."id" = $1)
+      GROUP BY "any_table"."nullable", "any_table"."optional"
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders countGroup creates a count query with a groupBy clause 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      SELECT \\"any_table\\".\\"name\\", COUNT(*)
-      FROM \\"any_table\\"
+      SELECT "any_table"."name", COUNT(*)
+      FROM "any_table"
       
-      GROUP BY \\"any_table\\".\\"name\\"
+      GROUP BY "any_table"."name"
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders delete builds clauses correctly 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"delete_rows\\" AS (
+      WITH "delete_rows" AS (
         
-      DELETE FROM \\"any_table\\"
-      WHERE (\\"any_table\\".\\"id\\" = $1)
+      DELETE FROM "any_table"
+      WHERE ("any_table"."id" = $1)
       RETURNING *
     
       ) SELECT *
-        FROM \\"delete_rows\\"
-        GROUP BY \\"any_table\\".\\"id\\"
-        ORDER BY \\"any_table\\".\\"id\\"
-        HAVING (\\"any_table\\".\\"id\\" = $2)
+        FROM "delete_rows"
+        GROUP BY "any_table"."id"
+        ORDER BY "any_table"."id"
+        HAVING ("any_table"."id" = $2)
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
     1,
   ],
@@ -411,117 +416,122 @@ Object {
 `;
 
 exports[`QueryBuilder core query builders delete can be forced to delete everything 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"delete_rows\\" AS (
+      WITH "delete_rows" AS (
         
-      DELETE FROM \\"any_table\\"
+      DELETE FROM "any_table"
       
       RETURNING *
     
       ) SELECT *
-        FROM \\"delete_rows\\"
+        FROM "delete_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders delete doesn't let you delete everything without being explicit 1`] = `"Implicit deletion of everything is not allowed. To delete everything, please pass \`true\` or include options."`;
 
 exports[`QueryBuilder core query builders insert accepts a basic object 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\")
+      INSERT INTO "any_table" ("id", "name", "nullable", "string_or_number")
       SELECT *
-      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
+      FROM json_to_recordset($1::json) AS ("id" these, "name" types, "nullable" not, "stringOrNumber" here)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1}]",
+  "type": Any<String>,
+  "values": [
+    "[{"id":1,"name":"name","nullable":null,"stringOrNumber":1}]",
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders insert accepts many basic objects 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\")
+      INSERT INTO "any_table" ("id", "name", "nullable", "string_or_number")
       SELECT *
-      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here)
+      FROM json_to_recordset($1::json) AS ("id" these, "name" types, "nullable" not, "stringOrNumber" here)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1},{\\"stringOrNumber\\":\\"wat\\",\\"id\\":2,\\"name\\":\\"name\\",\\"nullable\\":\\"hi\\"}]",
+  "type": Any<String>,
+  "values": [
+    "[{"id":1,"name":"name","nullable":null,"stringOrNumber":1},{"stringOrNumber":"wat","id":2,"name":"name","nullable":"hi"}]",
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders insert allows a single object with raw SQL values 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      INSERT INTO "any_table" ("id", "name")
       VALUES ($1, DEFAULT)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders insert allows multiple objects with a mix of value types 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      INSERT INTO "any_table" ("id", "name")
       VALUES ($1, $2), ($3, DEFAULT)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
     "anything",
     2,
@@ -530,23 +540,24 @@ Object {
 `;
 
 exports[`QueryBuilder core query builders insert allows multiple objects with raw SQL values 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\")
+      INSERT INTO "any_table" ("id", "name")
       VALUES ($1, DEFAULT), ($2, DEFAULT)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     1,
     2,
   ],
@@ -554,178 +565,187 @@ Object {
 `;
 
 exports[`QueryBuilder core query builders insert correctly inserts Date objects as ISO8601 strings 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"insert_rows\\" AS (
+      WITH "insert_rows" AS (
         
-      INSERT INTO \\"any_table\\" (\\"id\\", \\"name\\", \\"nullable\\", \\"string_or_number\\", \\"date\\")
+      INSERT INTO "any_table" ("id", "name", "nullable", "string_or_number", "date")
       SELECT *
-      FROM jsonb_to_recordset($1) AS (\\"id\\" these, \\"name\\" types, \\"nullable\\" not, \\"stringOrNumber\\" here, \\"date\\" date)
+      FROM json_to_recordset($1::json) AS ("id" these, "name" types, "nullable" not, "stringOrNumber" here, "date" date)
       RETURNING *
     
       ) SELECT *
-        FROM \\"insert_rows\\"
+        FROM "insert_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    "[{\\"id\\":1,\\"name\\":\\"name\\",\\"nullable\\":null,\\"stringOrNumber\\":1,\\"date\\":\\"2020-11-30T05:00:00.000Z\\"}]",
+  "type": Any<String>,
+  "values": [
+    "[{"id":1,"name":"name","nullable":null,"stringOrNumber":1,"date":"2020-11-30T05:00:00.000Z"}]",
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders multiColumnBatchGet builds the query correctly 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      SELECT \\"any_table\\".*
-      FROM \\"any_table\\",
+      SELECT "any_table".*
+      FROM "any_table",
       
       (
-        SELECT (conditions->>'id')::\\"integer\\" AS \\"id\\", (conditions->>'name')::\\"text\\" AS \\"name\\"
-        FROM jsonb_array_elements($1) AS conditions
-      ) AS \\"any_table_conditions\\"
+        SELECT (conditions->>'id')::"integer" AS "id", (conditions->>'name')::"text" AS "name"
+        FROM json_array_elements($1::json) AS conditions
+      ) AS "any_table_conditions"
     
-      WHERE \\"any_table\\".\\"id\\"::\\"integer\\" = \\"any_table_conditions\\".\\"id\\"::\\"integer\\" AND \\"any_table\\".\\"name\\"::\\"text\\" = \\"any_table_conditions\\".\\"name\\"::\\"text\\"
+      WHERE "any_table"."id"::"integer" = "any_table_conditions"."id"::"integer" AND "any_table"."name"::"text" = "any_table_conditions"."name"::"text"
       
       
       
       
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    "[{\\"id\\":1,\\"name\\":\\"asdf\\"},{\\"id\\":2,\\"name\\":\\"blah\\"}]",
+  "type": Any<String>,
+  "values": [
+    "[{"id":1,"name":"asdf"},{"id":2,"name":"blah"}]",
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders multiColumnBatchGet respects casing for column names 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      SELECT \\"any_table\\".*
-      FROM \\"any_table\\",
+      SELECT "any_table".*
+      FROM "any_table",
       
       (
-        SELECT (conditions->>'optionally_nullable')::\\"any\\" AS \\"optionally_nullable\\", (conditions->>'string_or_number')::\\"thing\\" AS \\"string_or_number\\"
-        FROM jsonb_array_elements($1) AS conditions
-      ) AS \\"any_table_conditions\\"
+        SELECT (conditions->>'optionally_nullable')::"any" AS "optionally_nullable", (conditions->>'string_or_number')::"thing" AS "string_or_number"
+        FROM json_array_elements($1::json) AS conditions
+      ) AS "any_table_conditions"
     
-      WHERE \\"any_table\\".\\"optionally_nullable\\"::\\"any\\" = \\"any_table_conditions\\".\\"optionally_nullable\\"::\\"any\\" AND \\"any_table\\".\\"string_or_number\\"::\\"thing\\" = \\"any_table_conditions\\".\\"string_or_number\\"::\\"thing\\"
+      WHERE "any_table"."optionally_nullable"::"any" = "any_table_conditions"."optionally_nullable"::"any" AND "any_table"."string_or_number"::"thing" = "any_table_conditions"."string_or_number"::"thing"
       
       
       
       
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
-    "[{\\"optionally_nullable\\":\\"anything\\",\\"string_or_number\\":0}]",
+  "type": Any<String>,
+  "values": [
+    "[{"optionally_nullable":"anything","string_or_number":0}]",
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders select can select for update 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
       
       
       FOR UPDATE
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders select can select for update of another table 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
       
       
-      FOR UPDATE OF \\"another_table\\"
+      FOR UPDATE OF "another_table"
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders select can select for update of multiple other tables 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
       
       
-      FOR UPDATE OF \\"table\\", \\"another_table\\", \\"more_tables\\"
+      FOR UPDATE OF "table", "another_table", "more_tables"
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders select selects everything by default 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
       
       
       
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders select supports limits 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
       SELECT *
-      FROM \\"any_table\\"
+      FROM "any_table"
       
       
       
       LIMIT $1
       
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     10,
   ],
 }
 `;
 
 exports[`QueryBuilder core query builders update accepts a basic object 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"update_rows\\" AS (
+      WITH "update_rows" AS (
         
-      UPDATE \\"any_table\\"
-      SET \\"id\\" = $1, \\"name\\" = $2, \\"nullable\\" = $3, \\"optional\\" = $4, \\"optionally_nullable\\" = $5, \\"string_or_number\\" = $6
+      UPDATE "any_table"
+      SET "id" = $1, "name" = $2, "nullable" = $3, "optional" = $4, "optionally_nullable" = $5, "string_or_number" = $6
       
       RETURNING *
     
       ) SELECT *
-        FROM \\"update_rows\\"
+        FROM "update_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     5,
     "any",
     null,
@@ -737,46 +757,48 @@ Object {
 `;
 
 exports[`QueryBuilder core query builders update accepts raw sql values 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"update_rows\\" AS (
+      WITH "update_rows" AS (
         
-      UPDATE \\"any_table\\"
-      SET \\"name\\" = anything i want
+      UPDATE "any_table"
+      SET "name" = anything i want
       
       RETURNING *
     
       ) SELECT *
-        FROM \\"update_rows\\"
+        FROM "update_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [],
+  "type": Any<String>,
+  "values": [],
 }
 `;
 
 exports[`QueryBuilder core query builders update correctly updates Date objects as ISO8601 strings 1`] = `
-Object {
+{
+  "parser": Anything,
   "sql": "
-      WITH \\"update_rows\\" AS (
+      WITH "update_rows" AS (
         
-      UPDATE \\"any_table\\"
-      SET \\"date\\" = $1
+      UPDATE "any_table"
+      SET "date" = $1
       
       RETURNING *
     
       ) SELECT *
-        FROM \\"update_rows\\"
+        FROM "update_rows"
         
         
         
         
     ",
-  "type": "SLONIK_TOKEN_SQL",
-  "values": Array [
+  "type": Any<String>,
+  "values": [
     "2020-11-30T05:00:00.000Z",
   ],
 }

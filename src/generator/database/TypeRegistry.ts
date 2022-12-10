@@ -1,7 +1,5 @@
 import { factory, TypeNode } from 'typescript'
 
-export const UNKNOWN = factory.createTypeReferenceNode('unknown')
-
 export const defaultTypeMap = Object.freeze({
   bpchar: 'string',
   char: 'string',
@@ -32,7 +30,10 @@ export const defaultTypeMap = Object.freeze({
 })
 
 export default class TypeRegistry {
-  public readonly typeMap: Record<string, string>
+  public readonly typeMap: Record<
+    string,
+    string | { name: string; type: string }
+  >
 
   constructor() {
     this.typeMap = { ...defaultTypeMap }
@@ -43,27 +44,48 @@ export default class TypeRegistry {
   }
 
   public get(typename: string): TypeNode {
+    return factory.createTypeReferenceNode(this.getText(typename))
+  }
+
+  public getText(typename: string): string {
     if (this.has(typename)) {
-      return factory.createTypeReferenceNode(this.typeMap[typename])
+      const entry = this.typeMap[typename]
+      if (typeof entry === 'string') {
+        return entry
+      }
+      return entry.name
     }
 
     console.warn(
       `Unknown type detected: '${typename}'. ` +
         'You have either disabled generation of the type or this is a bug.'
     )
-    this.add(typename, 'unknown')
 
-    return UNKNOWN
+    return 'unknown'
   }
 
-  public add(typename: string, target: string): void {
+  public getType(typename: string): string {
+    if (this.has(typename)) {
+      const entry = this.typeMap[typename]
+      if (typeof entry !== 'string') {
+        return entry.type
+      }
+    }
+    return 'unknown'
+  }
+
+  public add(typename: string, target: string, type?: string): void {
     if (this.has(typename)) {
       console.warn(
         `Re-registering known type '${typename}': ` +
-          `${this.typeMap[typename]} => ${target}`
+          `${this.getText(typename)} => ${target}`
       )
     }
 
-    this.typeMap[typename] = target
+    if (typeof type === 'string') {
+      this.typeMap[typename] = { name: target, type }
+    } else {
+      this.typeMap[typename] = target
+    }
   }
 }

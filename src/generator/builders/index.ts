@@ -1,3 +1,6 @@
 export { default as EnumBuilder } from './EnumBuilder'
 export { default as InsertTypeBuilder } from './InsertTypeBuilder'
 export { default as TableBuilder } from './TableBuilder'
+export { default as TableMetadataBuilder } from './TableMetadataBuilder'
+export { default as SelectSchemaBuilder } from './SelectSchemaBuilder'
+export { default as InsertSchemaBuilder } from './InsertSchemaBuilder'

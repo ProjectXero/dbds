@@ -33,7 +33,6 @@ export default class InsertTypeBuilder extends TableBuilder {
     let declaration = super.buildNode()
     declaration = factory.updateInterfaceDeclaration(
       declaration,
-      declaration.decorators,
       declaration.modifiers,
       this.typename(),
       declaration.typeParameters,

@@ -1,12 +1,12 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`DBDataSource multi-column loader can query data correctly with casing differences 1`] = `
-Object {
+{
   "camelCase": "value1",
   "code": "",
   "dateTest": 2021-04-19T00:00:00.000Z,
   "id": 32,
-  "jsonbTest": Object {
+  "jsonbTest": {
     "a": 1,
   },
   "name": "",
@@ -17,13 +17,13 @@ Object {
 `;
 
 exports[`DBDataSource multi-column loader can query data successfully 1`] = `
-Array [
-  Object {
+[
+  {
     "camelCase": "",
     "code": "secret",
     "dateTest": 2021-04-19T00:00:00.000Z,
     "id": 30,
-    "jsonbTest": Object {
+    "jsonbTest": {
       "a": 1,
     },
     "name": "hello",
@@ -35,13 +35,13 @@ Array [
 `;
 
 exports[`DBDataSource when there is data in the table can set query options on a loader 1`] = `
-Array [
-  Object {
+[
+  {
     "camelCase": "",
     "code": "any",
     "dateTest": 2021-04-19T00:00:00.000Z,
     "id": 20,
-    "jsonbTest": Object {
+    "jsonbTest": {
       "a": 1,
     },
     "name": "any",
@@ -49,12 +49,12 @@ Array [
     "tsTest": 2020-12-05T00:00:00.002Z,
     "withDefault": "asdf",
   },
-  Object {
+  {
     "camelCase": "",
     "code": "any",
     "dateTest": 2021-04-19T00:00:00.000Z,
     "id": 19,
-    "jsonbTest": Object {
+    "jsonbTest": {
       "a": 1,
     },
     "name": "any",

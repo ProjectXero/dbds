@@ -1,44 +1,54 @@
 import assert from 'assert'
+import { z } from 'zod'
 import { LoaderFactory } from '../loaders'
 import { ExtendedDataLoader, GetDataMultiFunction } from '../loaders/types'
 import { match } from '../loaders/utils'
 
-interface DummyRowType {
-  id: number
-  name: string
-  code: string
+const DummyMetadata = {
+  id: {
+    nativeType: 'anything',
+    nativeName: 'id',
+  },
+  name: {
+    nativeType: 'anything',
+    nativeName: 'name',
+  },
+  code: {
+    nativeType: 'anything',
+    nativeName: 'code',
+  },
 }
 
-const columnTypes: Record<keyof DummyRowType, string> = {
-  id: 'anything',
-  name: 'anything',
-  code: 'anything',
-}
+const DummyRowType = z.object({
+  id: z.number(),
+  name: z.string(),
+  code: z.string(),
+})
 
 describe(LoaderFactory, () => {
-  const dummyBatchFn = jest.fn(async (): Promise<DummyRowType[]> => {
-    return [
-      { id: 1, name: 'aaa', code: 'abc' },
-      { id: 2, name: 'bbb', code: 'def' },
-      { id: 3, name: 'Aaa', code: 'ghi' },
-      { id: 4, name: 'Bbb', code: 'ABC' },
-      { id: 5, name: 'AAa', code: 'DEF' },
-      { id: 6, name: 'BBb', code: 'GHI' },
-      { id: 7, name: 'AAA', code: 'abc' },
-      { id: 8, name: 'BBB', code: 'def' },
-      { id: 9, name: 'zzz', code: 'ghi' },
-      { id: 10, name: 'ccc', code: 'ABC' },
-      { id: 11, name: 'Ccc', code: 'DEF' },
-      { id: 12, name: 'CCc', code: 'GHI' },
-      { id: 13, name: 'CCC', code: 'zzz' },
-    ]
-  })
+  const dummyBatchFn = jest.fn(
+    async (): Promise<z.infer<typeof DummyRowType>[]> => {
+      return [
+        { id: 1, name: 'aaa', code: 'abc' },
+        { id: 2, name: 'bbb', code: 'def' },
+        { id: 3, name: 'Aaa', code: 'ghi' },
+        { id: 4, name: 'Bbb', code: 'ABC' },
+        { id: 5, name: 'AAa', code: 'DEF' },
+        { id: 6, name: 'BBb', code: 'GHI' },
+        { id: 7, name: 'AAA', code: 'abc' },
+        { id: 8, name: 'BBB', code: 'def' },
+        { id: 9, name: 'zzz', code: 'ghi' },
+        { id: 10, name: 'ccc', code: 'ABC' },
+        { id: 11, name: 'Ccc', code: 'DEF' },
+        { id: 12, name: 'CCc', code: 'GHI' },
+        { id: 13, name: 'CCC', code: 'zzz' },
+      ]
+    }
+  )
 
   const getFactory = () =>
-    new LoaderFactory<DummyRowType>(dummyBatchFn, dummyBatchFn, {
-      columnTypes,
-    })
-  let factory: LoaderFactory<DummyRowType>
+    new LoaderFactory(dummyBatchFn, dummyBatchFn, DummyMetadata)
+  let factory: LoaderFactory<z.infer<typeof DummyRowType>>
 
   beforeEach(() => {
     factory = getFactory()
@@ -49,7 +59,7 @@ describe(LoaderFactory, () => {
     let loader: ExtendedDataLoader<
       false,
       number,
-      DummyRowType | undefined,
+      z.infer<typeof DummyRowType> | undefined,
       number
     >
 
@@ -74,7 +84,12 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: false', () => {
-    let loader: ExtendedDataLoader<true, string, DummyRowType[], string>
+    let loader: ExtendedDataLoader<
+      true,
+      string,
+      z.infer<typeof DummyRowType>[],
+      string
+    >
 
     beforeEach(() => {
       loader = factory.create('code', 'any', {
@@ -100,7 +115,7 @@ describe(LoaderFactory, () => {
     let loader: ExtendedDataLoader<
       false,
       string,
-      DummyRowType | undefined,
+      z.infer<typeof DummyRowType> | undefined,
       string
     >
 
@@ -125,7 +140,12 @@ describe(LoaderFactory, () => {
   })
 
   describe('multi: true, ignoreCase: true', () => {
-    let loader: ExtendedDataLoader<true, string, DummyRowType[], string>
+    let loader: ExtendedDataLoader<
+      true,
+      string,
+      z.infer<typeof DummyRowType>[],
+      string
+    >
 
     beforeEach(() => {
       loader = factory.create('name', 'any', {
@@ -165,7 +185,7 @@ describe(LoaderFactory, () => {
 
     it('accepts a query options function', async () => {
       const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
-      const getData = jest.fn((): [DummyRowType] => [dummyRow])
+      const getData = jest.fn((): [z.infer<typeof DummyRowType>] => [dummyRow])
       const loader = factory.create('name', { getData }, () => ({ limit: 1 }))
       await loader.load('zzz')
       expect(getData).toHaveBeenCalledWith(
@@ -237,7 +257,7 @@ describe(LoaderFactory, () => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ((_args, _columns, _types, _options) => [
           dummyRow,
-        ]) as GetDataMultiFunction<DummyRowType>
+        ]) as GetDataMultiFunction<z.infer<typeof DummyRowType>>
       )
       const loader = factory.createMulti(['name', 'code'], ['type1', 'type2'], {
         getData,
@@ -245,7 +265,7 @@ describe(LoaderFactory, () => {
       await loader.load({ name: 'zzz', code: 'zzz' })
       await loader.load({ name: 'zzz', code: 'zzz' })
       expect(getData.mock.calls[0][2]).toMatchInlineSnapshot(`
-        Array [
+        [
           "type1",
           "type2",
         ]
@@ -254,7 +274,7 @@ describe(LoaderFactory, () => {
 
     it('accepts a query options function', async () => {
       const dummyRow = { id: 999, name: 'zzz', code: 'zzz' }
-      const getData = jest.fn((): [DummyRowType] => [dummyRow])
+      const getData = jest.fn((): [z.infer<typeof DummyRowType>] => [dummyRow])
       const loader = factory.createMulti(['name', 'code'], { getData }, () => ({
         limit: 1,
       }))

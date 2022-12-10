@@ -32,7 +32,7 @@ describe(Generator, () => {
       schema: dummySchema,
     })
 
-    it('generates everything', async () => {
+    it('generates metadata and select/insert schemas', async () => {
       expect(await instance.build()).toMatchSnapshot()
     })
   })
@@ -40,10 +40,14 @@ describe(Generator, () => {
   describe('with everything disabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates nothing', async () => {
@@ -54,10 +58,14 @@ describe(Generator, () => {
   describe('with tables enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: true,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates tables', async () => {
@@ -69,10 +77,14 @@ describe(Generator, () => {
   describe('with enums enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: true,
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates enums', async () => {
@@ -83,10 +95,14 @@ describe(Generator, () => {
   describe('with insert types enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: true,
       genTables: false,
       genTypeObjects: false,
+      genSchemaObjects: false,
     })
 
     it('generates insert types', async () => {
@@ -98,13 +114,36 @@ describe(Generator, () => {
   describe('with type objects enabled', () => {
     const instance = new Generator({
       schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
       genEnums: false,
       genInsertTypes: false,
       genTables: false,
       genTypeObjects: true,
+      genSchemaObjects: false,
     })
 
     it('generates type objects', async () => {
+      expect(await instance.build()).toMatchSnapshot()
+      expect(warnSpy.mock.calls).toMatchSnapshot()
+    })
+  })
+
+  describe('with schema objects enabled', () => {
+    const instance = new Generator({
+      schema: dummySchema,
+      genTableMetadata: false,
+      genSelectSchemas: false,
+      genInsertSchemas: false,
+      genEnums: false,
+      genInsertTypes: false,
+      genTables: false,
+      genTypeObjects: false,
+      genSchemaObjects: true,
+    })
+
+    it('generates schema objects', async () => {
       expect(await instance.build()).toMatchSnapshot()
       expect(warnSpy.mock.calls).toMatchSnapshot()
     })
@@ -156,16 +195,16 @@ describe(Generator, () => {
     const instance = new Generator({
       schema: dummySchema,
     })
-    const buildTablesSpy = jest.spyOn(instance, 'buildTables' as never)
+    const tableBuildersSpy = jest.spyOn(instance, 'tableBuilders' as never)
 
     beforeEach(() => {
-      buildTablesSpy.mockImplementation(() => {
+      tableBuildersSpy.mockImplementation(() => {
         throw new Error('testing error handling')
       })
     })
 
     afterEach(() => {
-      buildTablesSpy.mockReset()
+      tableBuildersSpy.mockReset()
     })
 
     describe('when builders throw an error', () => {
