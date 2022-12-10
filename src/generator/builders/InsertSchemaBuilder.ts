@@ -20,7 +20,13 @@ export default class InsertSchemaBuilder extends SelectSchemaBuilder {
       value = factory.createCallExpression(
         factory.createPropertyAccessExpression(value, 'or'),
         undefined,
-        [factory.createIdentifier('DEFAULT')]
+        [
+          factory.createCallExpression(
+            factory.createPropertyAccessExpression(this.zod(), 'literal'),
+            undefined,
+            [factory.createIdentifier('DEFAULT')]
+          ),
+        ]
       )
     }
 

@@ -59,7 +59,7 @@ export const TableWithNumericId$SelectSchema = z.object({
     id: z.number()
 });
 export const TableWithNumericId$InsertSchema = z.object({
-    id: z.number().optional().or(DEFAULT)
+    id: z.number().optional().or(z.literal(DEFAULT))
 });
 export const TableWithCustomTypes$Metadata = {
     enum_type: {
@@ -101,7 +101,7 @@ export const TableWithUuidId$SelectSchema = z.object({
     id: z.string()
 });
 export const TableWithUuidId$InsertSchema = z.object({
-    id: z.string().optional().or(DEFAULT)
+    id: z.string().optional().or(z.literal(DEFAULT))
 });
 export const TableWithNullableFields$Metadata = {
     nullable: {
@@ -129,9 +129,9 @@ export const TableWithNullableFields$SelectSchema = z.object({
 });
 export const TableWithNullableFields$InsertSchema = z.object({
     nullable: z.string().nullable(),
-    nullable_with_default: z.string().nullable().optional().or(DEFAULT),
+    nullable_with_default: z.string().nullable().optional().or(z.literal(DEFAULT)),
     nullable_array: z.array(z.string()).nullable(),
-    nullable_array_with_default: z.array(z.string()).nullable().optional().or(DEFAULT)
+    nullable_array_with_default: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
 });
 export const TableWithJsonJsonb$Metadata = {
     json: {
@@ -149,7 +149,7 @@ export const TableWithJsonJsonb$SelectSchema = z.object({
 });
 export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable().optional().or(DEFAULT)
+    jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
 });
 "
 `;
@@ -178,7 +178,7 @@ export const TableWithNumericId$SelectSchema = z.object({
     id: z.number()
 });
 export const TableWithNumericId$InsertSchema = z.object({
-    id: z.number().optional().or(DEFAULT)
+    id: z.number().optional().or(z.literal(DEFAULT))
 });
 export const TableWithCustomTypes$Metadata = {
     enumType: {
@@ -220,7 +220,7 @@ export const TableWithUuidId$SelectSchema = z.object({
     id: z.string()
 });
 export const TableWithUuidId$InsertSchema = z.object({
-    id: z.string().optional().or(DEFAULT)
+    id: z.string().optional().or(z.literal(DEFAULT))
 });
 export const TableWithNullableFields$Metadata = {
     nullable: {
@@ -248,9 +248,9 @@ export const TableWithNullableFields$SelectSchema = z.object({
 });
 export const TableWithNullableFields$InsertSchema = z.object({
     nullable: z.string().nullable(),
-    nullableWithDefault: z.string().nullable().optional().or(DEFAULT),
+    nullableWithDefault: z.string().nullable().optional().or(z.literal(DEFAULT)),
     nullableArray: z.array(z.string()).nullable(),
-    nullableArrayWithDefault: z.array(z.string()).nullable().optional().or(DEFAULT)
+    nullableArrayWithDefault: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
 });
 export const TableWithJsonJsonb$Metadata = {
     json: {
@@ -268,7 +268,7 @@ export const TableWithJsonJsonb$SelectSchema = z.object({
 });
 export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable().optional().or(DEFAULT)
+    jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
 });
 "
 `;

@@ -89,7 +89,7 @@ export const TestTableStandard$InsertSchema = z.object({
     domain_test: z.string().nullable(),
     enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
     enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
-    id: z.number().optional().or(DEFAULT),
+    id: z.number().optional().or(z.literal(DEFAULT)),
     jsonb_test: z.unknown().nullable()
 });
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
@@ -143,7 +143,7 @@ export const TestTableTypes$SelectSchema = z.object({
 });
 export const TestTableTypes$InsertSchema = z.object({
     id: z.string(),
-    table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(DEFAULT)),
+    table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(z.literal(DEFAULT))),
     table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable())
 });
 export interface TestTableTypes {
