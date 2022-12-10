@@ -1,3 +1,15 @@
+## [3.1.0](https://github.com/ProjectXero/dbds/compare/v3.0.0...v3.1.0) (2022-12-10)
+
+
+### Features
+
+* disable eslint by default ([a363713](https://github.com/ProjectXero/dbds/commit/a363713680adb1562f7340fa8c24c1a852fccc31))
+
+
+### Bug Fixes
+
+* zod date function is lowercase ([f60bbbc](https://github.com/ProjectXero/dbds/commit/f60bbbc8e8ccfe0e88f42ca334cde5476737ff42))
+
 ## [3.0.0](https://github.com/ProjectXero/dbds/compare/v2.5.0...v3.0.0) (2022-12-10)
 
 
