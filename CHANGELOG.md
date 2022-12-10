@@ -1,3 +1,16 @@
+## [3.2.0](https://github.com/ProjectXero/dbds/compare/v3.1.0...v3.2.0) (2022-12-10)
+
+
+### Features
+
+* modify insert types based on updatability ([9b2d4f7](https://github.com/ProjectXero/dbds/commit/9b2d4f74fd203ceba36b2f93cceef81c8f3abb54))
+
+
+### Bug Fixes
+
+* correctly type expression generated columns ([da792a1](https://github.com/ProjectXero/dbds/commit/da792a17baa3b3b7ca60ed979d04bd4f72589882))
+* correctly type generated id columns ([073cfad](https://github.com/ProjectXero/dbds/commit/073cfad8e8f9839f09965365306123ef54769949))
+
 ## [3.1.0](https://github.com/ProjectXero/dbds/compare/v3.0.0...v3.1.0) (2022-12-10)
 
 
