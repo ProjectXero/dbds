@@ -1,126 +1,29 @@
-import {
-  factory,
-  VariableStatement,
-  PropertyAssignment,
-  NodeFlags,
-  Identifier,
-  CallExpression,
-  Expression,
-} from 'typescript'
-import { z } from 'zod'
+import { factory, Identifier, Expression } from 'typescript'
 
-import { ColumnInfo, TableInfoWithColumns, TypeRegistry } from '../database'
-import { Transformations } from '../types'
+import SelectSchemaBuilder from './SelectSchemaBuilder'
 
-import { ExportKeyword } from './NodeBuilder'
-import TypeBuilder from './TypeBuilder'
+export default class InsertSchemaBuilder extends SelectSchemaBuilder {
+  protected override readonly suffix = '$InsertSchema'
 
-// eslint-disable-next-line max-len
-export default class InsertSchemaBuilder extends TypeBuilder<VariableStatement> {
-  public readonly canInsert: boolean
-  public readonly columns: readonly z.infer<typeof ColumnInfo>[]
+  protected override buildSinglePropertyEntry(
+    columnInfo: typeof this.columns[0]
+  ): [Identifier, Expression, string] {
+    const [name, origValue, type] = super.buildSinglePropertyEntry(columnInfo)
+    let value = origValue
 
-  constructor(
-    options: z.infer<typeof TableInfoWithColumns>,
-    protected types: TypeRegistry,
-    transform: Transformations
-  ) {
-    super(options.name, types, transform)
-    this.canInsert = options.canInsert
-    this.columns = options.columns
-  }
-
-  protected zod(): Identifier {
-    return factory.createIdentifier('z')
-  }
-
-  protected buildProperties(): PropertyAssignment[] {
-    return this.columns.map<PropertyAssignment>((columnInfo) => {
-      const name = factory.createIdentifier(
-        this.transform.columns(columnInfo.name)
+    if (columnInfo.hasDefault) {
+      value = factory.createCallExpression(
+        factory.createPropertyAccessExpression(value, 'optional'),
+        undefined,
+        undefined
       )
+      value = factory.createCallExpression(
+        factory.createPropertyAccessExpression(value, 'or'),
+        undefined,
+        [factory.createIdentifier('DEFAULT')]
+      )
+    }
 
-      let value: Expression
-      const nativeType = this.types.getText(columnInfo.type)
-      const type = this.types.getType(columnInfo.type)
-
-      if (type === 'table') {
-        value = this.typename(nativeType)
-      } else if (type === 'enum') {
-        value = this.buildZodFunctionCall(
-          'nativeEnum',
-          factory.createIdentifier(nativeType)
-        )
-      } else {
-        value = this.buildZodFunctionCall(nativeType)
-      }
-
-      if (columnInfo.isArray) {
-        value = this.buildZodFunctionCall('array', value)
-      }
-
-      if (columnInfo.nullable) {
-        value = factory.createCallExpression(
-          factory.createPropertyAccessExpression(value, 'nullable'),
-          undefined,
-          undefined
-        )
-      }
-
-      if (columnInfo.hasDefault) {
-        value = factory.createCallExpression(
-          factory.createPropertyAccessExpression(value, 'optional'),
-          undefined,
-          undefined
-        )
-        value = factory.createCallExpression(
-          factory.createPropertyAccessExpression(value, 'or'),
-          undefined,
-          [factory.createIdentifier('DEFAULT')]
-        )
-      }
-
-      return factory.createPropertyAssignment(name, value)
-    })
-  }
-
-  protected buildZodFunctionCall(
-    functionName: string,
-    ...args: readonly Expression[]
-  ): CallExpression {
-    return factory.createCallExpression(
-      factory.createPropertyAccessExpression(this.zod(), functionName),
-      undefined,
-      args
-    )
-  }
-
-  protected buildSchemaDefinition(): CallExpression {
-    const properties = this.buildProperties()
-
-    return this.buildZodFunctionCall(
-      'object',
-      factory.createObjectLiteralExpression(properties, true)
-    )
-  }
-
-  public typename(name: string = this.name): Identifier {
-    return this.createIdentifier(super.typename(name).text + '$InsertSchema')
-  }
-
-  public buildNode(): VariableStatement {
-    const declaration = factory.createVariableDeclaration(
-      this.typename(),
-      undefined,
-      undefined,
-      this.buildSchemaDefinition()
-    )
-
-    const declarationList = factory.createVariableDeclarationList(
-      [declaration],
-      NodeFlags.Const
-    )
-
-    return factory.createVariableStatement([ExportKeyword], declarationList)
+    return [name, value, type]
   }
 }

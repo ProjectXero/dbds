@@ -24,10 +24,10 @@ export const TestTableOrder$Metadata = {
     }
 } as const;
 export const TestTableOrder$SelectSchema = z.object({
-    subsequent_table_type: TestTableStandard$SelectSchema.nullable()
+    subsequent_table_type: z.lazy(() => TestTableStandard$SelectSchema.nullable())
 });
 export const TestTableOrder$InsertSchema = z.object({
-    subsequent_table_type: TestTableStandard$InsertSchema.nullable()
+    subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullable())
 });
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
@@ -77,8 +77,8 @@ export const TestTableStandard$SelectSchema = z.object({
     caseTest_upper: z.string().nullable(),
     casetest_lower: z.string().nullable(),
     domain_test: z.string().nullable(),
-    enum_arr_test: z.array(z.nativeEnum(TestTypeEnum)).nullable(),
-    enum_test: z.nativeEnum(TestTypeEnum),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
     id: z.number(),
     jsonb_test: z.unknown().nullable()
 });
@@ -87,8 +87,8 @@ export const TestTableStandard$InsertSchema = z.object({
     caseTest_upper: z.string().nullable(),
     casetest_lower: z.string().nullable(),
     domain_test: z.string().nullable(),
-    enum_arr_test: z.array(z.nativeEnum(TestTypeEnum)).nullable(),
-    enum_test: z.nativeEnum(TestTypeEnum),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
     id: z.number().optional().or(DEFAULT),
     jsonb_test: z.unknown().nullable()
 });
@@ -138,13 +138,13 @@ export const TestTableTypes$Metadata = {
 } as const;
 export const TestTableTypes$SelectSchema = z.object({
     id: z.string(),
-    table_arr_test: z.array(TestTableStandard$SelectSchema),
-    table_test: TestTableStandard$SelectSchema.nullable()
+    table_arr_test: z.lazy(() => z.array(TestTableStandard$SelectSchema)),
+    table_test: z.lazy(() => TestTableStandard$SelectSchema.nullable())
 });
 export const TestTableTypes$InsertSchema = z.object({
     id: z.string(),
-    table_arr_test: z.array(TestTableStandard$InsertSchema).optional().or(DEFAULT),
-    table_test: TestTableStandard$InsertSchema.nullable()
+    table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(DEFAULT)),
+    table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable())
 });
 export interface TestTableTypes {
     id: string;

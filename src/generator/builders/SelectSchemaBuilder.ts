@@ -20,6 +20,8 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
   public readonly canInsert: boolean
   public readonly columns: readonly z.infer<typeof ColumnInfo>[]
 
+  protected readonly suffix: string = '$SelectSchema'
+
   constructor(
     options: z.infer<typeof TableInfoWithColumns>,
     protected types: TypeRegistry,
@@ -34,39 +36,64 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
     return factory.createIdentifier('z')
   }
 
+  protected buildSinglePropertyEntry(
+    columnInfo: typeof this.columns[0]
+  ): [Identifier, Expression, string] {
+    const name = factory.createIdentifier(
+      this.transform.columns(columnInfo.name)
+    )
+
+    let value: Expression
+    const nativeType = this.types.getText(columnInfo.type)
+    const type = this.types.getType(columnInfo.type)
+
+    if (type === 'table') {
+      value = this.typename(nativeType)
+    } else if (type === 'enum') {
+      value = this.buildZodFunctionCall(
+        'nativeEnum',
+        factory.createIdentifier(nativeType)
+      )
+    } else {
+      value = this.buildZodFunctionCall(nativeType)
+    }
+
+    if (columnInfo.isArray) {
+      value = this.buildZodFunctionCall('array', value)
+    }
+
+    if (columnInfo.nullable) {
+      value = factory.createCallExpression(
+        factory.createPropertyAccessExpression(value, 'nullable'),
+        undefined,
+        undefined
+      )
+    }
+
+    return [name, value, type]
+  }
+
   protected buildProperties(): PropertyAssignment[] {
     return this.columns.map<PropertyAssignment>((columnInfo) => {
-      const name = factory.createIdentifier(
-        this.transform.columns(columnInfo.name)
-      )
+      const [name, origValue, type] = this.buildSinglePropertyEntry(columnInfo)
+      let value = origValue
 
-      let value: Expression
-      const nativeType = this.types.getText(columnInfo.type)
-      const type = this.types.getType(columnInfo.type)
-
-      if (type === 'table') {
-        value = this.typename(nativeType)
-      } else if (type === 'enum') {
-        value = this.buildZodFunctionCall(
-          'nativeEnum',
-          factory.createIdentifier(nativeType)
-        )
-      } else {
-        value = this.buildZodFunctionCall(nativeType)
-      }
-
-      if (columnInfo.isArray) {
-        value = this.buildZodFunctionCall('array', value)
-      }
-
-      if (columnInfo.nullable) {
+      if (['table', 'enum'].includes(type)) {
         value = factory.createCallExpression(
-          factory.createPropertyAccessExpression(value, 'nullable'),
+          factory.createPropertyAccessExpression(this.zod(), 'lazy'),
           undefined,
-          undefined
+          [
+            factory.createArrowFunction(
+              undefined,
+              undefined,
+              [],
+              undefined,
+              undefined,
+              value
+            ),
+          ]
         )
       }
-
       return factory.createPropertyAssignment(name, value)
     })
   }
@@ -92,7 +119,7 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
   }
 
   public typename(name: string = this.name): Identifier {
-    return this.createIdentifier(super.typename(name).text + '$SelectSchema')
+    return this.createIdentifier(super.typename(name).text + this.suffix)
   }
 
   public buildNode(): VariableStatement {
