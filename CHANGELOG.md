@@ -1,3 +1,26 @@
+## [3.0.0](https://github.com/ProjectXero/dbds/compare/v2.5.0...v3.0.0) (2022-12-10)
+
+
+### ⚠ BREAKING CHANGES
+
+* overhaul everything to be Zod-based
+* update everything for latest slonik
+* remove dependency on apollo
+
+### Features
+
+* overhaul everything to be Zod-based ([d3d2166](https://github.com/ProjectXero/dbds/commit/d3d216605885b43776ec04c7b3903d328b0135e3))
+* update everything for latest slonik ([cf6417c](https://github.com/ProjectXero/dbds/commit/cf6417c9f7b228d04ddf6ee4b252a56da6c9d008))
+
+
+### Bug Fixes
+
+* circular, recursive, and out-of-order relationships ([4a42a4b](https://github.com/ProjectXero/dbds/commit/4a42a4b95613f18d77b18585cd4d9b47109e3db6))
+* default value expression ([a98e6e8](https://github.com/ProjectXero/dbds/commit/a98e6e82cf84db1b863e83a0316fc32a012f0a81))
+* differentiate select and insert types ([6aa881a](https://github.com/ProjectXero/dbds/commit/6aa881a14ff6bb78d47dfc3622f2eddc3bfcc9c9))
+* import sources are strings, not identifiers ([aa1817b](https://github.com/ProjectXero/dbds/commit/aa1817b2af9f8de47c1f7e8ebf4093576abafa7e))
+* remove dependency on apollo ([98d9ef5](https://github.com/ProjectXero/dbds/commit/98d9ef5cad8ea9364358f4b1ec238ad6bf1b8a8e))
+
 ## [2.5.0](https://github.com/ProjectXero/dbds/compare/v2.4.0...v2.5.0) (2022-06-02)
 
 
