@@ -124,16 +124,16 @@ export const TableWithNullableFields$Metadata = {
     }
 } as const;
 export const TableWithNullableFields$SelectSchema = z.object({
-    nullable: z.string().nullable(),
-    nullable_with_default: z.string().nullable(),
-    nullable_array: z.array(z.string()).nullable(),
-    nullable_array_with_default: z.array(z.string()).nullable()
+    nullable: z.string().nullish(),
+    nullable_with_default: z.string().nullish(),
+    nullable_array: z.array(z.string()).nullish(),
+    nullable_array_with_default: z.array(z.string()).nullish()
 });
 export const TableWithNullableFields$InsertSchema = z.object({
-    nullable: z.string().nullable(),
-    nullable_with_default: z.string().nullable().optional().or(z.literal(DEFAULT)),
-    nullable_array: z.array(z.string()).nullable(),
-    nullable_array_with_default: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
+    nullable: z.string().nullish(),
+    nullable_with_default: z.string().nullish().or(z.literal(DEFAULT)),
+    nullable_array: z.array(z.string()).nullish(),
+    nullable_array_with_default: z.array(z.string()).nullish().or(z.literal(DEFAULT))
 });
 export const TableWithJsonJsonb$Metadata = {
     json: {
@@ -147,11 +147,11 @@ export const TableWithJsonJsonb$Metadata = {
 } as const;
 export const TableWithJsonJsonb$SelectSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable()
+    jsonb: z.unknown().nullish()
 });
 export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
+    jsonb: z.unknown().nullish().or(z.literal(DEFAULT))
 });
 "
 `;
@@ -244,16 +244,16 @@ export const TableWithNullableFields$Metadata = {
     }
 } as const;
 export const TableWithNullableFields$SelectSchema = z.object({
-    nullable: z.string().nullable(),
-    nullableWithDefault: z.string().nullable(),
-    nullableArray: z.array(z.string()).nullable(),
-    nullableArrayWithDefault: z.array(z.string()).nullable()
+    nullable: z.string().nullish(),
+    nullableWithDefault: z.string().nullish(),
+    nullableArray: z.array(z.string()).nullish(),
+    nullableArrayWithDefault: z.array(z.string()).nullish()
 });
 export const TableWithNullableFields$InsertSchema = z.object({
-    nullable: z.string().nullable(),
-    nullableWithDefault: z.string().nullable().optional().or(z.literal(DEFAULT)),
-    nullableArray: z.array(z.string()).nullable(),
-    nullableArrayWithDefault: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
+    nullable: z.string().nullish(),
+    nullableWithDefault: z.string().nullish().or(z.literal(DEFAULT)),
+    nullableArray: z.array(z.string()).nullish(),
+    nullableArrayWithDefault: z.array(z.string()).nullish().or(z.literal(DEFAULT))
 });
 export const TableWithJsonJsonb$Metadata = {
     json: {
@@ -267,11 +267,11 @@ export const TableWithJsonJsonb$Metadata = {
 } as const;
 export const TableWithJsonJsonb$SelectSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable()
+    jsonb: z.unknown().nullish()
 });
 export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
-    jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
+    jsonb: z.unknown().nullish().or(z.literal(DEFAULT))
 });
 "
 `;
