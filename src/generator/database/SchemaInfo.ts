@@ -47,7 +47,10 @@ export default class SchemaInfo {
     return sql.type(ColumnInfo)`
       SELECT c.column_name AS "name"
            , (c.is_nullable = 'YES') AS "nullable"
-           , (c.column_default IS NOT NULL) AS "hasDefault"
+           , (
+              c.column_default IS NOT NULL OR
+              c.identity_generation IS NOT NULL
+             ) AS "hasDefault"
            , c.ordinal_position AS "order"
            , COALESCE(
               de.udt_name,

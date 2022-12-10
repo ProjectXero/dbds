@@ -33,7 +33,7 @@ export const TestGenerationDefaults$SelectSchema = z.object({
 });
 export const TestGenerationDefaults$InsertSchema = z.object({
     generated_column: z.number(),
-    generated_id: z.number()
+    generated_id: z.number().optional().or(z.literal(DEFAULT))
 });
 export interface TestGenerationDefaults {
     generated_column: number;
@@ -41,7 +41,7 @@ export interface TestGenerationDefaults {
 }
 export interface TestGenerationDefaults$Insert {
     generated_column: number;
-    generated_id: number;
+    generated_id?: number;
 }
 export const TestGenerationDefaults$Types = {
     generated_column: "int4",
