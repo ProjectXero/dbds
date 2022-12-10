@@ -9,7 +9,8 @@ exports[`Generator build when builders throw an error logs the error and rethrow
 `;
 
 exports[`Generator when re-registering an already-registered type outputs a warning 1`] = `
-"import { z } from "zod";
+"/* eslint-disable */
+import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -36,7 +37,8 @@ exports[`Generator when re-registering an already-registered type outputs a warn
 `;
 
 exports[`Generator with default options generates metadata and select/insert schemas 1`] = `
-"import { z } from "zod";
+"/* eslint-disable */
+import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -155,7 +157,8 @@ export const TableWithJsonJsonb$InsertSchema = z.object({
 `;
 
 exports[`Generator with different case conversions properly cases members 1`] = `
-"import { z } from "zod";
+"/* eslint-disable */
+import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -274,7 +277,8 @@ export const TableWithJsonJsonb$InsertSchema = z.object({
 `;
 
 exports[`Generator with enums enabled generates enums 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"/* eslint-disable */
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -292,7 +296,8 @@ export enum TestEnum {
 `;
 
 exports[`Generator with everything disabled generates nothing 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"/* eslint-disable */
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -305,7 +310,8 @@ export const DEFAULT = Symbol("DEFAULT");
 `;
 
 exports[`Generator with insert types enabled generates insert types 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"/* eslint-disable */
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -359,7 +365,8 @@ exports[`Generator with insert types enabled generates insert types 2`] = `
 `;
 
 exports[`Generator with schema objects enabled generates schema objects 1`] = `
-"import { z } from "zod";
+"/* eslint-disable */
+import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -413,7 +420,8 @@ exports[`Generator with schema objects enabled generates schema objects 2`] = `
 `;
 
 exports[`Generator with tables enabled generates tables 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"/* eslint-disable */
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;
@@ -461,7 +469,8 @@ exports[`Generator with tables enabled generates tables 2`] = `
 `;
 
 exports[`Generator with type objects enabled generates type objects 1`] = `
-"export type PrimitiveValueType = string | number | boolean | null;
+"/* eslint-disable */
+export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
     [key in string]: SerializableValueType | undefined;

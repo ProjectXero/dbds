@@ -6,6 +6,7 @@ import {
   Printer,
   Statement,
   SyntaxKind,
+  addSyntheticLeadingComment,
 } from 'typescript'
 import * as Case from 'case'
 
@@ -30,6 +31,7 @@ export interface GeneratorOptions {
   genSelectSchemas?: boolean
   genInsertSchemas?: boolean
   genTableMetadata?: boolean
+  disableEslint?: boolean
   /** @deprecated */
   genEnums?: boolean
   /** @deprecated */
@@ -56,6 +58,7 @@ export default class Generator {
     selectSchemas: boolean
     insertSchemas: boolean
     tableMetadata: boolean
+    disableEslint: boolean
     /** @deprecated */
     enums: boolean
     /** @deprecated */
@@ -75,6 +78,7 @@ export default class Generator {
     genSelectSchemas: selectSchemas = true,
     genInsertSchemas: insertSchemas = true,
     genTableMetadata: tableMetadata = true,
+    disableEslint = true,
     genEnums = false,
     genInsertTypes = false,
     genTables = false,
@@ -96,6 +100,7 @@ export default class Generator {
       selectSchemas,
       insertSchemas,
       tableMetadata,
+      disableEslint,
       enums: genEnums,
       insertTypes: genInsertTypes,
       tables: genTables,
@@ -134,6 +139,10 @@ export default class Generator {
     const statements = statementBuilders.flatMap<Statement>((builder) =>
       isMultiBuildable(builder) ? builder.buildNodes() : builder.buildNode()
     )
+
+    if (this.generate.disableEslint) {
+      this.disableEslint(statements)
+    }
 
     const sourceFile = factory.createSourceFile(
       statements,
@@ -263,5 +272,25 @@ export default class Generator {
     })
 
     return builders
+  }
+
+  private async disableEslint(statements: Statement[]): Promise<void> {
+    if (!statements.length) {
+      return
+    }
+
+    const first_statement = statements.shift()
+    if (!first_statement) {
+      return
+    }
+
+    statements.unshift(
+      addSyntheticLeadingComment(
+        first_statement,
+        SyntaxKind.MultiLineCommentTrivia,
+        ' eslint-disable ',
+        true
+      )
+    )
   }
 }
