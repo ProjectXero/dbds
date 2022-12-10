@@ -55,10 +55,10 @@ export const TestTableOrder$Metadata = {
     }
 } as const;
 export const TestTableOrder$SelectSchema = z.object({
-    subsequent_table_type: z.lazy(() => TestTableStandard$SelectSchema.nullable())
+    subsequent_table_type: z.lazy(() => TestTableStandard$SelectSchema.nullish())
 });
 export const TestTableOrder$InsertSchema = z.object({
-    subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullable())
+    subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullish())
 });
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
@@ -108,26 +108,26 @@ export const TestTableStandard$Metadata = {
     }
 } as const;
 export const TestTableStandard$SelectSchema = z.object({
-    arr_test: z.array(z.string()).nullable(),
-    caseTest_upper: z.string().nullable(),
-    casetest_lower: z.string().nullable(),
+    arr_test: z.array(z.string()).nullish(),
+    caseTest_upper: z.string().nullish(),
+    casetest_lower: z.string().nullish(),
     created_at: z.date(),
-    domain_test: z.string().nullable(),
-    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    domain_test: z.string().nullish(),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullish()),
     enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
     id: z.number(),
-    jsonb_test: z.unknown().nullable()
+    jsonb_test: z.unknown().nullish()
 });
 export const TestTableStandard$InsertSchema = z.object({
-    arr_test: z.array(z.string()).nullable(),
-    caseTest_upper: z.string().nullable(),
-    casetest_lower: z.string().nullable(),
+    arr_test: z.array(z.string()).nullish(),
+    caseTest_upper: z.string().nullish(),
+    casetest_lower: z.string().nullish(),
     created_at: z.date().optional().or(z.literal(DEFAULT)),
-    domain_test: z.string().nullable(),
-    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
+    domain_test: z.string().nullish(),
+    enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullish()),
     enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
     id: z.number().optional().or(z.literal(DEFAULT)),
-    jsonb_test: z.unknown().nullable()
+    jsonb_test: z.unknown().nullish()
 });
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
@@ -179,12 +179,12 @@ export const TestTableTypes$Metadata = {
 export const TestTableTypes$SelectSchema = z.object({
     id: z.string(),
     table_arr_test: z.lazy(() => z.array(TestTableStandard$SelectSchema)),
-    table_test: z.lazy(() => TestTableStandard$SelectSchema.nullable())
+    table_test: z.lazy(() => TestTableStandard$SelectSchema.nullish())
 });
 export const TestTableTypes$InsertSchema = z.object({
     id: z.string(),
     table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(z.literal(DEFAULT))),
-    table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable())
+    table_test: z.lazy(() => TestTableStandard$InsertSchema.nullish())
 });
 export interface TestTableTypes {
     id: string;
