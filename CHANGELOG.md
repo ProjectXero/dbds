@@ -1,3 +1,10 @@
+## [3.2.2](https://github.com/ProjectXero/dbds/compare/v3.2.1...v3.2.2) (2022-12-10)
+
+
+### Bug Fixes
+
+* nullable columns aren't optional in select, rip ([cc3408d](https://github.com/ProjectXero/dbds/commit/cc3408dd5a4511047fd31caf9ede4d4e69119058))
+
 ## [3.2.1](https://github.com/ProjectXero/dbds/compare/v3.2.0...v3.2.1) (2022-12-10)
 
 
