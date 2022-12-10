@@ -1,7 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`Generator generates the correct types 1`] = `
-"import { z } from "zod";
+"/* eslint-disable */
+import { z } from "zod";
 export type PrimitiveValueType = string | number | boolean | null;
 export type SimpleValueType = PrimitiveValueType | Date;
 export type SerializableValueType = SimpleValueType | {
@@ -51,6 +52,10 @@ export const TestTableStandard$Metadata = {
         nativeName: "casetest_lower",
         nativeType: "text"
     },
+    created_at: {
+        nativeName: "created_at",
+        nativeType: "timestamp"
+    },
     domain_test: {
         nativeName: "domain_test",
         nativeType: "text"
@@ -76,6 +81,7 @@ export const TestTableStandard$SelectSchema = z.object({
     arr_test: z.array(z.string()).nullable(),
     caseTest_upper: z.string().nullable(),
     casetest_lower: z.string().nullable(),
+    created_at: z.date(),
     domain_test: z.string().nullable(),
     enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
     enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
@@ -86,6 +92,7 @@ export const TestTableStandard$InsertSchema = z.object({
     arr_test: z.array(z.string()).nullable(),
     caseTest_upper: z.string().nullable(),
     casetest_lower: z.string().nullable(),
+    created_at: z.date().optional().or(z.literal(DEFAULT)),
     domain_test: z.string().nullable(),
     enum_arr_test: z.lazy(() => z.array(z.nativeEnum(TestTypeEnum)).nullable()),
     enum_test: z.lazy(() => z.nativeEnum(TestTypeEnum)),
@@ -96,6 +103,7 @@ export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
     caseTest_upper: string | null;
     casetest_lower: string | null;
+    created_at: Date;
     domain_test: string | null;
     enum_arr_test: TestTypeEnum[] | null;
     enum_test: TestTypeEnum;
@@ -106,6 +114,7 @@ export interface TestTableStandard$Insert<TJsonbTest = SerializableValueType> {
     arr_test?: string[] | null;
     caseTest_upper?: string | null;
     casetest_lower?: string | null;
+    created_at?: Date;
     domain_test?: string | null;
     enum_arr_test?: TestTypeEnum[] | null;
     enum_test: TestTypeEnum;
@@ -116,6 +125,7 @@ export const TestTableStandard$Types = {
     arr_test: "text",
     caseTest_upper: "text",
     casetest_lower: "text",
+    created_at: "timestamp",
     domain_test: "text",
     enum_arr_test: "test_type_enum",
     enum_test: "test_type_enum",
