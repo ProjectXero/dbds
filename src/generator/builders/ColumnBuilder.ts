@@ -15,6 +15,7 @@ export default class ColumnBuilder
   public readonly isArray: boolean
   public readonly order: number
   public readonly type: string
+  public readonly updatable: boolean
 
   public overrideType?: TypeNode
 
@@ -29,6 +30,7 @@ export default class ColumnBuilder
     this.nullable = options.nullable
     this.order = options.order
     this.type = options.type
+    this.updatable = options.updatable
   }
 
   protected buildType(): TypeNode {

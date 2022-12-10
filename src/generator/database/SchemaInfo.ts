@@ -14,6 +14,7 @@ export const ColumnInfo = z.object({
   order: z.number(),
   type: z.string(),
   isArray: z.boolean(),
+  updatable: z.boolean(),
 })
 
 export const TableInfo = z.object({
@@ -66,6 +67,11 @@ export default class SchemaInfo {
               ('"' || c.table_name || '"')::regclass::oid,
               c.ordinal_position::int
             ) AS "comment"
+           , (
+              c.is_updatable::boolean AND
+              COALESCE(c.identity_generation, 'NEVER') != 'ALWAYS' AND
+              c.is_generated != 'ALWAYS'
+             ) AS "updatable"
       FROM
         information_schema.columns c LEFT JOIN
         information_schema.element_types e ON (

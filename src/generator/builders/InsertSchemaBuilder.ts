@@ -1,4 +1,4 @@
-import { factory, Identifier, Expression } from 'typescript'
+import { factory, Identifier, Expression, CallExpression } from 'typescript'
 
 import SelectSchemaBuilder from './SelectSchemaBuilder'
 
@@ -17,19 +17,32 @@ export default class InsertSchemaBuilder extends SelectSchemaBuilder {
         undefined,
         undefined
       )
+    }
+
+    if (!columnInfo.updatable) {
+      value = factory.createCallExpression(
+        factory.createPropertyAccessExpression(this.zod(), 'undefined'),
+        undefined,
+        undefined
+      )
+    }
+
+    if (columnInfo.hasDefault) {
       value = factory.createCallExpression(
         factory.createPropertyAccessExpression(value, 'or'),
         undefined,
-        [
-          factory.createCallExpression(
-            factory.createPropertyAccessExpression(this.zod(), 'literal'),
-            undefined,
-            [factory.createIdentifier('DEFAULT')]
-          ),
-        ]
+        [this.buildDefault()]
       )
     }
 
     return [name, value, type]
+  }
+
+  protected buildDefault(): CallExpression {
+    return factory.createCallExpression(
+      factory.createPropertyAccessExpression(this.zod(), 'literal'),
+      undefined,
+      [factory.createIdentifier('DEFAULT')]
+    )
   }
 }
