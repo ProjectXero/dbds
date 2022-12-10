@@ -105,7 +105,7 @@ export default class InsertSchemaBuilder extends TypeBuilder<VariableStatement> 
   }
 
   public typename(name: string = this.name): Identifier {
-    return this.createIdentifier(super.typename(name).text + '$Schema')
+    return this.createIdentifier(super.typename(name).text + '$InsertSchema')
   }
 
   public buildNode(): VariableStatement {

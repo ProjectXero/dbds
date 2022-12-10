@@ -20,8 +20,8 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 } ? T : never;
 export const DEFAULT = Symbol("DEFAULT");
 export const SomehowDuplicatedTypeName$Metadata = {} as const;
-export const SomehowDuplicatedTypeName$Schema = z.object({});
-export const SomehowDuplicatedTypeName$Schema = z.object({});
+export const SomehowDuplicatedTypeName$SelectSchema = z.object({});
+export const SomehowDuplicatedTypeName$InsertSchema = z.object({});
 export interface SomehowDuplicatedTypeName {
 }
 "
@@ -47,18 +47,18 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 } ? T : never;
 export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Metadata = {} as const;
-export const TableWithNoColumns$Schema = z.object({});
-export const TableWithNoColumns$Schema = z.object({});
+export const TableWithNoColumns$SelectSchema = z.object({});
+export const TableWithNoColumns$InsertSchema = z.object({});
 export const TableWithNumericId$Metadata = {
     id: {
         nativeName: "id",
         nativeType: "int8"
     }
 } as const;
-export const TableWithNumericId$Schema = z.object({
+export const TableWithNumericId$SelectSchema = z.object({
     id: z.number()
 });
-export const TableWithNumericId$Schema = z.object({
+export const TableWithNumericId$InsertSchema = z.object({
     id: z.number().optional().or(DEFAULT)
 });
 export const TableWithCustomTypes$Metadata = {
@@ -79,13 +79,13 @@ export const TableWithCustomTypes$Metadata = {
         nativeType: "table_with_uuid_id"
     }
 } as const;
-export const TableWithCustomTypes$Schema = z.object({
+export const TableWithCustomTypes$SelectSchema = z.object({
     enum_type: z.unknown(),
     enum_array_type: z.array(z.unknown()),
     table_type: z.unknown(),
     table_array_type: z.array(z.unknown())
 });
-export const TableWithCustomTypes$Schema = z.object({
+export const TableWithCustomTypes$InsertSchema = z.object({
     enum_type: z.unknown(),
     enum_array_type: z.array(z.unknown()),
     table_type: z.unknown(),
@@ -97,10 +97,10 @@ export const TableWithUuidId$Metadata = {
         nativeType: "uuid"
     }
 } as const;
-export const TableWithUuidId$Schema = z.object({
+export const TableWithUuidId$SelectSchema = z.object({
     id: z.string()
 });
-export const TableWithUuidId$Schema = z.object({
+export const TableWithUuidId$InsertSchema = z.object({
     id: z.string().optional().or(DEFAULT)
 });
 export const TableWithNullableFields$Metadata = {
@@ -121,13 +121,13 @@ export const TableWithNullableFields$Metadata = {
         nativeType: "text"
     }
 } as const;
-export const TableWithNullableFields$Schema = z.object({
+export const TableWithNullableFields$SelectSchema = z.object({
     nullable: z.string().nullable(),
     nullable_with_default: z.string().nullable(),
     nullable_array: z.array(z.string()).nullable(),
     nullable_array_with_default: z.array(z.string()).nullable()
 });
-export const TableWithNullableFields$Schema = z.object({
+export const TableWithNullableFields$InsertSchema = z.object({
     nullable: z.string().nullable(),
     nullable_with_default: z.string().nullable().optional().or(DEFAULT),
     nullable_array: z.array(z.string()).nullable(),
@@ -143,11 +143,11 @@ export const TableWithJsonJsonb$Metadata = {
         nativeType: "jsonb"
     }
 } as const;
-export const TableWithJsonJsonb$Schema = z.object({
+export const TableWithJsonJsonb$SelectSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable()
 });
-export const TableWithJsonJsonb$Schema = z.object({
+export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable().optional().or(DEFAULT)
 });
@@ -166,18 +166,18 @@ export type MapToSerializable<T> = T extends SerializableValueType ? T : T exten
 } ? T : never;
 export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Metadata = {} as const;
-export const TableWithNoColumns$Schema = z.object({});
-export const TableWithNoColumns$Schema = z.object({});
+export const TableWithNoColumns$SelectSchema = z.object({});
+export const TableWithNoColumns$InsertSchema = z.object({});
 export const TableWithNumericId$Metadata = {
     id: {
         nativeName: "id",
         nativeType: "int8"
     }
 } as const;
-export const TableWithNumericId$Schema = z.object({
+export const TableWithNumericId$SelectSchema = z.object({
     id: z.number()
 });
-export const TableWithNumericId$Schema = z.object({
+export const TableWithNumericId$InsertSchema = z.object({
     id: z.number().optional().or(DEFAULT)
 });
 export const TableWithCustomTypes$Metadata = {
@@ -198,13 +198,13 @@ export const TableWithCustomTypes$Metadata = {
         nativeType: "table_with_uuid_id"
     }
 } as const;
-export const TableWithCustomTypes$Schema = z.object({
+export const TableWithCustomTypes$SelectSchema = z.object({
     enumType: z.unknown(),
     enumArrayType: z.array(z.unknown()),
     tableType: z.unknown(),
     tableArrayType: z.array(z.unknown())
 });
-export const TableWithCustomTypes$Schema = z.object({
+export const TableWithCustomTypes$InsertSchema = z.object({
     enumType: z.unknown(),
     enumArrayType: z.array(z.unknown()),
     tableType: z.unknown(),
@@ -216,10 +216,10 @@ export const TableWithUuidId$Metadata = {
         nativeType: "uuid"
     }
 } as const;
-export const TableWithUuidId$Schema = z.object({
+export const TableWithUuidId$SelectSchema = z.object({
     id: z.string()
 });
-export const TableWithUuidId$Schema = z.object({
+export const TableWithUuidId$InsertSchema = z.object({
     id: z.string().optional().or(DEFAULT)
 });
 export const TableWithNullableFields$Metadata = {
@@ -240,13 +240,13 @@ export const TableWithNullableFields$Metadata = {
         nativeType: "text"
     }
 } as const;
-export const TableWithNullableFields$Schema = z.object({
+export const TableWithNullableFields$SelectSchema = z.object({
     nullable: z.string().nullable(),
     nullableWithDefault: z.string().nullable(),
     nullableArray: z.array(z.string()).nullable(),
     nullableArrayWithDefault: z.array(z.string()).nullable()
 });
-export const TableWithNullableFields$Schema = z.object({
+export const TableWithNullableFields$InsertSchema = z.object({
     nullable: z.string().nullable(),
     nullableWithDefault: z.string().nullable().optional().or(DEFAULT),
     nullableArray: z.array(z.string()).nullable(),
@@ -262,11 +262,11 @@ export const TableWithJsonJsonb$Metadata = {
         nativeType: "jsonb"
     }
 } as const;
-export const TableWithJsonJsonb$Schema = z.object({
+export const TableWithJsonJsonb$SelectSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable()
 });
-export const TableWithJsonJsonb$Schema = z.object({
+export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable().optional().or(DEFAULT)
 });

@@ -66,6 +66,14 @@ afterAll(async () => {
 beforeEach(() => {
   instance = new Generator({
     schema: new SchemaInfo(pool, SCHEMA),
+    genInsertSchemas: true,
+    genSelectSchemas: true,
+    genTableMetadata: true,
+    genEnums: true,
+    genInsertTypes: true,
+    genSchemaObjects: true,
+    genTables: true,
+    genTypeObjects: true,
   })
 })
 

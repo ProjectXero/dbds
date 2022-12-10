@@ -92,7 +92,7 @@ export default class SelectSchemaBuilder extends TypeBuilder<VariableStatement> 
   }
 
   public typename(name: string = this.name): Identifier {
-    return this.createIdentifier(super.typename(name).text + '$Schema')
+    return this.createIdentifier(super.typename(name).text + '$SelectSchema')
   }
 
   public buildNode(): VariableStatement {
