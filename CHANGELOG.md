@@ -1,3 +1,10 @@
+## [3.2.1](https://github.com/ProjectXero/dbds/compare/v3.2.0...v3.2.1) (2022-12-10)
+
+
+### Bug Fixes
+
+* nullable columns are also optional ([2e78241](https://github.com/ProjectXero/dbds/commit/2e78241404e4f10d09ffb7b219f22eaccd5c8a0a))
+
 ## [3.2.0](https://github.com/ProjectXero/dbds/compare/v3.1.0...v3.2.0) (2022-12-10)
 
 
