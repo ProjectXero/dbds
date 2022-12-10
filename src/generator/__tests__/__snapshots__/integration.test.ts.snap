@@ -17,6 +17,36 @@ export enum TestTypeEnum {
     Cc = "cc",
     Zzzz = "zzzz"
 }
+export const TestGenerationDefaults$Metadata = {
+    generated_column: {
+        nativeName: "generated_column",
+        nativeType: "int4"
+    },
+    generated_id: {
+        nativeName: "generated_id",
+        nativeType: "int4"
+    }
+} as const;
+export const TestGenerationDefaults$SelectSchema = z.object({
+    generated_column: z.number(),
+    generated_id: z.number()
+});
+export const TestGenerationDefaults$InsertSchema = z.object({
+    generated_column: z.number(),
+    generated_id: z.number()
+});
+export interface TestGenerationDefaults {
+    generated_column: number;
+    generated_id: number;
+}
+export interface TestGenerationDefaults$Insert {
+    generated_column: number;
+    generated_id: number;
+}
+export const TestGenerationDefaults$Types = {
+    generated_column: "int4",
+    generated_id: "int4"
+} as const;
 export const TestTableOrder$Metadata = {
     subsequent_table_type: {
         nativeName: "subsequent_table_type",

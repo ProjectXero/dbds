@@ -57,6 +57,13 @@ beforeAll(async () => {
       subsequent_table_type TEST_TABLE_STANDARD
     )
   `)
+  await pool.query(sql.unsafe`
+    CREATE TABLE "test_generation_defaults" (
+      generated_id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY,
+      generated_column INTEGER NOT NULL
+        GENERATED ALWAYS AS (generated_id + 1) STORED
+    )
+  `)
 })
 
 afterAll(async () => {
