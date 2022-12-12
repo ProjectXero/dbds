@@ -73,6 +73,6 @@
   },
   "peerDependencies": {
     "typescript": ">= 4.9.0",
-    "zod": "^3.20.0-beta"
+    "zod": "^3.20.0"
   }
 }
