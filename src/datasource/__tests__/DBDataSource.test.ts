@@ -45,19 +45,25 @@ describe(DBDataSource, () => {
 
   const factory = new LoaderFactory(dummyBatchFn, dummyBatchFn, DummyMetadata)
 
-  class DummyDBDataSource extends DBDataSource<
-    typeof DummyMetadata,
-    typeof DummyRowType,
-    typeof DummyRowType
-  > {
+  class DummyDBDataSource extends DBDataSource<{
+    name: 'any_table'
+    metadata: typeof DummyMetadata
+    schemas: {
+      select: typeof DummyRowType
+      insert: typeof DummyRowType
+      update: typeof DummyRowType
+    }
+  }> {
     constructor() {
-      super(
-        createMockPool(),
-        'any_table',
-        DummyMetadata,
-        DummyRowType /* select */,
-        DummyRowType /* insert */
-      )
+      super(createMockPool(), {
+        name: 'any_table',
+        metadata: DummyMetadata,
+        schemas: {
+          select: DummyRowType,
+          insert: DummyRowType,
+          update: DummyRowType,
+        },
+      })
     }
 
     protected get loaders() {

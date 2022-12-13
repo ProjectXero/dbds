@@ -35,15 +35,6 @@ export type Conditions<TRowType> = {
     | undefined
 } & GenericConditions
 
-export type GenericSet = Record<
-  string,
-  SerializableValueType | SqlToken | undefined
->
-
-export type UpdateSet<TRowType> = {
-  [K in keyof TRowType]?: TRowType[K] | SqlToken
-} & GenericSet
-
 export type ColumnListEntry = string | IdentifierSqlToken | FragmentSqlToken
 export type ColumnList = ValueOrArray<ColumnListEntry>
 
@@ -51,10 +42,6 @@ export type OrderTuple =
   | [ColumnListEntry]
   | [ColumnListEntry, 'ASC' | 'DESC' | undefined | FragmentSqlToken]
 export type OrderColumnList = ValueOrArray<ColumnListEntry | OrderTuple>
-
-export type AllowSql<T> = {
-  [K in keyof T]?: T[K] | SqlToken
-}
 
 export interface CountQueryRowType {
   count: number
