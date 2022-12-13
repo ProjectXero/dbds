@@ -13,6 +13,7 @@ export interface QueryOptions<Schema, TResultType = Schema>
   extends BuilderOptions<Schema> {
   eachResult?: LoaderCallback<TResultType>
   expected?: 'one' | 'many' | 'maybeOne' | 'any'
+  defaultSymbol?: symbol
 }
 
 export interface KeyNormalizers {
@@ -37,7 +38,7 @@ export interface ExtendedDatabasePool<Schema> extends DatabasePool {
 }
 
 export type TableSchema<TableColumns extends string> = z.ZodObject<{
-  [K in string & TableColumns]: z.ZodType
+  [K in string & TableColumns]: z.ZodTypeAny
 }>
 export type ColumnMetadata = {
   nativeName: string
@@ -45,4 +46,14 @@ export type ColumnMetadata = {
 }
 export type TableMetadata<ColumnNames extends string = string> = {
   [K in string & ColumnNames]: ColumnMetadata
+}
+
+export type TableInfo<ColumnNames extends string = string> = {
+  name: string
+  metadata: TableMetadata<ColumnNames>
+  schemas: {
+    select: TableSchema<ColumnNames>
+    insert: TableSchema<ColumnNames>
+    update: TableSchema<ColumnNames>
+  }
 }

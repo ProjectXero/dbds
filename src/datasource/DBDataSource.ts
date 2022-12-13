@@ -6,53 +6,42 @@ export type { DatabasePool } from 'slonik'
 
 import { FinderFactory, LoaderFactory } from './loaders'
 import QueryBuilder, { SelectOptions } from './queries/QueryBuilder'
-import {
-  AllowSql,
-  CountQueryRowType,
-  UpdateSet,
-  ValueOrArray,
-} from './queries/types'
+import { CountQueryRowType, ValueOrArray } from './queries/types'
 import { AsyncLocalStorage } from 'async_hooks'
 import { z } from 'zod'
 import { TypedSqlQuery } from '../types'
-import {
-  ExtendedDatabasePool,
-  QueryOptions,
-  TableMetadata,
-  TableSchema,
-} from './types'
+import { ExtendedDatabasePool, QueryOptions, TableInfo } from './types'
 
 export { DataLoader, sql }
 
 const parseTS = (value: number | string): Date | null =>
   value === null ? null : new Date(value)
 
-export default class DBDataSource<
-  Metadata extends TableMetadata,
-  SelectSchema extends TableSchema<string & keyof Metadata>,
-  InsertSchema extends TableSchema<string & keyof Metadata>
-> {
+export default class DBDataSource<Info extends TableInfo> {
   protected normalizers = {
     columnToKey: camel,
   } as const
 
-  protected defaultOptions: QueryOptions<z.infer<SelectSchema>> = {}
+  public static defaultSymbol = Symbol('DEFAULT')
 
-  private _loaders?: LoaderFactory<z.infer<SelectSchema>>
-  protected get loaders(): LoaderFactory<z.infer<SelectSchema>> {
+  protected defaultOptions: QueryOptions<z.infer<Info['schemas']['select']>> =
+    {}
+
+  private _loaders?: LoaderFactory<z.infer<Info['schemas']['select']>>
+  protected get loaders(): LoaderFactory<z.infer<Info['schemas']['select']>> {
     if (!this._loaders) {
       this._loaders = new LoaderFactory(
         this.getDataByColumn.bind(this),
         this.getDataByMultipleColumns.bind(this),
-        this.metadata
+        this.info.metadata
       )
     }
 
     return this._loaders
   }
 
-  private _finders?: FinderFactory<z.infer<SelectSchema>>
-  protected get finders(): FinderFactory<z.infer<SelectSchema>> {
+  private _finders?: FinderFactory<z.infer<Info['schemas']['select']>>
+  protected get finders(): FinderFactory<z.infer<Info['schemas']['select']>> {
     if (!this._finders) {
       this._finders = new FinderFactory()
     }
@@ -60,31 +49,50 @@ export default class DBDataSource<
     return this._finders
   }
 
-  private _builder?: QueryBuilder<Metadata, SelectSchema>
-  protected get builder(): QueryBuilder<Metadata, SelectSchema> {
+  private _builder?: QueryBuilder<Info>
+  protected get builder(): QueryBuilder<Info> {
     if (!this._builder) {
       this._builder = new QueryBuilder(
-        this.table,
-        this.metadata,
-        this.selectSchema,
-        this.defaultOptions
+        this.info,
+        this.defaultOptions,
+        DBDataSource.defaultSymbol
       )
     }
 
     return this._builder
   }
 
-  protected readonly pool: ExtendedDatabasePool<z.infer<SelectSchema>>
+  protected readonly pool: ExtendedDatabasePool<
+    z.infer<Info['schemas']['select']>
+  >
 
-  constructor(
-    pool: DatabasePool,
-    protected readonly table: string,
-    protected readonly metadata: Metadata,
-    protected readonly selectSchema: SelectSchema,
-    protected readonly insertSchema: InsertSchema
-  ) {
-    this.pool = pool as ExtendedDatabasePool<z.infer<SelectSchema>>
+  constructor(pool: DatabasePool, protected readonly info: Info) {
+    this.pool = pool as ExtendedDatabasePool<z.infer<Info['schemas']['select']>>
     this.pool.async ||= new AsyncLocalStorage()
+  }
+
+  public get table(): string {
+    return this.info.name
+  }
+
+  protected get metadata(): Info['metadata'] {
+    return this.info.metadata
+  }
+
+  protected get selectSchema(): Info['schemas']['select'] {
+    return this.info.schemas.select
+  }
+
+  protected get insertSchema(): Info['schemas']['insert'] {
+    return this.info.schemas.insert
+  }
+
+  protected get updateSchema(): Info['schemas']['update'] {
+    return this.info.schemas.update
+  }
+
+  protected get default(): symbol {
+    return DBDataSource.defaultSymbol
   }
 
   protected get connection(): DatabasePool | DatabaseTransactionConnection {
@@ -127,9 +135,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options: QueryOptions<z.infer<SelectSchema>> &
+    options: QueryOptions<z.infer<Info['schemas']['select']>> &
       SelectOptions & { expected: 'one' }
-  ): Promise<z.infer<SelectSchema>>
+  ): Promise<z.infer<Info['schemas']['select']>>
 
   /**
    * Possibly find a single row
@@ -137,9 +145,9 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options: QueryOptions<z.infer<SelectSchema>> &
+    options: QueryOptions<z.infer<Info['schemas']['select']>> &
       SelectOptions & { expected: 'maybeOne' }
-  ): Promise<z.infer<SelectSchema> | null>
+  ): Promise<z.infer<Info['schemas']['select']> | null>
 
   /**
    * Find multiple rows
@@ -147,21 +155,25 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async get(
-    options?: QueryOptions<z.infer<SelectSchema>> &
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> &
       SelectOptions & { expected?: 'any' | 'many' }
-  ): Promise<readonly z.infer<SelectSchema>[]>
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   protected async get(
-    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
-  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & SelectOptions
+  ): Promise<
+    | z.infer<Info['schemas']['select']>
+    | readonly z.infer<Info['schemas']['select']>[]
+    | null
+  > {
     const query = this.builder.select(options)
 
-    return await this.query<SelectSchema>(query, options)
+    return await this.query<Info['schemas']['select']>(query, options)
   }
 
   protected async count(
     options?: Omit<
-      QueryOptions<z.infer<SelectSchema>, CountQueryRowType>,
+      QueryOptions<z.infer<Info['schemas']['select']>, CountQueryRowType>,
       'expected' | 'orderBy' | 'groupBy' | 'limit' | 'having'
     >
   ): Promise<number> {
@@ -174,18 +186,22 @@ export default class DBDataSource<
   }
 
   protected async countGroup<
-    TGroup extends Array<string & keyof z.infer<SelectSchema>>
+    TGroup extends Array<string & keyof z.infer<Info['schemas']['select']>>
   >(
-    groupColumns: TGroup & Array<keyof z.infer<SelectSchema>>,
+    groupColumns: TGroup & Array<keyof z.infer<Info['schemas']['select']>>,
     options?: Omit<
       QueryOptions<
-        CountQueryRowType & { [K in TGroup[0]]: z.infer<SelectSchema>[K] }
+        CountQueryRowType & {
+          [K in TGroup[0]]: z.infer<Info['schemas']['select']>[K]
+        }
       >,
       'orderBy' | 'groupBy' | 'limit' | 'having' | 'expected'
     >
   ): Promise<
     ReadonlyArray<
-      CountQueryRowType & { [K in TGroup[0]]: z.infer<SelectSchema>[K] }
+      CountQueryRowType & {
+        [K in TGroup[0]]: z.infer<Info['schemas']['select']>[K]
+      }
     >
   > {
     const query = this.builder.countGroup(groupColumns, options)
@@ -205,9 +221,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: AllowSql<z.infer<InsertSchema>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & { expected?: undefined }
-  ): Promise<z.infer<SelectSchema>>
+    rows: z.infer<Info['schemas']['insert']>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected?: undefined
+    }
+  ): Promise<z.infer<Info['schemas']['select']>>
 
   /**
    * Insert multiple rows
@@ -215,9 +233,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: Array<AllowSql<z.infer<InsertSchema>>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & { expected?: undefined }
-  ): Promise<readonly z.infer<SelectSchema>[]>
+    rows: Array<z.infer<Info['schemas']['insert']>>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected?: undefined
+    }
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   /**
    * Expect a single row to be inserted from the given data
@@ -225,9 +245,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
-  ): Promise<z.infer<SelectSchema>>
+    rows: ValueOrArray<z.infer<Info['schemas']['insert']>>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'one'
+    }
+  ): Promise<z.infer<Info['schemas']['select']>>
 
   /**
    * Expect zero or one rows to be inserted from the given data
@@ -235,9 +257,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
-  ): Promise<z.infer<SelectSchema> | null>
+    rows: ValueOrArray<z.infer<Info['schemas']['insert']>>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'maybeOne'
+    }
+  ): Promise<z.infer<Info['schemas']['select']> | null>
 
   /**
    * Insert multiple rows
@@ -245,17 +269,23 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & { expected: 'any' | 'many' }
-  ): Promise<readonly z.infer<SelectSchema>[]>
+    rows: ValueOrArray<z.infer<Info['schemas']['insert']>>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'any' | 'many'
+    }
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   /**
    * Implementation
    */
   protected async insert(
-    rows: ValueOrArray<AllowSql<z.infer<InsertSchema>>>,
-    options: QueryOptions<z.infer<SelectSchema>> = {}
-  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
+    rows: ValueOrArray<z.infer<Info['schemas']['insert']>>,
+    options: QueryOptions<z.infer<Info['schemas']['select']>> = {}
+  ): Promise<
+    | z.infer<Info['schemas']['select']>
+    | readonly z.infer<Info['schemas']['select']>[]
+    | null
+  > {
     options.expected ||= !Array.isArray(rows) ? 'one' : 'many'
 
     if (Array.isArray(rows) && rows.length === 0) {
@@ -269,12 +299,12 @@ export default class DBDataSource<
       }
     }
     rows = Array.isArray(rows) ? rows : [rows]
-    rows = rows.map((row) => this.insertSchema.parse(row)) as AllowSql<
-      z.infer<InsertSchema>
-    >[]
+    rows = rows.map((row: z.infer<Info['schemas']['insert']>) =>
+      this.insertSchema.parse(row)
+    ) as z.infer<Info['schemas']['insert']>[]
 
     const query = this.builder.insert(rows, options)
-    return await this.query<SelectSchema>(query, options)
+    return await this.query<Info['schemas']['select']>(query, options)
   }
 
   /**
@@ -284,9 +314,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<z.infer<SelectSchema>>,
-    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
-  ): Promise<z.infer<SelectSchema>>
+    data: z.infer<Info['schemas']['update']>,
+    options: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'one'
+    }
+  ): Promise<z.infer<Info['schemas']['select']>>
 
   /**
    * Update a zero or one rows
@@ -295,9 +327,11 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<z.infer<SelectSchema>>,
-    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
-  ): Promise<z.infer<SelectSchema> | null>
+    data: z.infer<Info['schemas']['update']>,
+    options: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'maybeOne'
+    }
+  ): Promise<z.infer<Info['schemas']['select']> | null>
 
   /**
    * Update multiple rows
@@ -306,33 +340,25 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async update(
-    data: UpdateSet<z.infer<SelectSchema>>,
-    options?: QueryOptions<z.infer<SelectSchema>> & {
+    data: z.infer<Info['schemas']['update']>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & {
       expected?: 'any' | 'many'
     }
-  ): Promise<readonly z.infer<SelectSchema>[]>
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   /**
    * Implementation
    */
   protected async update(
-    data: UpdateSet<z.infer<SelectSchema>>,
-    options?: QueryOptions<z.infer<SelectSchema>>
-  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
-    const mask = Object.keys(data).reduce(
-      (res, key) => ({
-        ...res,
-        [key]: true,
-      }),
-      {} as Record<keyof z.infer<SelectSchema>, true>
-    )
-    const query = this.builder.update(
-      this.insertSchema.pick(mask).parse(data) as UpdateSet<
-        z.infer<SelectSchema>
-      >,
-      options
-    )
-    return await this.query<SelectSchema>(query, options)
+    data: z.infer<Info['schemas']['update']>,
+    options?: QueryOptions<z.infer<Info['schemas']['select']>>
+  ): Promise<
+    | z.infer<Info['schemas']['select']>
+    | readonly z.infer<Info['schemas']['select']>[]
+    | null
+  > {
+    const query = this.builder.update(this.updateSchema.parse(data), options)
+    return await this.query<Info['schemas']['select']>(query, options)
   }
 
   /**
@@ -342,8 +368,10 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'one' }
-  ): Promise<z.infer<SelectSchema>>
+    options: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'one'
+    }
+  ): Promise<z.infer<Info['schemas']['select']>>
 
   /**
    * Update a zero or one rows
@@ -352,8 +380,10 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<z.infer<SelectSchema>> & { expected: 'maybeOne' }
-  ): Promise<z.infer<SelectSchema> | null>
+    options: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected: 'maybeOne'
+    }
+  ): Promise<z.infer<Info['schemas']['select']> | null>
 
   /**
    * Update multiple rows
@@ -362,8 +392,10 @@ export default class DBDataSource<
    * @param options Query options
    */
   protected async delete(
-    options: QueryOptions<z.infer<SelectSchema>> & { expected?: 'any' | 'many' }
-  ): Promise<readonly z.infer<SelectSchema>[]>
+    options: QueryOptions<z.infer<Info['schemas']['select']>> & {
+      expected?: 'any' | 'many'
+    }
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   /**
    * Delete every row in the table
@@ -373,16 +405,20 @@ export default class DBDataSource<
    */
   protected async delete(
     options: true
-  ): Promise<readonly z.infer<SelectSchema>[]>
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]>
 
   /**
    * Implementation
    */
   protected async delete(
-    options: QueryOptions<z.infer<SelectSchema>> | true
-  ): Promise<z.infer<SelectSchema> | readonly z.infer<SelectSchema>[] | null> {
+    options: QueryOptions<z.infer<Info['schemas']['select']>> | true
+  ): Promise<
+    | z.infer<Info['schemas']['select']>
+    | readonly z.infer<Info['schemas']['select']>[]
+    | null
+  > {
     const query = this.builder.delete(options)
-    return await this.query<SelectSchema>(
+    return await this.query<Info['schemas']['select']>(
       query,
       options === true ? undefined : options
     )
@@ -399,23 +435,23 @@ export default class DBDataSource<
    * @param query Executable query
    * @param options Query options
    */
-  protected async query<TData extends z.AnyZodObject>(
+  protected async query<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options: QueryOptions<z.infer<TData>> & { expected?: 'any' | 'many' }
   ): Promise<readonly z.infer<TData>[]>
-  protected async query<TData extends z.AnyZodObject>(
+  protected async query<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options: QueryOptions<z.infer<TData>> & { expected: 'one' }
   ): Promise<z.infer<TData>>
-  protected async query<TData extends z.AnyZodObject>(
+  protected async query<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options: QueryOptions<z.infer<TData>> & { expected: 'maybeOne' }
   ): Promise<z.infer<TData> | null>
-  protected async query<TData extends z.AnyZodObject>(
+  protected async query<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<z.infer<TData> | null | readonly z.infer<TData>[]>
-  protected async query<TData extends z.AnyZodObject>(
+  protected async query<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<z.infer<TData> | null | readonly z.infer<TData>[]> {
@@ -431,7 +467,7 @@ export default class DBDataSource<
     }
   }
 
-  private async any<TData extends z.AnyZodObject>(
+  private async any<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<readonly z.infer<TData>[]> {
@@ -442,7 +478,7 @@ export default class DBDataSource<
     return results
   }
 
-  private async many<TData extends z.AnyZodObject>(
+  private async many<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<readonly z.infer<TData>[]> {
@@ -453,7 +489,7 @@ export default class DBDataSource<
     return results
   }
 
-  private async one<TData extends z.AnyZodObject>(
+  private async one<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<z.infer<TData>> {
@@ -464,7 +500,7 @@ export default class DBDataSource<
     return result
   }
 
-  private async maybeOne<TData extends z.AnyZodObject>(
+  private async maybeOne<TData extends z.ZodTypeAny>(
     query: TypedSqlQuery<TData>,
     options?: QueryOptions<z.infer<TData>>
   ): Promise<z.infer<TData> | null> {
@@ -490,17 +526,19 @@ export default class DBDataSource<
   }
 
   private async getDataByColumn<
-    TColumnName extends keyof z.infer<SelectSchema> & string
+    TColumnName extends keyof z.infer<Info['schemas']['select']> & string
   >(
-    args: ReadonlyArray<z.infer<SelectSchema>[TColumnName]>,
+    args: ReadonlyArray<z.infer<Info['schemas']['select']>[TColumnName]>,
     column: TColumnName,
     type: string,
     loader: DataLoader<
-      z.infer<SelectSchema>[TColumnName] & (string | number),
-      z.infer<SelectSchema>[] | z.infer<SelectSchema> | undefined
+      z.infer<Info['schemas']['select']>[TColumnName] & (string | number),
+      | z.infer<Info['schemas']['select']>[]
+      | z.infer<Info['schemas']['select']>
+      | undefined
     >,
-    options?: Omit<QueryOptions<z.infer<SelectSchema>>, 'expected'>
-  ): Promise<readonly z.infer<SelectSchema>[]> {
+    options?: Omit<QueryOptions<z.infer<Info['schemas']['select']>>, 'expected'>
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]> {
     const store = this.pool.async.getStore()
     if (store) {
       store.loaderLookups.push([loader, args])
@@ -520,18 +558,24 @@ export default class DBDataSource<
   }
 
   protected async getDataByMultipleColumns<
-    TColumnNames extends Array<keyof z.infer<SelectSchema> & string>,
-    TArgs extends { [K in TColumnNames[0]]: z.infer<SelectSchema>[K] }
+    TColumnNames extends Array<
+      keyof z.infer<Info['schemas']['select']> & string
+    >,
+    TArgs extends {
+      [K in TColumnNames[0]]: z.infer<Info['schemas']['select']>[K]
+    }
   >(
     args: ReadonlyArray<TArgs>,
     columns: TColumnNames,
     types: string[],
     loader: DataLoader<
       TArgs,
-      z.infer<SelectSchema>[] | z.infer<SelectSchema> | undefined
+      | z.infer<Info['schemas']['select']>[]
+      | z.infer<Info['schemas']['select']>
+      | undefined
     >,
-    options?: QueryOptions<z.infer<SelectSchema>> & SelectOptions
-  ): Promise<readonly z.infer<SelectSchema>[]> {
+    options?: QueryOptions<z.infer<Info['schemas']['select']>> & SelectOptions
+  ): Promise<readonly z.infer<Info['schemas']['select']>[]> {
     const store = this.pool.async.getStore()
     if (store) {
       store.loaderLookups.push([loader, args])
@@ -551,7 +595,8 @@ export default class DBDataSource<
     const output = Object.keys(input).reduce<TOutput>((obj, key) => {
       const column = transform(key)
       const type: string | undefined =
-        this.metadata[column as keyof z.infer<SelectSchema>]?.nativeType
+        this.metadata[column as keyof z.infer<Info['schemas']['select']>]
+          ?.nativeType
       const value = this.mapTypeValue(
         column,
         type,
