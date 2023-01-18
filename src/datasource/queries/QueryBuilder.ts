@@ -136,10 +136,14 @@ export default class QueryBuilder<Info extends TableInfo> {
   ) {
     options = this.getOptions(options)
 
-    // special case: we're given a single empty row...
+    // special case: we're given a single empty row or an array with one entry
+    // that is an empty row
     // unfortunately i don't *think* we can do this if we're given numerous
     // empty rows.
-    if (typeof rows === 'object' && Object.keys(rows).length === 0) {
+    if (
+      this.isEmptyObject(rows) ||
+      (Array.isArray(rows) && rows.length === 1 && this.isEmptyObject(rows[0]))
+    ) {
       return this.insertDefaultValues(options)
     }
 
@@ -683,6 +687,10 @@ export default class QueryBuilder<Info extends TableInfo> {
 
   private isNullable(array: unknown[]): boolean {
     return array.some((v): v is null => v === null)
+  }
+
+  private isEmptyObject(value: any): boolean {
+    return typeof value === 'object' && Object.keys(value).length === 0
   }
 
   private valueToSql(
