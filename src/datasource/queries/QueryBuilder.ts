@@ -690,7 +690,11 @@ export default class QueryBuilder<Info extends TableInfo> {
   }
 
   private isEmptyObject(value: unknown): boolean {
-    return typeof value === 'object' && value !== null && Object.keys(value).length === 0
+    return (
+      typeof value === 'object' &&
+      value !== null &&
+      Object.keys(value).length === 0
+    )
   }
 
   private valueToSql(
