@@ -689,7 +689,7 @@ export default class QueryBuilder<Info extends TableInfo> {
     return array.some((v): v is null => v === null)
   }
 
-  private isEmptyObject(value: any): boolean {
+  private isEmptyObject(value: unknown): boolean {
     return typeof value === 'object' && Object.keys(value).length === 0
   }
 
