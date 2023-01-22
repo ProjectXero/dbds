@@ -1,3 +1,11 @@
+## [3.3.1](https://github.com/ProjectXero/dbds/compare/v3.3.0...v3.3.1) (2023-01-22)
+
+
+### Bug Fixes
+
+* check for null in isEmptyObject ([a8641c7](https://github.com/ProjectXero/dbds/commit/a8641c72035acbdd6247993a6c0c8130a8a5ea76))
+* correctly handle insert of an empty object at the query builder level ([cde95b0](https://github.com/ProjectXero/dbds/commit/cde95b025826ac009ba6a229c6dab9e5dbf95c9b))
+
 ## [3.3.0](https://github.com/ProjectXero/dbds/compare/v3.2.2...v3.3.0) (2022-12-13)
 
 
