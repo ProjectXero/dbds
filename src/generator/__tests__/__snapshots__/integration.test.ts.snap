@@ -37,6 +37,15 @@ export const TestGenerationDefaults$InsertSchema = z.object({
     generated_id: z.undefined().or(z.literal(DEFAULT))
 });
 export const TestGenerationDefaults$UpdateSchema = TestGenerationDefaults$InsertSchema.partial();
+export const TestGenerationDefaultsInfo = {
+    metadata: TestGenerationDefaults$Metadata,
+    name: "test_generation_defaults",
+    schemas: {
+        insert: TestGenerationDefaults$InsertSchema,
+        select: TestGenerationDefaults$SelectSchema,
+        update: TestGenerationDefaults$UpdateSchema
+    }
+};
 export interface TestGenerationDefaults {
     generated_column: number;
     generated_id: number;
@@ -62,6 +71,15 @@ export const TestTableOrder$InsertSchema = z.object({
     subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullable().optional())
 });
 export const TestTableOrder$UpdateSchema = TestTableOrder$InsertSchema.partial();
+export const TestTableOrderInfo = {
+    metadata: TestTableOrder$Metadata,
+    name: "test_table_order",
+    schemas: {
+        insert: TestTableOrder$InsertSchema,
+        select: TestTableOrder$SelectSchema,
+        update: TestTableOrder$UpdateSchema
+    }
+};
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
 }
@@ -132,6 +150,15 @@ export const TestTableStandard$InsertSchema = z.object({
     jsonb_test: z.unknown().nullable().optional()
 });
 export const TestTableStandard$UpdateSchema = TestTableStandard$InsertSchema.partial();
+export const TestTableStandardInfo = {
+    metadata: TestTableStandard$Metadata,
+    name: "test_table_standard",
+    schemas: {
+        insert: TestTableStandard$InsertSchema,
+        select: TestTableStandard$SelectSchema,
+        update: TestTableStandard$UpdateSchema
+    }
+};
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
     caseTest_upper: string | null;
@@ -190,6 +217,15 @@ export const TestTableTypes$InsertSchema = z.object({
     table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable().optional())
 });
 export const TestTableTypes$UpdateSchema = TestTableTypes$InsertSchema.partial();
+export const TestTableTypesInfo = {
+    metadata: TestTableTypes$Metadata,
+    name: "test_table_types",
+    schemas: {
+        insert: TestTableTypes$InsertSchema,
+        select: TestTableTypes$SelectSchema,
+        update: TestTableTypes$UpdateSchema
+    }
+};
 export interface TestTableTypes {
     id: string;
     table_arr_test: TestTableStandard[];
