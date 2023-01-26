@@ -36,6 +36,7 @@ export const TestGenerationDefaults$InsertSchema = z.object({
     generated_column: z.undefined().or(z.literal(DEFAULT)),
     generated_id: z.undefined().or(z.literal(DEFAULT))
 });
+export const TestGenerationDefaults$UpdateSchema = TestGenerationDefaults$InsertSchema.partial();
 export interface TestGenerationDefaults {
     generated_column: number;
     generated_id: number;
@@ -60,6 +61,7 @@ export const TestTableOrder$SelectSchema = z.object({
 export const TestTableOrder$InsertSchema = z.object({
     subsequent_table_type: z.lazy(() => TestTableStandard$InsertSchema.nullable().optional())
 });
+export const TestTableOrder$UpdateSchema = TestTableOrder$InsertSchema.partial();
 export interface TestTableOrder {
     subsequent_table_type: TestTableStandard | null;
 }
@@ -129,6 +131,7 @@ export const TestTableStandard$InsertSchema = z.object({
     id: z.number().optional().or(z.literal(DEFAULT)),
     jsonb_test: z.unknown().nullable().optional()
 });
+export const TestTableStandard$UpdateSchema = TestTableStandard$InsertSchema.partial();
 export interface TestTableStandard<TJsonbTest = SerializableValueType> {
     arr_test: string[] | null;
     caseTest_upper: string | null;
@@ -186,6 +189,7 @@ export const TestTableTypes$InsertSchema = z.object({
     table_arr_test: z.lazy(() => z.array(TestTableStandard$InsertSchema).optional().or(z.literal(DEFAULT))),
     table_test: z.lazy(() => TestTableStandard$InsertSchema.nullable().optional())
 });
+export const TestTableTypes$UpdateSchema = TestTableTypes$InsertSchema.partial();
 export interface TestTableTypes {
     id: string;
     table_arr_test: TestTableStandard[];

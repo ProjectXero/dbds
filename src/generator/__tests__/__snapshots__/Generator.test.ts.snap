@@ -23,6 +23,7 @@ export const DEFAULT = Symbol("DEFAULT");
 export const SomehowDuplicatedTypeName$Metadata = {} as const;
 export const SomehowDuplicatedTypeName$SelectSchema = z.object({});
 export const SomehowDuplicatedTypeName$InsertSchema = z.object({});
+export const SomehowDuplicatedTypeName$UpdateSchema = SomehowDuplicatedTypeName$InsertSchema.partial();
 export interface SomehowDuplicatedTypeName {
 }
 "
@@ -51,6 +52,7 @@ export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Metadata = {} as const;
 export const TableWithNoColumns$SelectSchema = z.object({});
 export const TableWithNoColumns$InsertSchema = z.object({});
+export const TableWithNoColumns$UpdateSchema = TableWithNoColumns$InsertSchema.partial();
 export const TableWithNumericId$Metadata = {
     id: {
         nativeName: "id",
@@ -63,6 +65,7 @@ export const TableWithNumericId$SelectSchema = z.object({
 export const TableWithNumericId$InsertSchema = z.object({
     id: z.number().optional().or(z.literal(DEFAULT))
 });
+export const TableWithNumericId$UpdateSchema = TableWithNumericId$InsertSchema.partial();
 export const TableWithCustomTypes$Metadata = {
     enum_type: {
         nativeName: "enum_type",
@@ -93,6 +96,7 @@ export const TableWithCustomTypes$InsertSchema = z.object({
     table_type: z.unknown(),
     table_array_type: z.array(z.unknown())
 });
+export const TableWithCustomTypes$UpdateSchema = TableWithCustomTypes$InsertSchema.partial();
 export const TableWithUuidId$Metadata = {
     id: {
         nativeName: "id",
@@ -105,6 +109,7 @@ export const TableWithUuidId$SelectSchema = z.object({
 export const TableWithUuidId$InsertSchema = z.object({
     id: z.string().optional().or(z.literal(DEFAULT))
 });
+export const TableWithUuidId$UpdateSchema = TableWithUuidId$InsertSchema.partial();
 export const TableWithNullableFields$Metadata = {
     nullable: {
         nativeName: "nullable",
@@ -135,6 +140,7 @@ export const TableWithNullableFields$InsertSchema = z.object({
     nullable_array: z.array(z.string()).nullable().optional(),
     nullable_array_with_default: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
 });
+export const TableWithNullableFields$UpdateSchema = TableWithNullableFields$InsertSchema.partial();
 export const TableWithJsonJsonb$Metadata = {
     json: {
         nativeName: "json",
@@ -153,6 +159,7 @@ export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
 });
+export const TableWithJsonJsonb$UpdateSchema = TableWithJsonJsonb$InsertSchema.partial();
 "
 `;
 
@@ -171,6 +178,7 @@ export const DEFAULT = Symbol("DEFAULT");
 export const TableWithNoColumns$Metadata = {} as const;
 export const TableWithNoColumns$SelectSchema = z.object({});
 export const TableWithNoColumns$InsertSchema = z.object({});
+export const TableWithNoColumns$UpdateSchema = TableWithNoColumns$InsertSchema.partial();
 export const TableWithNumericId$Metadata = {
     id: {
         nativeName: "id",
@@ -183,6 +191,7 @@ export const TableWithNumericId$SelectSchema = z.object({
 export const TableWithNumericId$InsertSchema = z.object({
     id: z.number().optional().or(z.literal(DEFAULT))
 });
+export const TableWithNumericId$UpdateSchema = TableWithNumericId$InsertSchema.partial();
 export const TableWithCustomTypes$Metadata = {
     enumType: {
         nativeName: "enum_type",
@@ -213,6 +222,7 @@ export const TableWithCustomTypes$InsertSchema = z.object({
     tableType: z.unknown(),
     tableArrayType: z.array(z.unknown())
 });
+export const TableWithCustomTypes$UpdateSchema = TableWithCustomTypes$InsertSchema.partial();
 export const TableWithUuidId$Metadata = {
     id: {
         nativeName: "id",
@@ -225,6 +235,7 @@ export const TableWithUuidId$SelectSchema = z.object({
 export const TableWithUuidId$InsertSchema = z.object({
     id: z.string().optional().or(z.literal(DEFAULT))
 });
+export const TableWithUuidId$UpdateSchema = TableWithUuidId$InsertSchema.partial();
 export const TableWithNullableFields$Metadata = {
     nullable: {
         nativeName: "nullable",
@@ -255,6 +266,7 @@ export const TableWithNullableFields$InsertSchema = z.object({
     nullableArray: z.array(z.string()).nullable().optional(),
     nullableArrayWithDefault: z.array(z.string()).nullable().optional().or(z.literal(DEFAULT))
 });
+export const TableWithNullableFields$UpdateSchema = TableWithNullableFields$InsertSchema.partial();
 export const TableWithJsonJsonb$Metadata = {
     json: {
         nativeName: "json",
@@ -273,6 +285,7 @@ export const TableWithJsonJsonb$InsertSchema = z.object({
     json: z.unknown(),
     jsonb: z.unknown().nullable().optional().or(z.literal(DEFAULT))
 });
+export const TableWithJsonJsonb$UpdateSchema = TableWithJsonJsonb$InsertSchema.partial();
 "
 `;
 
