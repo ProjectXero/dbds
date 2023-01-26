@@ -25,11 +25,13 @@ import { CaseFunction, Transformations } from './types'
 import UtilityTypesBuilder from './builders/UtilityTypesBuilder'
 import ZodSchemaBuilder from './builders/ZodSchemaBuilder'
 import SingleNamedImportBuilder from './builders/SingleNamedImportBuilder'
+import UpdateSchemaBuilder from './builders/UpdateSchemaBuilder'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
   genSelectSchemas?: boolean
   genInsertSchemas?: boolean
+  genUpdateSchemas?: boolean
   genTableMetadata?: boolean
   disableEslint?: boolean
   /** @deprecated */
@@ -57,6 +59,7 @@ export default class Generator {
   public readonly generate: {
     selectSchemas: boolean
     insertSchemas: boolean
+    updateSchemas: boolean
     tableMetadata: boolean
     disableEslint: boolean
     /** @deprecated */
@@ -77,6 +80,7 @@ export default class Generator {
     schema,
     genSelectSchemas: selectSchemas = true,
     genInsertSchemas: insertSchemas = true,
+    genUpdateSchemas: updateSchemas = true,
     genTableMetadata: tableMetadata = true,
     disableEslint = true,
     genEnums = false,
@@ -99,6 +103,7 @@ export default class Generator {
     this.generate = Object.freeze({
       selectSchemas,
       insertSchemas,
+      updateSchemas,
       tableMetadata,
       disableEslint,
       enums: genEnums,
@@ -224,6 +229,15 @@ export default class Generator {
 
       if (this.generate.insertSchemas) {
         const builder = new InsertSchemaBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        builders.push(builder)
+      }
+
+      if (this.generate.updateSchemas) {
+        const builder = new UpdateSchemaBuilder(
           tableInfo,
           this.types,
           this.transform
