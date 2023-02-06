@@ -1,3 +1,11 @@
+## [3.4.0](https://github.com/ProjectXero/dbds/compare/v3.3.1...v3.4.0) (2023-02-06)
+
+
+### Features
+
+* generate info object for clients to pass as the DBDataSource type parameter ([57e05d2](https://github.com/ProjectXero/dbds/commit/57e05d29e79615a7e8f80cc679b2acc1413a92cd))
+* generate update schemas derived from the insert schemas ([e32b2d6](https://github.com/ProjectXero/dbds/commit/e32b2d65fb4263e7df3f72b4f5d7321a2e73dbde))
+
 ## [3.3.1](https://github.com/ProjectXero/dbds/compare/v3.3.0...v3.3.1) (2023-01-22)
 
 
