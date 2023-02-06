@@ -3,7 +3,7 @@ import { factory, Identifier, Expression, CallExpression } from 'typescript'
 import SelectSchemaBuilder from './SelectSchemaBuilder'
 
 export default class InsertSchemaBuilder extends SelectSchemaBuilder {
-  protected override readonly suffix = '$InsertSchema'
+  protected override readonly suffix: string = '$InsertSchema'
 
   protected override buildSinglePropertyEntry(
     columnInfo: typeof this.columns[0]

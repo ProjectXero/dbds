@@ -25,12 +25,16 @@ import { CaseFunction, Transformations } from './types'
 import UtilityTypesBuilder from './builders/UtilityTypesBuilder'
 import ZodSchemaBuilder from './builders/ZodSchemaBuilder'
 import SingleNamedImportBuilder from './builders/SingleNamedImportBuilder'
+import InfoBuilder from './builders/InfoBuilder'
+import UpdateSchemaBuilder from './builders/UpdateSchemaBuilder'
 
 export interface GeneratorOptions {
   schema: SchemaInfo
   genSelectSchemas?: boolean
   genInsertSchemas?: boolean
+  genUpdateSchemas?: boolean
   genTableMetadata?: boolean
+  genInfos?: boolean
   disableEslint?: boolean
   /** @deprecated */
   genEnums?: boolean
@@ -57,7 +61,9 @@ export default class Generator {
   public readonly generate: {
     selectSchemas: boolean
     insertSchemas: boolean
+    updateSchemas: boolean
     tableMetadata: boolean
+    infos: boolean
     disableEslint: boolean
     /** @deprecated */
     enums: boolean
@@ -77,7 +83,9 @@ export default class Generator {
     schema,
     genSelectSchemas: selectSchemas = true,
     genInsertSchemas: insertSchemas = true,
+    genUpdateSchemas: updateSchemas = true,
     genTableMetadata: tableMetadata = true,
+    genInfos: infos = true,
     disableEslint = true,
     genEnums = false,
     genInsertTypes = false,
@@ -88,6 +96,17 @@ export default class Generator {
     transformEnumMembers = 'pascal',
     transformTypeNames = 'pascal',
   }: GeneratorOptions) {
+    if (
+      infos &&
+      (!selectSchemas || !insertSchemas || !updateSchemas || !tableMetadata)
+    ) {
+      const message =
+        'Cannot generate Info without insert, select, and update schemas \
+        and table metadata'
+      console.error(message)
+      throw new Error(message)
+    }
+
     this.printer = createPrinter({
       newLine: NewLineKind.LineFeed,
       removeComments: false,
@@ -99,7 +118,9 @@ export default class Generator {
     this.generate = Object.freeze({
       selectSchemas,
       insertSchemas,
+      updateSchemas,
       tableMetadata,
+      infos,
       disableEslint,
       enums: genEnums,
       insertTypes: genInsertTypes,
@@ -227,6 +248,28 @@ export default class Generator {
           tableInfo,
           this.types,
           this.transform
+        )
+        builders.push(builder)
+      }
+
+      if (this.generate.updateSchemas) {
+        const builder = new UpdateSchemaBuilder(
+          tableInfo,
+          this.types,
+          this.transform
+        )
+        builders.push(builder)
+      }
+
+      if (this.generate.infos) {
+        const builder = new InfoBuilder(
+          tableInfo,
+          this.types,
+          this.transform,
+          new InsertSchemaBuilder(tableInfo, this.types, this.transform),
+          new SelectSchemaBuilder(tableInfo, this.types, this.transform),
+          new UpdateSchemaBuilder(tableInfo, this.types, this.transform),
+          new TableMetadataBuilder(tableInfo, this.types, this.transform)
         )
         builders.push(builder)
       }

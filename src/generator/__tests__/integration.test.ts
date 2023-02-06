@@ -76,6 +76,8 @@ beforeEach(() => {
     schema: new SchemaInfo(pool, SCHEMA),
     genInsertSchemas: true,
     genSelectSchemas: true,
+    genUpdateSchemas: true,
+    genInfos: true,
     genTableMetadata: true,
     genEnums: true,
     genInsertTypes: true,

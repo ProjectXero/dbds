@@ -35,7 +35,7 @@
     "typecheck": "tsc --noEmit --project .",
     "lint": "eslint '**/*.{j,t}s{,on{,c,5}}'",
     "lint:fix": "yarn -s lint --fix",
-    "test": "jest",
+    "test": "jest --runInBand",
     "fullvalidate": "yarn install && yarn typecheck && yarn lint && yarn test",
     "prepack": "yarn build"
   },
